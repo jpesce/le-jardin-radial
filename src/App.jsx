@@ -8,6 +8,7 @@ const INITIAL_IDS = ["rose", "lavender", "sunflower", "tulip", "snowdrop"];
 
 export default function App() {
   const [selectedIds, setSelectedIds] = useState(INITIAL_IDS);
+  const [showLabels, setShowLabels] = useState(true);
 
   const handleToggle = useCallback((id) => {
     setSelectedIds((prev) =>
@@ -23,7 +24,17 @@ export default function App() {
     <div className="app">
       <FlowerList selectedIds={selectedIds} onToggle={handleToggle} />
       <main className="chart-area">
-        <RadialChart flowers={selected} />
+        <div className="chart-controls">
+          <label className="toggle-label">
+            <input
+              type="checkbox"
+              checked={showLabels}
+              onChange={(e) => setShowLabels(e.target.checked)}
+            />
+            Labels
+          </label>
+        </div>
+        <RadialChart flowers={selected} showLabels={showLabels} />
       </main>
     </div>
   );

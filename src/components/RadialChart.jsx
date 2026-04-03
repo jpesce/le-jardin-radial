@@ -11,7 +11,7 @@ const LABEL_OFFSET = 20;
 const MONTH_SLICE = (2 * Math.PI) / 12;
 const ANGLE_OFFSET = -Math.PI / 2; // January at top
 
-export default function RadialChart({ flowers }) {
+export default function RadialChart({ flowers, showLabels = true }) {
   const svgRef = useRef(null);
 
   useEffect(() => {
@@ -82,6 +82,37 @@ export default function RadialChart({ flowers }) {
         .text(label);
     });
 
+    // Curved flower name labels
+    if (!showLabels) {
+      // skip labels
+    } else {
+    const defs = g.append("defs");
+
+    flowers.forEach((flower, flowerIdx) => {
+      const midR = INNER_RADIUS + (flowerIdx + 0.5) * bandHeight;
+      const pathId = `text-path-${flower.id}`;
+
+      // Circular path for the text to follow (clockwise from top)
+      defs
+        .append("path")
+        .attr("id", pathId)
+        .attr(
+          "d",
+          `M 0,${-midR} A ${midR},${midR} 0 1,1 -0.01,${-midR}`,
+        );
+
+      g.append("text")
+        .attr("font-size", Math.min(11, bandHeight * 0.6))
+        .attr("fill", "#fff")
+        .attr("fill-opacity", 0.85)
+        .attr("font-weight", 500)
+        .append("textPath")
+        .attr("href", `#${pathId}`)
+        .attr("startOffset", "0%")
+        .text(flower.name);
+    });
+    }
+
     // Radial divider lines (month boundaries)
     for (let i = 0; i < 12; i++) {
       const angle = i * MONTH_SLICE + ANGLE_OFFSET;
@@ -98,7 +129,7 @@ export default function RadialChart({ flowers }) {
         .attr("stroke", "#fff")
         .attr("stroke-width", 1.5);
     }
-  }, [flowers]);
+  }, [flowers, showLabels]);
 
   return (
     <svg
