@@ -1,10 +1,11 @@
 .flower-list {
-  width: 240px;
+  width: 260px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   padding-top: 1rem;
+  padding-left: 20px;
 }
 
 .flower-search {
@@ -42,8 +43,12 @@
   transition: background 0.1s;
 }
 
-.flower-item:hover {
-  background: #f8f8f8;
+.flower-item:hover .flower-name {
+  color: #000;
+}
+
+.flower-item:hover .flower-label input[type="checkbox"] {
+  border-color: #000;
 }
 
 .flower-label {
@@ -53,15 +58,35 @@
   padding: 0.35rem 0.5rem;
   cursor: pointer;
   font-size: 12px;
-  color: #333;
+  color: #777;
 }
 
 .flower-label input[type="checkbox"] {
-  accent-color: #888;
+  accent-color: #777;
   width: 14px;
   height: 14px;
   border-radius: 4px;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid #777;
+  background: #fff;
+  display: grid;
+  place-content: center;
+}
+
+.flower-label input[type="checkbox"]::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  transform: scale(0);
+  transition: transform 0.1s;
+  background: #777;
+  border-radius: 2px;
+}
+
+.flower-label input[type="checkbox"]:checked::before {
+  transform: scale(1);
 }
 
 .flower-swatch {
@@ -80,20 +105,29 @@
 
 .flower-items--selected {
   max-height: none;
+  overflow: visible;
 }
 
 .flower-item--selected {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .drag-handle {
+  position: absolute;
+  left: -10px;
   cursor: grab;
   color: #d0d0d0;
-  font-size: 10px;
-  padding: 0 2px;
+  font-size: 13px;
   user-select: none;
   line-height: 1;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.flower-item--selected:hover .drag-handle {
+  opacity: 1;
 }
 
 .drag-handle:active {
