@@ -21,7 +21,7 @@ body {
 .chart-tooltip {
   position: absolute;
   pointer-events: none;
-  background: #1a1a1a;
+  background: #888;
   color: #fff;
   font-family: inherit;
   font-size: 11px;

@@ -35,7 +35,7 @@
 }
 
 .toggle-label input[type="checkbox"] {
-  accent-color: #1a1a1a;
+  accent-color: #888;
   cursor: pointer;
   width: 14px;
   height: 14px;
