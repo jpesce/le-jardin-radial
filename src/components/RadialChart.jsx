@@ -10,89 +10,85 @@ const INNER_RADIUS = 40;
 const LABEL_OFFSET = 20;
 const MONTH_SLICE = (2 * Math.PI) / 12;
 const ANGLE_OFFSET = -Math.PI / 2; // January at top
+const T_DURATION = 450;
+
+const arcGen = d3.arc();
+
+function arcParams(d) {
+  return {
+    innerRadius: d.innerR,
+    outerRadius: d.outerR,
+    startAngle: d.startAngle,
+    endAngle: d.endAngle,
+  };
+}
+
+function arcTween(d) {
+  const prev = this.__prev || {
+    innerR: (d.innerR + d.outerR) / 2,
+    outerR: (d.innerR + d.outerR) / 2,
+    startAngle: d.startAngle,
+    endAngle: d.endAngle,
+  };
+  const iInner = d3.interpolate(prev.innerR, d.innerR);
+  const iOuter = d3.interpolate(prev.outerR, d.outerR);
+  this.__prev = { ...d };
+  return (t) =>
+    arcGen({
+      innerRadius: iInner(t),
+      outerRadius: iOuter(t),
+      startAngle: d.startAngle,
+      endAngle: d.endAngle,
+    });
+}
+
+function arcTweenExit(d) {
+  const prev = this.__prev || d;
+  const midR = (prev.innerR + prev.outerR) / 2;
+  const iInner = d3.interpolate(prev.innerR, midR);
+  const iOuter = d3.interpolate(prev.outerR, midR);
+  return (t) =>
+    arcGen({
+      innerRadius: iInner(t),
+      outerRadius: iOuter(t),
+      startAngle: d.startAngle,
+      endAngle: d.endAngle,
+    });
+}
 
 export default function RadialChart({ flowers, showLabels = true }) {
   const svgRef = useRef(null);
   const tooltipRef = useRef(null);
+  const initialized = useRef(false);
 
+  // One-time SVG structure setup
   useEffect(() => {
-    if (!svgRef.current) return;
-
+    if (!svgRef.current || initialized.current) return;
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove();
-
-    const tooltip = d3.select(tooltipRef.current);
-
     const g = svg
       .append("g")
+      .attr("class", "root")
       .attr("transform", `translate(${CENTER},${CENTER})`);
 
-    if (flowers.length === 0) {
-      g.append("text")
-        .attr("text-anchor", "middle")
-        .attr("dy", "0.35em")
-        .attr("fill", "#ccc")
-        .attr("font-size", "12px")
-        .text("select flowers to begin");
-      return;
-    }
+    g.append("g").attr("class", "cells");
+    g.append("g").attr("class", "lines");
+    g.append("defs");
+    g.append("g").attr("class", "curved-labels");
+    g.append("g").attr("class", "month-labels");
+    g.append("text")
+      .attr("class", "empty-msg")
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.35em")
+      .attr("font-size", "12px");
 
-    const bandHeight = (OUTER_RADIUS - INNER_RADIUS) / flowers.length;
-    const arc = d3.arc();
-
-    // Draw cells
-    flowers.forEach((flower, flowerIdx) => {
-      const innerR = INNER_RADIUS + flowerIdx * bandHeight;
-      const outerR = innerR + bandHeight;
-
-      flower.monthStates.forEach((state, monthIdx) => {
-        const startAngle = monthIdx * MONTH_SLICE;
-        const endAngle = startAngle + MONTH_SLICE;
-        const color = resolveColor(state, flower.colors);
-
-        g.append("path")
-          .attr(
-            "d",
-            arc({
-              innerRadius: innerR,
-              outerRadius: outerR,
-              startAngle,
-              endAngle,
-            }),
-          )
-          .attr("fill", color)
-          .attr("stroke", "#fff")
-          .attr("stroke-width", 1)
-          .style("cursor", "default")
-          .on("mouseenter", (event) => {
-            tooltip
-              .style("opacity", 1)
-              .html(
-                `<strong>${flower.name}</strong><br/>${MONTH_LABELS[monthIdx].toLowerCase()} · ${state}`,
-              );
-          })
-          .on("mousemove", (event) => {
-            const svgRect = svgRef.current.getBoundingClientRect();
-            tooltip
-              .style("left", `${event.clientX - svgRect.left + 12}px`)
-              .style("top", `${event.clientY - svgRect.top - 28}px`);
-          })
-          .on("mouseleave", () => {
-            tooltip.style("opacity", 0);
-          });
-      });
-    });
-
-    // Month labels
+    // Static month labels
     MONTH_LABELS.forEach((label, i) => {
       const angle = i * MONTH_SLICE + MONTH_SLICE / 2 + ANGLE_OFFSET;
       const r = OUTER_RADIUS + LABEL_OFFSET;
-      const x = r * Math.cos(angle);
-      const y = r * Math.sin(angle);
-
-      g.append("text")
-        .attr("x", x)
-        .attr("y", y)
+      g.select(".month-labels")
+        .append("text")
+        .attr("x", r * Math.cos(angle))
+        .attr("y", r * Math.sin(angle))
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "central")
         .attr("font-size", "11px")
@@ -100,10 +96,134 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .text(label.toLowerCase());
     });
 
-    // Curved flower name labels
-    if (showLabels) {
-      const defs = g.append("defs");
+    // Static radial divider lines
+    for (let i = 0; i < 12; i++) {
+      const angle = i * MONTH_SLICE + ANGLE_OFFSET;
+      g.select(".lines")
+        .append("line")
+        .attr("x1", INNER_RADIUS * Math.cos(angle))
+        .attr("y1", INNER_RADIUS * Math.sin(angle))
+        .attr("x2", OUTER_RADIUS * Math.cos(angle))
+        .attr("y2", OUTER_RADIUS * Math.sin(angle))
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1.5)
+        .style("pointer-events", "none");
+    }
 
+    initialized.current = true;
+  }, []);
+
+  // Data-driven updates with transitions
+  useEffect(() => {
+    if (!svgRef.current || !initialized.current) return;
+
+    const svg = d3.select(svgRef.current);
+    const g = svg.select(".root");
+    const tooltip = d3.select(tooltipRef.current);
+    const t = d3.transition().duration(T_DURATION).ease(d3.easeCubicInOut);
+
+    // Empty message
+    g.select(".empty-msg")
+      .attr("fill", flowers.length === 0 ? "#ccc" : "none")
+      .text(flowers.length === 0 ? "select flowers to begin" : "");
+
+    // Build flat cell data
+    const bandHeight =
+      flowers.length > 0
+        ? (OUTER_RADIUS - INNER_RADIUS) / flowers.length
+        : 0;
+
+    const cellData = [];
+    flowers.forEach((flower, flowerIdx) => {
+      const innerR = INNER_RADIUS + flowerIdx * bandHeight;
+      const outerR = innerR + bandHeight;
+      flower.monthStates.forEach((state, monthIdx) => {
+        cellData.push({
+          key: `${flower.id}--${monthIdx}`,
+          flower,
+          monthIdx,
+          state,
+          innerR,
+          outerR,
+          startAngle: monthIdx * MONTH_SLICE,
+          endAngle: (monthIdx + 1) * MONTH_SLICE,
+          color: resolveColor(state, flower.colors),
+        });
+      });
+    });
+
+    // Data join
+    const cells = g
+      .select(".cells")
+      .selectAll("path")
+      .data(cellData, (d) => d.key);
+
+    // Exit
+    cells
+      .exit()
+      .transition(t)
+      .attrTween("d", arcTweenExit)
+      .style("opacity", 0)
+      .remove();
+
+    // Enter
+    const enter = cells
+      .enter()
+      .append("path")
+      .attr("fill", (d) => d.color)
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1)
+      .style("cursor", "default")
+      .each(function (d) {
+        // Start collapsed at midpoint
+        const midR = (d.innerR + d.outerR) / 2;
+        this.__prev = {
+          innerR: midR,
+          outerR: midR,
+          startAngle: d.startAngle,
+          endAngle: d.endAngle,
+        };
+      })
+      .attr("d", function (d) {
+        return arcGen({
+          innerRadius: this.__prev.innerR,
+          outerRadius: this.__prev.outerR,
+          startAngle: d.startAngle,
+          endAngle: d.endAngle,
+        });
+      });
+
+    // Enter + Update
+    enter
+      .merge(cells)
+      .on("mouseenter", function (event, d) {
+        tooltip
+          .style("opacity", 1)
+          .html(
+            `<strong>${d.flower.name}</strong><br/>${MONTH_LABELS[d.monthIdx].toLowerCase()} · ${d.state}`,
+          );
+      })
+      .on("mousemove", function (event) {
+        const svgRect = svgRef.current.getBoundingClientRect();
+        tooltip
+          .style("left", `${event.clientX - svgRect.left + 12}px`)
+          .style("top", `${event.clientY - svgRect.top - 28}px`);
+      })
+      .on("mouseleave", function () {
+        tooltip.style("opacity", 0);
+      })
+      .transition(t)
+      .attr("fill", (d) => d.color)
+      .attrTween("d", arcTween);
+
+    // Curved text labels
+    const defs = g.select("defs");
+    const textGroup = g.select(".curved-labels");
+
+    defs.selectAll("path").remove();
+    textGroup.selectAll("text").remove();
+
+    if (showLabels && flowers.length > 0) {
       flowers.forEach((flower, flowerIdx) => {
         const midR = INNER_RADIUS + (flowerIdx + 0.5) * bandHeight;
         const pathId = `text-path-${flower.id}`;
@@ -116,35 +236,23 @@ export default function RadialChart({ flowers, showLabels = true }) {
             `M 0,${-midR} A ${midR},${midR} 0 1,1 -0.01,${-midR}`,
           );
 
-        g.append("text")
+        textGroup
+          .append("text")
           .attr("font-size", Math.min(11, bandHeight * 0.6))
           .attr("fill", "#fff")
-          .attr("fill-opacity", 0.85)
+          .attr("fill-opacity", 0)
           .attr("font-weight", 500)
           .style("pointer-events", "none")
           .append("textPath")
           .attr("href", `#${pathId}`)
           .attr("startOffset", "0%")
           .text(flower.name);
+
+        textGroup
+          .selectAll("text:last-child")
+          .transition(t)
+          .attr("fill-opacity", 0.85);
       });
-    }
-
-    // Radial divider lines (month boundaries)
-    for (let i = 0; i < 12; i++) {
-      const angle = i * MONTH_SLICE + ANGLE_OFFSET;
-      const x1 = INNER_RADIUS * Math.cos(angle);
-      const y1 = INNER_RADIUS * Math.sin(angle);
-      const x2 = OUTER_RADIUS * Math.cos(angle);
-      const y2 = OUTER_RADIUS * Math.sin(angle);
-
-      g.append("line")
-        .attr("x1", x1)
-        .attr("y1", y1)
-        .attr("x2", x2)
-        .attr("y2", y2)
-        .attr("stroke", "#fff")
-        .attr("stroke-width", 1.5)
-        .style("pointer-events", "none");
     }
   }, [flowers, showLabels]);
 
