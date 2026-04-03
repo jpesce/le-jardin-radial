@@ -68,3 +68,30 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.flower-items--selected {
+  max-height: none;
+}
+
+.flower-item--selected {
+  display: flex;
+  align-items: center;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #ccc;
+  font-size: 12px;
+  padding: 0 2px;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.flower-divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 0.25rem 0;
+}

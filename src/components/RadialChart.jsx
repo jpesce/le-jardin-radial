@@ -13,12 +13,15 @@ const ANGLE_OFFSET = -Math.PI / 2; // January at top
 
 export default function RadialChart({ flowers, showLabels = true }) {
   const svgRef = useRef(null);
+  const tooltipRef = useRef(null);
 
   useEffect(() => {
     if (!svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
+
+    const tooltip = d3.select(tooltipRef.current);
 
     const g = svg
       .append("g")
@@ -34,9 +37,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
       return;
     }
 
-    const bandHeight =
-      (OUTER_RADIUS - INNER_RADIUS) / flowers.length;
-
+    const bandHeight = (OUTER_RADIUS - INNER_RADIUS) / flowers.length;
     const arc = d3.arc();
 
     // Draw cells
@@ -61,7 +62,24 @@ export default function RadialChart({ flowers, showLabels = true }) {
           )
           .attr("fill", color)
           .attr("stroke", "#fff")
-          .attr("stroke-width", 1);
+          .attr("stroke-width", 1)
+          .style("cursor", "default")
+          .on("mouseenter", (event) => {
+            tooltip
+              .style("opacity", 1)
+              .html(
+                `<strong>${flower.name}</strong><br/>${MONTH_LABELS[monthIdx]} · ${state}`,
+              );
+          })
+          .on("mousemove", (event) => {
+            const svgRect = svgRef.current.getBoundingClientRect();
+            tooltip
+              .style("left", `${event.clientX - svgRect.left + 12}px`)
+              .style("top", `${event.clientY - svgRect.top - 28}px`);
+          })
+          .on("mouseleave", () => {
+            tooltip.style("opacity", 0);
+          });
       });
     });
 
@@ -83,34 +101,32 @@ export default function RadialChart({ flowers, showLabels = true }) {
     });
 
     // Curved flower name labels
-    if (!showLabels) {
-      // skip labels
-    } else {
-    const defs = g.append("defs");
+    if (showLabels) {
+      const defs = g.append("defs");
 
-    flowers.forEach((flower, flowerIdx) => {
-      const midR = INNER_RADIUS + (flowerIdx + 0.5) * bandHeight;
-      const pathId = `text-path-${flower.id}`;
+      flowers.forEach((flower, flowerIdx) => {
+        const midR = INNER_RADIUS + (flowerIdx + 0.5) * bandHeight;
+        const pathId = `text-path-${flower.id}`;
 
-      // Circular path for the text to follow (clockwise from top)
-      defs
-        .append("path")
-        .attr("id", pathId)
-        .attr(
-          "d",
-          `M 0,${-midR} A ${midR},${midR} 0 1,1 -0.01,${-midR}`,
-        );
+        defs
+          .append("path")
+          .attr("id", pathId)
+          .attr(
+            "d",
+            `M 0,${-midR} A ${midR},${midR} 0 1,1 -0.01,${-midR}`,
+          );
 
-      g.append("text")
-        .attr("font-size", Math.min(11, bandHeight * 0.6))
-        .attr("fill", "#fff")
-        .attr("fill-opacity", 0.85)
-        .attr("font-weight", 500)
-        .append("textPath")
-        .attr("href", `#${pathId}`)
-        .attr("startOffset", "0%")
-        .text(flower.name);
-    });
+        g.append("text")
+          .attr("font-size", Math.min(11, bandHeight * 0.6))
+          .attr("fill", "#fff")
+          .attr("fill-opacity", 0.85)
+          .attr("font-weight", 500)
+          .style("pointer-events", "none")
+          .append("textPath")
+          .attr("href", `#${pathId}`)
+          .attr("startOffset", "0%")
+          .text(flower.name);
+      });
     }
 
     // Radial divider lines (month boundaries)
@@ -127,17 +143,21 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr("x2", x2)
         .attr("y2", y2)
         .attr("stroke", "#fff")
-        .attr("stroke-width", 1.5);
+        .attr("stroke-width", 1.5)
+        .style("pointer-events", "none");
     }
   }, [flowers, showLabels]);
 
   return (
-    <svg
-      ref={svgRef}
-      width={SIZE}
-      height={SIZE}
-      viewBox={`0 0 ${SIZE} ${SIZE}`}
-      style={{ maxWidth: "100%", height: "auto" }}
-    />
+    <div style={{ position: "relative", display: "inline-block" }}>
+      <svg
+        ref={svgRef}
+        width={SIZE}
+        height={SIZE}
+        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        style={{ maxWidth: "100%", height: "auto" }}
+      />
+      <div ref={tooltipRef} className="chart-tooltip" />
+    </div>
   );
 }

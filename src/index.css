@@ -16,3 +16,17 @@ body {
 #root {
   min-height: 100dvh;
 }
+
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.12s;
+  white-space: nowrap;
+  line-height: 1.4;
+}

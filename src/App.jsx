@@ -16,13 +16,19 @@ export default function App() {
     );
   }, []);
 
-  const selected = selectedIds
+  // Reverse so top of sidebar list = outermost ring
+  const selected = [...selectedIds]
+    .reverse()
     .map((id) => flowers.find((f) => f.id === id))
     .filter(Boolean);
 
   return (
     <div className="app">
-      <FlowerList selectedIds={selectedIds} onToggle={handleToggle} />
+      <FlowerList
+        selectedIds={selectedIds}
+        onToggle={handleToggle}
+        onReorder={setSelectedIds}
+      />
       <main className="chart-area">
         <div className="chart-controls">
           <label className="toggle-label">
