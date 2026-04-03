@@ -1,6 +1,14 @@
 .app {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  gap: 2rem;
   padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.chart-area {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }

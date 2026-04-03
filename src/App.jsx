@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import RadialChart from "./components/RadialChart.jsx";
+import FlowerList from "./components/FlowerList.jsx";
 import { flowers } from "./data/flowers.js";
 import "./App.css";
 
@@ -8,13 +9,22 @@ const INITIAL_IDS = ["rose", "lavender", "sunflower", "tulip", "snowdrop"];
 export default function App() {
   const [selectedIds, setSelectedIds] = useState(INITIAL_IDS);
 
+  const handleToggle = useCallback((id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }, []);
+
   const selected = selectedIds
     .map((id) => flowers.find((f) => f.id === id))
     .filter(Boolean);
 
   return (
     <div className="app">
-      <RadialChart flowers={selected} />
+      <FlowerList selectedIds={selectedIds} onToggle={handleToggle} />
+      <main className="chart-area">
+        <RadialChart flowers={selected} />
+      </main>
     </div>
   );
 }
