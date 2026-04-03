@@ -31,9 +31,9 @@ export default function RadialChart({ flowers, showLabels = true }) {
       g.append("text")
         .attr("text-anchor", "middle")
         .attr("dy", "0.35em")
-        .attr("fill", "#999")
-        .attr("font-size", "14px")
-        .text("Select flowers to begin");
+        .attr("fill", "#ccc")
+        .attr("font-size", "12px")
+        .text("select flowers to begin");
       return;
     }
 
@@ -68,7 +68,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
             tooltip
               .style("opacity", 1)
               .html(
-                `<strong>${flower.name}</strong><br/>${MONTH_LABELS[monthIdx]} · ${state}`,
+                `<strong>${flower.name}</strong><br/>${MONTH_LABELS[monthIdx].toLowerCase()} · ${state}`,
               );
           })
           .on("mousemove", (event) => {
@@ -95,9 +95,9 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr("y", y)
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "central")
-        .attr("font-size", "12px")
-        .attr("fill", "#666")
-        .text(label);
+        .attr("font-size", "11px")
+        .attr("fill", "#aaa")
+        .text(label.toLowerCase());
     });
 
     // Curved flower name labels

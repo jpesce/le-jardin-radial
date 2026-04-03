@@ -1,9 +1,11 @@
 .app {
   display: flex;
   gap: 2rem;
-  padding: 2rem;
+  padding: 2rem 2rem 2rem 1.5rem;
   max-width: 1000px;
   margin: 0 auto;
+  min-height: 100dvh;
+  align-items: flex-start;
 }
 
 .chart-area {
@@ -11,24 +13,30 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 1rem;
 }
 
 .chart-controls {
   display: flex;
   gap: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .toggle-label {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 13px;
-  color: #666;
+  font-size: 12px;
+  color: #999;
   cursor: pointer;
+  user-select: none;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
 }
 
 .toggle-label input[type="checkbox"] {
   accent-color: #1a1a1a;
   cursor: pointer;
+  width: 14px;
+  height: 14px;
 }

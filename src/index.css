@@ -8,6 +8,7 @@
 
 body {
   font-family: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+  font-size: 13px;
   background: #ffffff;
   color: #1a1a1a;
   -webkit-font-smoothing: antialiased;
@@ -22,11 +23,12 @@ body {
   pointer-events: none;
   background: #1a1a1a;
   color: #fff;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 11px;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   opacity: 0;
   transition: opacity 0.12s;
   white-space: nowrap;
-  line-height: 1.4;
+  line-height: 1.5;
 }

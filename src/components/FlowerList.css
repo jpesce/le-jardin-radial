@@ -1,23 +1,31 @@
 .flower-list {
-  width: 260px;
+  width: 240px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding-top: 1rem;
 }
 
 .flower-search {
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
   outline: none;
   transition: border-color 0.15s;
+  color: #1a1a1a;
+  background: #fafafa;
+}
+
+.flower-search::placeholder {
+  color: #bbb;
 }
 
 .flower-search:focus {
-  border-color: #999;
+  border-color: #ccc;
+  background: #fff;
 }
 
 .flower-items {
@@ -26,41 +34,42 @@
   max-height: 70vh;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .flower-item {
-  border-radius: 6px;
+  border-radius: 8px;
   transition: background 0.1s;
 }
 
 .flower-item:hover {
-  background: #f5f5f5;
+  background: #f8f8f8;
 }
 
 .flower-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 0.5rem;
+  padding: 0.35rem 0.5rem;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
+  color: #333;
 }
 
 .flower-label input[type="checkbox"] {
   accent-color: #1a1a1a;
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .flower-swatch {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .flower-name {
@@ -80,18 +89,20 @@
 
 .drag-handle {
   cursor: grab;
-  color: #ccc;
-  font-size: 12px;
+  color: #d0d0d0;
+  font-size: 10px;
   padding: 0 2px;
   user-select: none;
+  line-height: 1;
 }
 
 .drag-handle:active {
   cursor: grabbing;
+  color: #999;
 }
 
 .flower-divider {
   height: 1px;
-  background: #e0e0e0;
-  margin: 0.25rem 0;
+  background: #eee;
+  margin: 0.25rem 0.5rem;
 }
