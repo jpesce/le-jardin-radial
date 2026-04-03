@@ -1,18 +1,40 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { flowers } from "../data/flowers.js";
 import "./FlowerList.css";
+
+const LAYOUT_TRANSITION = { duration: 0.3, ease: "easeInOut" };
 
 export default function FlowerList({ selectedIds, onToggle, onReorder }) {
   const [search, setSearch] = useState("");
   const dragItem = useRef(null);
   const dragOver = useRef(null);
 
-  const filtered = flowers.filter((f) =>
-    f.name.toLowerCase().includes(search.toLowerCase()),
-  );
-
   const isSearching = search.length > 0;
 
+  // Single sorted list: selected first (in order), then unselected (catalog order)
+  const sortedFlowers = useMemo(() => {
+    const filtered = flowers.filter((f) =>
+      f.name.toLowerCase().includes(search.toLowerCase()),
+    );
+
+    if (isSearching) return filtered;
+
+    const selected = selectedIds
+      .map((id) => filtered.find((f) => f.id === id))
+      .filter(Boolean);
+    const unselected = filtered.filter(
+      (f) => !selectedIds.includes(f.id),
+    );
+    return [...selected, ...unselected];
+  }, [selectedIds, search, isSearching]);
+
+  const selectedSet = useMemo(
+    () => new Set(selectedIds),
+    [selectedIds],
+  );
+
+  // Drag-to-reorder (only among selected items)
   const handleDragStart = (idx) => {
     dragItem.current = idx;
   };
@@ -51,60 +73,38 @@ export default function FlowerList({ selectedIds, onToggle, onReorder }) {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {/* Reorderable selected flowers */}
-      {!isSearching && selectedIds.length > 0 && (
-        <ul className="flower-items flower-items--selected">
-          {selectedIds.map((id, idx) => {
-            const flower = flowers.find((f) => f.id === id);
-            if (!flower) return null;
-            return (
-              <li
-                key={flower.id}
-                className="flower-item flower-item--selected"
-                draggable
-                onDragStart={() => handleDragStart(idx)}
-                onDragEnter={() => handleDragEnter(idx)}
-                onDragEnd={handleDragEnd}
-                onDragOver={(e) => e.preventDefault()}
-              >
-                <span className="drag-handle">&#x2630;</span>
-                <label className="flower-label">
-                  <input
-                    type="checkbox"
-                    checked
-                    onChange={() => onToggle(flower.id)}
-                  />
-                  <span
-                    className="flower-swatch"
-                    style={{
-                      background: flower.colors?.blooming ?? "#E84393",
-                    }}
-                  />
-                  <span className="flower-name">{flower.name}</span>
-                </label>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      {/* Divider */}
-      {!isSearching && selectedIds.length > 0 && (
-        <div className="flower-divider" />
-      )}
-
-      {/* All / filtered flowers */}
       <ul className="flower-items">
-        {filtered
-          .filter((f) => isSearching || !selectedIds.includes(f.id))
-          .map((flower) => {
-            const checked = selectedIds.includes(flower.id);
-            return (
-              <li key={flower.id} className="flower-item">
+        <AnimatePresence initial={false}>
+          {sortedFlowers.flatMap((flower, i) => {
+            const isSelected = selectedSet.has(flower.id);
+            const selectedIdx = selectedIds.indexOf(flower.id);
+
+            const items = [
+              <motion.li
+                key={flower.id}
+                layout
+                transition={{ layout: LAYOUT_TRANSITION }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className={`flower-item${isSelected ? " flower-item--selected" : ""}`}
+                {...(isSelected && !isSearching
+                  ? {
+                      draggable: true,
+                      onDragStart: () => handleDragStart(selectedIdx),
+                      onDragEnter: () => handleDragEnter(selectedIdx),
+                      onDragEnd: handleDragEnd,
+                      onDragOver: (e) => e.preventDefault(),
+                    }
+                  : {})}
+              >
                 <label className="flower-label">
+                  {isSelected && !isSearching && (
+                    <span className="drag-handle">&#x2630;</span>
+                  )}
                   <input
                     type="checkbox"
-                    checked={checked}
+                    checked={isSelected}
                     onChange={() => onToggle(flower.id)}
                   />
                   <span
@@ -115,9 +115,31 @@ export default function FlowerList({ selectedIds, onToggle, onReorder }) {
                   />
                   <span className="flower-name">{flower.name}</span>
                 </label>
-              </li>
-            );
+              </motion.li>,
+            ];
+
+            // Insert divider as its own element after the last selected item
+            const isLastSelected =
+              !isSearching &&
+              isSelected &&
+              selectedIdx === selectedIds.length - 1 &&
+              sortedFlowers.length > selectedIds.length;
+
+            if (isLastSelected) {
+              items.push(
+                <motion.li
+                  key="__divider"
+                  layout
+                  transition={{ layout: LAYOUT_TRANSITION }}
+                  className="flower-divider-inline"
+                  aria-hidden
+                />,
+              );
+            }
+
+            return items;
           })}
+        </AnimatePresence>
       </ul>
     </aside>
   );
