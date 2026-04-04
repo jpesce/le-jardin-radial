@@ -1,7 +1,7 @@
 .panel-wrapper {
   position: fixed;
   top: 1.5rem;
-  right: 1.5rem;
+  right: 2rem;
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -40,7 +40,7 @@
   border: 1px solid #e8e8e8;
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  padding: 0.75rem 0.75rem;
+  padding: 1.25rem 0.75rem 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -52,13 +52,37 @@
   gap: 0.35rem;
 }
 
+.panel-input + .toggle-label {
+  margin-top: 0.6rem;
+}
+
 .panel-title {
   font-size: 12px;
-  font-weight: 400;
-  color: #bbb;
-  text-transform: lowercase;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 0.75rem 1rem 0.15rem;
+  padding: 1.25rem 1rem 0.15rem;
+}
+
+.panel-input {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 0.4rem 0.6rem;
+  margin: 0 1rem;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  outline: none;
+  color: #1a1a1a;
+  background: #fafafa;
+  transition: border-color 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.panel-input:focus {
+  border-color: #ccc;
+  background: #fff;
 }
 
 .toggle-label {

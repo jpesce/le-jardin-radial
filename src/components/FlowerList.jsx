@@ -13,6 +13,8 @@ export default function FlowerList({
   onReorder,
   showLabels,
   onShowLabelsChange,
+  gardenOwner,
+  onGardenOwnerChange,
   isOpen,
   onTogglePanel,
   onClose,
@@ -124,7 +126,7 @@ export default function FlowerList({
         onClick={onTogglePanel}
       >
         <Flower size={14} />
-        {isOpen ? "done" : "pick flowers"}
+        {isOpen ? "done" : "plan garden"}
       </button>
       <AnimatePresence>
         {isOpen && (
@@ -137,7 +139,15 @@ export default function FlowerList({
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
             <div className="panel-section">
-              <h3 className="panel-title">options</h3>
+              <label className="toggle-label">
+                gardener
+              </label>
+              <input
+                type="text"
+                className="panel-input"
+                value={gardenOwner}
+                onChange={(e) => onGardenOwnerChange(e.target.value)}
+              />
               <label className="toggle-label">
                 <input
                   type="checkbox"
@@ -145,10 +155,10 @@ export default function FlowerList({
                   checked={showLabels}
                   onChange={(e) => onShowLabelsChange(e.target.checked)}
                 />
-                show names
+                show flower names
               </label>
             </div>
-            <h3 className="panel-title">flowers</h3>
+            <h3 className="panel-title">pick flowers</h3>
 
             <ul ref={listRef} className="flower-items">
               <AnimatePresence initial={false}>

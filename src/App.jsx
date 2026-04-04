@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import RadialChart from "./components/RadialChart.jsx";
 import FlowerList from "./components/FlowerList.jsx";
+import Logo from "./components/Logo.jsx";
 import { flowers } from "./data/flowers.js";
 import "./App.css";
 
@@ -10,6 +11,7 @@ export default function App() {
   const [selectedIds, setSelectedIds] = useState(INITIAL_IDS);
   const [showLabels, setShowLabels] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [gardenOwner, setGardenOwner] = useState("TAINAH DRUMMOND");
 
   const handleToggle = useCallback((id) => {
     setSelectedIds((prev) =>
@@ -29,6 +31,10 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="app-logo-wrapper">
+        <Logo className="app-logo" name={gardenOwner} />
+        <span className="app-logo-subtitle">de {gardenOwner}</span>
+      </div>
       <main className="chart-area">
         <RadialChart flowers={selected} showLabels={showLabels} />
       </main>
@@ -38,6 +44,8 @@ export default function App() {
         onReorder={setSelectedIds}
         showLabels={showLabels}
         onShowLabelsChange={setShowLabels}
+        gardenOwner={gardenOwner}
+        onGardenOwnerChange={setGardenOwner}
         isOpen={panelOpen}
         onTogglePanel={() => setPanelOpen((prev) => !prev)}
         onClose={() => setPanelOpen(false)}

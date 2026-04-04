@@ -3,6 +3,31 @@
   position: relative;
 }
 
+.app-logo-wrapper {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  width: max(120px, 20vw);
+  z-index: 50;
+}
+
+.app-logo {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.app-logo-subtitle {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.95vw;
+  font-weight: 400;
+  color: #443528;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 1.2vw;
+}
+
 .chart-area {
   width: 100%;
   display: flex;
