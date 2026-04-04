@@ -1,66 +1,94 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { flowers } from "../data/flowers.js";
 import "./FlowerList.css";
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: "easeInOut" };
+const DRAG_THRESHOLD = 3;
 
 export default function FlowerList({ selectedIds, onToggle, onReorder }) {
   const [search, setSearch] = useState("");
-  const dragItem = useRef(null);
-  const dragOver = useRef(null);
+  const [hoveredId, setHoveredId] = useState(null);
+  const [dragFrom, setDragFrom] = useState(null);
+  const [dropTarget, setDropTarget] = useState(null);
+  const listRef = useRef(null);
 
   const isSearching = search.length > 0;
 
-  // Single sorted list: selected first (in order), then unselected (catalog order)
   const sortedFlowers = useMemo(() => {
     const filtered = flowers.filter((f) =>
       f.name.toLowerCase().includes(search.toLowerCase()),
     );
-
     if (isSearching) return filtered;
-
     const selected = selectedIds
       .map((id) => filtered.find((f) => f.id === id))
       .filter(Boolean);
-    const unselected = filtered.filter(
-      (f) => !selectedIds.includes(f.id),
-    );
+    const unselected = filtered.filter((f) => !selectedIds.includes(f.id));
     return [...selected, ...unselected];
   }, [selectedIds, search, isSearching]);
 
-  const selectedSet = useMemo(
-    () => new Set(selectedIds),
-    [selectedIds],
-  );
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
-  // Drag-to-reorder (only among selected items)
-  const handleDragStart = (idx) => {
-    dragItem.current = idx;
-  };
+  // Global grabbing cursor while dragging
+  useEffect(() => {
+    document.body.classList.toggle("is-dragging", dragFrom !== null);
+    return () => document.body.classList.remove("is-dragging");
+  }, [dragFrom]);
 
-  const handleDragEnter = (idx) => {
-    dragOver.current = idx;
-  };
+  const handlePointerDown = (e, selectedIdx) => {
+    if (e.target.closest('input[type="checkbox"]')) return;
+    if (e.button !== 0) return;
 
-  const handleDragEnd = () => {
-    if (
-      dragItem.current === null ||
-      dragOver.current === null ||
-      dragItem.current === dragOver.current
-    ) {
-      dragItem.current = null;
-      dragOver.current = null;
-      return;
-    }
+    const startY = e.clientY;
+    const currentIds = [...selectedIds];
+    let isDragging = false;
+    let currentTarget = null;
 
-    const reordered = [...selectedIds];
-    const [removed] = reordered.splice(dragItem.current, 1);
-    reordered.splice(dragOver.current, 0, removed);
-    onReorder(reordered);
+    const getInsertIndex = (clientY) => {
+      const items = listRef.current?.querySelectorAll("[data-selected-idx]");
+      if (!items) return selectedIdx;
+      for (const item of items) {
+        const idx = parseInt(item.dataset.selectedIdx);
+        const rect = item.getBoundingClientRect();
+        if (clientY < rect.top + rect.height / 2) return idx;
+      }
+      return currentIds.length;
+    };
 
-    dragItem.current = null;
-    dragOver.current = null;
+    const onMove = (moveEvent) => {
+      if (!isDragging) {
+        if (Math.abs(moveEvent.clientY - startY) < DRAG_THRESHOLD) return;
+        isDragging = true;
+        setDragFrom(selectedIdx);
+        setHoveredId(null);
+      }
+      moveEvent.preventDefault();
+      currentTarget = getInsertIndex(moveEvent.clientY);
+      setDropTarget(currentTarget);
+    };
+
+    const onUp = () => {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+
+      if (isDragging && currentTarget !== null) {
+        let toIdx = currentTarget;
+        if (toIdx > selectedIdx) toIdx--;
+        if (selectedIdx !== toIdx) {
+          const reordered = [...currentIds];
+          const [removed] = reordered.splice(selectedIdx, 1);
+          reordered.splice(toIdx, 0, removed);
+          onReorder(reordered);
+        }
+      }
+
+      setDragFrom(null);
+      setDropTarget(null);
+      setHoveredId(null);
+    };
+
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
   };
 
   return (
@@ -73,11 +101,31 @@ export default function FlowerList({ selectedIds, onToggle, onReorder }) {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      <ul className="flower-items">
+      <ul ref={listRef} className="flower-items">
         <AnimatePresence initial={false}>
-          {sortedFlowers.flatMap((flower, i) => {
+          {sortedFlowers.flatMap((flower) => {
             const isSelected = selectedSet.has(flower.id);
             const selectedIdx = selectedIds.indexOf(flower.id);
+
+            const isDragging = dragFrom !== null;
+            const isDraggedItem = isSelected && dragFrom === selectedIdx;
+            const isHovered = hoveredId === flower.id;
+
+            const showIndicatorAbove =
+              isDragging &&
+              isSelected &&
+              !isSearching &&
+              dropTarget === selectedIdx &&
+              dropTarget !== dragFrom &&
+              dropTarget !== dragFrom + 1;
+
+            const showIndicatorBelow =
+              isDragging &&
+              isSelected &&
+              !isSearching &&
+              selectedIdx === selectedIds.length - 1 &&
+              dropTarget === selectedIds.length &&
+              dropTarget !== dragFrom + 1;
 
             const items = [
               <motion.li
@@ -85,18 +133,28 @@ export default function FlowerList({ selectedIds, onToggle, onReorder }) {
                 layout
                 transition={{ layout: LAYOUT_TRANSITION }}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: isDraggedItem ? 0.4 : 1 }}
                 exit={{ opacity: 0 }}
-                className={`flower-item${isSelected ? " flower-item--selected" : ""}`}
-                {...(isSelected && !isSearching
-                  ? {
-                      draggable: true,
-                      onDragStart: () => handleDragStart(selectedIdx),
-                      onDragEnter: () => handleDragEnter(selectedIdx),
-                      onDragEnd: handleDragEnd,
-                      onDragOver: (e) => e.preventDefault(),
-                    }
-                  : {})}
+                className={
+                  "flower-item" +
+                  (isSelected ? " flower-item--selected" : "") +
+                  (isHovered ? " flower-item--hovered" : "") +
+                  (showIndicatorAbove ? " drop-indicator-above" : "") +
+                  (showIndicatorBelow ? " drop-indicator-below" : "")
+                }
+                data-selected-idx={
+                  isSelected && !isSearching ? selectedIdx : undefined
+                }
+                onPointerMove={() => {
+                  if (dragFrom === null && hoveredId !== flower.id)
+                    setHoveredId(flower.id);
+                }}
+                onMouseLeave={() => setHoveredId(null)}
+                onPointerDown={
+                  isSelected && !isSearching
+                    ? (e) => handlePointerDown(e, selectedIdx)
+                    : undefined
+                }
               >
                 <label className="flower-label">
                   {isSelected && !isSearching && (
@@ -118,7 +176,6 @@ export default function FlowerList({ selectedIds, onToggle, onReorder }) {
               </motion.li>,
             ];
 
-            // Insert divider as its own element after the last selected item
             const isLastSelected =
               !isSearching &&
               isSelected &&

@@ -18,6 +18,12 @@ body {
   min-height: 100dvh;
 }
 
+body.is-dragging,
+body.is-dragging * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
 .chart-tooltip {
   position: absolute;
   pointer-events: none;

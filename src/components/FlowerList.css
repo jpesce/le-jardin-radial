@@ -38,16 +38,11 @@
   gap: 1px;
 }
 
-.flower-item {
-  border-radius: 8px;
-  transition: background 0.1s;
-}
-
-.flower-item:hover .flower-name {
+.flower-item--hovered .flower-name {
   color: #000;
 }
 
-.flower-item:hover .flower-label input[type="checkbox"] {
+.flower-item--hovered .flower-label input[type="checkbox"] {
   border-color: #000;
 }
 
@@ -101,6 +96,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  user-select: none;
 }
 
 .drag-handle {
@@ -118,7 +114,7 @@
   text-align: center;
 }
 
-.flower-item:hover .drag-handle {
+.flower-item--hovered .drag-handle {
   opacity: 1;
 }
 
@@ -127,14 +123,31 @@
   color: #999;
 }
 
-.flower-divider {
-  height: 1px;
-  background: #eee;
-  margin: 0.25rem 0.5rem;
-}
-
 .flower-divider-inline {
   height: 1px;
   background: #eee;
   margin: 0.4rem 0.5rem;
+}
+
+.drop-indicator-above,
+.drop-indicator-below {
+  position: relative;
+}
+
+.drop-indicator-above::before,
+.drop-indicator-below::after {
+  content: "";
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  height: 1px;
+  background: #ccc;
+}
+
+.drop-indicator-above::before {
+  top: 0;
+}
+
+.drop-indicator-below::after {
+  bottom: 0;
 }
