@@ -232,7 +232,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
         tooltip
           .style("opacity", 1)
           .html(
-            `<strong>${d.flower.name}</strong><br/>${MONTH_LABELS[d.monthIdx].toLowerCase()} · ${d.state}`,
+            `<strong>${d.flower.name}</strong><br/><em>${d.flower.scientificName}</em><br/>${MONTH_LABELS[d.monthIdx].toLowerCase()} · ${d.state}`,
           );
       })
       .on("mousemove", function (event) {
