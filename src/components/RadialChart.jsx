@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
 import { MONTH_LABELS } from "../data/months.js";
 import { resolveColor } from "../data/colors.js";
@@ -12,16 +12,13 @@ const MONTH_SLICE = (2 * Math.PI) / 12;
 const ANGLE_OFFSET = -Math.PI / 2; // January at top
 const T_DURATION = 450;
 
-const arcGen = d3.arc();
+// Desired screen-pixel sizes for non-scaling elements
+const MONTH_LABEL_PX = 12;
+const EMPTY_MSG_PX = 12;
+const CELL_STROKE_PX = 1;
+const LINE_STROKE_PX = 1.5;
 
-function arcParams(d) {
-  return {
-    innerRadius: d.innerR,
-    outerRadius: d.outerR,
-    startAngle: d.startAngle,
-    endAngle: d.endAngle,
-  };
-}
+const arcGen = d3.arc();
 
 function arcTween(d) {
   const prev = this.__prev || {
@@ -60,6 +57,24 @@ export default function RadialChart({ flowers, showLabels = true }) {
   const svgRef = useRef(null);
   const tooltipRef = useRef(null);
   const initialized = useRef(false);
+  const [scale, setScale] = useState(1);
+
+  // Track the display scale: rendered pixels / viewBox units
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        const displayWidth = entry.contentRect.width;
+        setScale(displayWidth / SIZE);
+      }
+    });
+    observer.observe(svgRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Inverse scale: viewBox units per screen pixel
+  const inv = scale > 0 ? 1 / scale : 1;
 
   // One-time SVG structure setup
   useEffect(() => {
@@ -78,10 +93,9 @@ export default function RadialChart({ flowers, showLabels = true }) {
     g.append("text")
       .attr("class", "empty-msg")
       .attr("text-anchor", "middle")
-      .attr("dy", "0.35em")
-      .attr("font-size", "12px");
+      .attr("dy", "0.35em");
 
-    // Static month labels
+    // Month labels (positioned once, font-size updated via scale)
     MONTH_LABELS.forEach((label, i) => {
       const angle = i * MONTH_SLICE + MONTH_SLICE / 2 + ANGLE_OFFSET;
       const r = OUTER_RADIUS + LABEL_OFFSET;
@@ -91,12 +105,11 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr("y", r * Math.sin(angle))
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "central")
-        .attr("font-size", "11px")
         .attr("fill", "#aaa")
         .text(label.toLowerCase());
     });
 
-    // Static radial divider lines
+    // Radial divider lines
     for (let i = 0; i < 12; i++) {
       const angle = i * MONTH_SLICE + ANGLE_OFFSET;
       g.select(".lines")
@@ -106,12 +119,31 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr("x2", OUTER_RADIUS * Math.cos(angle))
         .attr("y2", OUTER_RADIUS * Math.sin(angle))
         .attr("stroke", "#fff")
-        .attr("stroke-width", 1.5)
+        .attr("vector-effect", "non-scaling-stroke")
         .style("pointer-events", "none");
     }
 
     initialized.current = true;
   }, []);
+
+  // Update non-scaling sizes when scale changes
+  useEffect(() => {
+    if (!svgRef.current || !initialized.current) return;
+    const g = d3.select(svgRef.current).select(".root");
+
+    // Month label font size
+    g.select(".month-labels")
+      .selectAll("text")
+      .attr("font-size", `${MONTH_LABEL_PX * inv}px`);
+
+    // Empty message font size
+    g.select(".empty-msg").attr("font-size", `${EMPTY_MSG_PX * inv}px`);
+
+    // Divider line stroke width
+    g.select(".lines")
+      .selectAll("line")
+      .attr("stroke-width", LINE_STROKE_PX);
+  }, [inv]);
 
   // Data-driven updates with transitions
   useEffect(() => {
@@ -172,10 +204,9 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .append("path")
       .attr("fill", (d) => d.color)
       .attr("stroke", "#fff")
-      .attr("stroke-width", 1)
+      .attr("vector-effect", "non-scaling-stroke")
       .style("cursor", "default")
       .each(function (d) {
-        // Start collapsed at midpoint
         const midR = (d.innerR + d.outerR) / 2;
         this.__prev = {
           innerR: midR,
@@ -196,6 +227,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
     // Enter + Update
     enter
       .merge(cells)
+      .attr("stroke-width", CELL_STROKE_PX)
       .on("mouseenter", function (event, d) {
         tooltip
           .style("opacity", 1)
@@ -224,6 +256,8 @@ export default function RadialChart({ flowers, showLabels = true }) {
     textGroup.selectAll("text").remove();
 
     if (showLabels && flowers.length > 0) {
+      const labelSize = Math.min(11 * inv, bandHeight * 0.6);
+
       flowers.forEach((flower, flowerIdx) => {
         const midR = INNER_RADIUS + (flowerIdx + 0.5) * bandHeight;
         const pathId = `text-path-${flower.id}`;
@@ -238,7 +272,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
 
         textGroup
           .append("text")
-          .attr("font-size", Math.min(11, bandHeight * 0.6))
+          .attr("font-size", labelSize)
           .attr("fill", "#fff")
           .attr("fill-opacity", 0)
           .attr("font-weight", 500)
@@ -254,16 +288,14 @@ export default function RadialChart({ flowers, showLabels = true }) {
           .attr("fill-opacity", 0.85);
       });
     }
-  }, [flowers, showLabels]);
+  }, [flowers, showLabels, inv]);
 
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <div className="radial-chart-wrapper">
       <svg
         ref={svgRef}
-        width={SIZE}
-        height={SIZE}
         viewBox={`0 0 ${SIZE} ${SIZE}`}
-        style={{ maxWidth: "100%", height: "auto" }}
+        className="radial-chart-svg"
       />
       <div ref={tooltipRef} className="chart-tooltip" />
     </div>
