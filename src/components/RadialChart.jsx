@@ -75,6 +75,8 @@ export default function RadialChart({ flowers, showLabels = true }) {
 
   // Inverse scale: viewBox units per screen pixel
   const inv = scale > 0 ? 1 / scale : 1;
+  const invRef = useRef(inv);
+  invRef.current = inv;
 
   // One-time SVG structure setup
   useEffect(() => {
@@ -138,6 +140,15 @@ export default function RadialChart({ flowers, showLabels = true }) {
 
     // Empty message font size
     g.select(".empty-msg").attr("font-size", `${EMPTY_MSG_PX * inv}px`);
+
+    // Curved label font size and stroke
+    const curvedTexts = g.select(".curved-labels").selectAll("text");
+    if (!curvedTexts.empty()) {
+      const labelSize = MONTH_LABEL_PX * inv;
+      curvedTexts
+        .attr("font-size", labelSize)
+        .attr("stroke-width", labelSize * 0.12);
+    }
 
     // Divider line stroke width
     g.select(".lines")
@@ -256,7 +267,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
     textGroup.selectAll("text").remove();
 
     if (showLabels && flowers.length > 0) {
-      const labelSize = Math.min(MONTH_LABEL_PX * inv, bandHeight * 0.6);
+      const labelSize = Math.min(MONTH_LABEL_PX * invRef.current, bandHeight * 0.6);
 
       flowers.forEach((flower, flowerIdx) => {
         const outerR = INNER_RADIUS + (flowerIdx + 1) * bandHeight;
@@ -294,7 +305,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
           .attr("opacity", 0.85);
       });
     }
-  }, [flowers, showLabels, inv]);
+  }, [flowers, showLabels]);
 
   return (
     <div className="radial-chart-wrapper">

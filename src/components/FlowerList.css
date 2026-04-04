@@ -1,65 +1,77 @@
-.flower-list {
-  width: 260px;
-  flex-shrink: 0;
+.panel-wrapper {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding-top: 1rem;
-  max-height: 100dvh;
-  overflow-y: auto;
+  align-items: flex-end;
 }
 
-.sidebar-options {
+.panel-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: inherit;
+  font-size: 13px;
+  color: #333;
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.panel-toggle:hover {
+  background: none;
+  color: #000;
+  border-color: #999;
+}
+
+.flower-panel {
+  margin-top: 0.5rem;
+  width: 260px;
+  max-height: calc(100dvh - 6rem);
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.panel-section {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  margin-bottom: 0.5rem;
 }
 
-.sidebar-title {
+.panel-title {
   font-size: 12px;
   font-weight: 400;
   color: #bbb;
   text-transform: lowercase;
   letter-spacing: 0.05em;
-  padding-left: 1.5rem;
-  margin-top: 0.75rem;
-  margin-bottom: 0.25rem;
+  padding: 0.75rem 1rem 0.15rem;
 }
 
 .toggle-label {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding-left: 1.5rem;
+  padding-left: 1rem;
   font-size: 12px;
   color: #999;
   cursor: pointer;
   user-select: none;
   text-transform: lowercase;
   letter-spacing: 0.03em;
-}
-
-.flower-search {
-  font-family: inherit;
-  font-size: 12px;
-  margin-left: 1.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e8e8e8;
-  border-radius: 10px;
-  outline: none;
-  transition: border-color 0.15s;
-  color: #1a1a1a;
-  background: #fafafa;
-}
-
-.flower-search::placeholder {
-  color: #bbb;
-}
-
-.flower-search:focus {
-  border-color: #ccc;
-  background: #fff;
 }
 
 .flower-items {
@@ -81,12 +93,11 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.5rem 0.35rem 1.5rem;
+  padding: 0.35rem 0.5rem 0.35rem 1rem;
   cursor: pointer;
   font-size: 12px;
   color: #777;
 }
-
 
 .flower-swatch {
   width: 10px;
@@ -156,16 +167,13 @@
   bottom: 0;
 }
 
-@media (max-width: 768px) {
-  .flower-list {
-    width: 100%;
-    flex: 1;
-    min-height: 200px;
-    padding-top: 1rem;
-    overflow-y: auto;
+@media (max-width: 480px) {
+  .panel-wrapper {
+    top: 0.75rem;
+    right: 0.75rem;
   }
 
-  .flower-search {
-    margin-right: 0.5rem;
+  .flower-panel {
+    width: calc(100vw - 1.5rem);
   }
 }
