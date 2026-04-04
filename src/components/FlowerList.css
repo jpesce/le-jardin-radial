@@ -9,6 +9,37 @@
   overflow-y: auto;
 }
 
+.sidebar-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-title {
+  font-size: 12px;
+  font-weight: 400;
+  color: #bbb;
+  text-transform: lowercase;
+  letter-spacing: 0.05em;
+  padding-left: 1.5rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-left: 1.5rem;
+  font-size: 12px;
+  color: #999;
+  cursor: pointer;
+  user-select: none;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+}
+
 .flower-search {
   font-family: inherit;
   font-size: 12px;
@@ -42,7 +73,7 @@
   color: #000;
 }
 
-.flower-item--hovered .flower-label input[type="checkbox"] {
+.flower-item--hovered .checkbox {
   border-color: #000;
 }
 
@@ -56,33 +87,6 @@
   color: #777;
 }
 
-.flower-label input[type="checkbox"] {
-  accent-color: #777;
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  border: 1px solid #777;
-  background: #fff;
-  display: grid;
-  place-content: center;
-}
-
-.flower-label input[type="checkbox"]::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  transform: scale(0);
-  transition: transform 0.1s;
-  background: #777;
-  border-radius: 2px;
-}
-
-.flower-label input[type="checkbox"]:checked::before {
-  transform: scale(1);
-}
 
 .flower-swatch {
   width: 10px;

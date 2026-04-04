@@ -24,6 +24,33 @@ body.is-dragging * {
   user-select: none !important;
 }
 
+.checkbox {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid #777;
+  background: #fff;
+  display: grid;
+  place-content: center;
+}
+
+.checkbox::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  transform: scale(0);
+  transition: transform 0.1s;
+  background: #777;
+  border-radius: 2px;
+}
+
+.checkbox:checked::before {
+  transform: scale(1);
+}
+
 .chart-tooltip {
   position: absolute;
   pointer-events: none;
@@ -37,4 +64,8 @@ body.is-dragging * {
   transition: opacity 0.12s;
   white-space: nowrap;
   line-height: 1.5;
+}
+
+.chart-tooltip strong {
+  font-weight: 800;
 }

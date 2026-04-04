@@ -28,18 +28,10 @@ export default function App() {
         selectedIds={selectedIds}
         onToggle={handleToggle}
         onReorder={setSelectedIds}
+        showLabels={showLabels}
+        onShowLabelsChange={setShowLabels}
       />
       <main className="chart-area">
-        <div className="chart-controls">
-          <label className="toggle-label">
-            <input
-              type="checkbox"
-              checked={showLabels}
-              onChange={(e) => setShowLabels(e.target.checked)}
-            />
-            Labels
-          </label>
-        </div>
         <RadialChart flowers={selected} showLabels={showLabels} />
       </main>
     </div>

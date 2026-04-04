@@ -16,31 +16,6 @@
   padding-top: 1rem;
 }
 
-.chart-controls {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-.toggle-label {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 12px;
-  color: #999;
-  cursor: pointer;
-  user-select: none;
-  text-transform: lowercase;
-  letter-spacing: 0.03em;
-}
-
-.toggle-label input[type="checkbox"] {
-  accent-color: #888;
-  cursor: pointer;
-  width: 14px;
-  height: 14px;
-}
-
 .radial-chart-wrapper {
   position: relative;
   width: 100%;
@@ -67,10 +42,6 @@
     order: -1;
     padding-top: 0;
     width: 100%;
-  }
-
-  .chart-controls {
-    margin-bottom: 0.25rem;
   }
 
   .radial-chart-wrapper {

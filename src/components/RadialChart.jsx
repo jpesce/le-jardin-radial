@@ -256,10 +256,11 @@ export default function RadialChart({ flowers, showLabels = true }) {
     textGroup.selectAll("text").remove();
 
     if (showLabels && flowers.length > 0) {
-      const labelSize = Math.min(11 * inv, bandHeight * 0.6);
+      const labelSize = Math.min(MONTH_LABEL_PX * inv, bandHeight * 0.6);
 
       flowers.forEach((flower, flowerIdx) => {
-        const midR = INNER_RADIUS + (flowerIdx + 0.5) * bandHeight;
+        const outerR = INNER_RADIUS + (flowerIdx + 1) * bandHeight;
+        const textR = outerR - 5;
         const pathId = `text-path-${flower.id}`;
 
         defs
@@ -267,25 +268,30 @@ export default function RadialChart({ flowers, showLabels = true }) {
           .attr("id", pathId)
           .attr(
             "d",
-            `M 0,${-midR} A ${midR},${midR} 0 1,1 -0.01,${-midR}`,
+            `M 0,${-textR} A ${textR},${textR} 0 1,1 -0.01,${-textR}`,
           );
 
         textGroup
           .append("text")
           .attr("font-size", labelSize)
+          .attr("font-family", "'JetBrains Mono', monospace")
+          .attr("dominant-baseline", "hanging")
           .attr("fill", "#fff")
-          .attr("fill-opacity", 0)
-          .attr("font-weight", 500)
+          .attr("opacity", 0)
+          .attr("stroke", "rgba(0,0,0,0.4)")
+          .attr("stroke-width", labelSize * 0.12)
+          .attr("paint-order", "stroke")
+          .attr("font-weight", 800)
           .style("pointer-events", "none")
           .append("textPath")
           .attr("href", `#${pathId}`)
-          .attr("startOffset", "0%")
+          .attr("startOffset", 5)
           .text(flower.name);
 
         textGroup
           .selectAll("text:last-child")
           .transition(t)
-          .attr("fill-opacity", 0.85);
+          .attr("opacity", 0.85);
       });
     }
   }, [flowers, showLabels, inv]);

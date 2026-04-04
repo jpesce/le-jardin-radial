@@ -6,7 +6,7 @@ import "./FlowerList.css";
 const LAYOUT_TRANSITION = { duration: 0.3, ease: "easeInOut" };
 const DRAG_THRESHOLD = 3;
 
-export default function FlowerList({ selectedIds, onToggle, onReorder }) {
+export default function FlowerList({ selectedIds, onToggle, onReorder, showLabels, onShowLabelsChange }) {
   const [search, setSearch] = useState("");
   const [hoveredId, setHoveredId] = useState(null);
   const [dragFrom, setDragFrom] = useState(null);
@@ -93,13 +93,26 @@ export default function FlowerList({ selectedIds, onToggle, onReorder }) {
 
   return (
     <aside className="flower-list">
-      <input
+      <div className="sidebar-options">
+        <h3 className="sidebar-title">options</h3>
+        <label className="toggle-label">
+          <input
+            type="checkbox"
+            className="checkbox"
+            checked={showLabels}
+            onChange={(e) => onShowLabelsChange(e.target.checked)}
+          />
+          show names
+        </label>
+      </div>
+      <h3 className="sidebar-title">flowers</h3>
+      {/* <input
         type="text"
         className="flower-search"
         placeholder="Search flowers..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-      />
+      /> */}
 
       <ul ref={listRef} className="flower-items">
         <AnimatePresence initial={false}>
@@ -161,6 +174,7 @@ export default function FlowerList({ selectedIds, onToggle, onReorder }) {
                   )}
                   <input
                     type="checkbox"
+                    className="checkbox"
                     checked={isSelected}
                     onChange={() => onToggle(flower.id)}
                   />
