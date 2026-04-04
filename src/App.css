@@ -50,6 +50,37 @@
   display: block;
 }
 
+.app-credits {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: max(180px, 15vw);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 400;
+  color: #443528;
+  line-height: 1.6;
+  z-index: 50;
+  text-align: left;
+}
+
+.app-description {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  width: max(200px, 20vw);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 400;
+  color: #443528;
+  line-height: 1.6;
+  z-index: 50;
+}
+
+.app-description strong {
+  font-weight: 700;
+}
+
 @media (max-width: 480px) {
   .chart-area {
     padding: 1rem;

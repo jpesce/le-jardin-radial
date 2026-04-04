@@ -50,6 +50,20 @@ export default function App() {
         onTogglePanel={() => setPanelOpen((prev) => !prev)}
         onClose={() => setPanelOpen(false)}
       />
+      <p className="app-credits">
+        Cultivé&nbsp;🪴 avec amour par Tainah Drummond&nbsp;👩‍🌾, en
+        collaboration avec João Pesce&nbsp;👨‍💻 et
+        Chandra Drummond&nbsp;👩‍🎨, enraciné en
+        France&nbsp;🇫🇷 et au Brésil&nbsp;🇧🇷.
+      </p>
+      <p className="app-description">
+        <strong>LE JARDIN RADIAL</strong> traduisent les jardins en graphiques
+        radiaux qui révèlent, au fil de l'année, les cycles de floraison et
+        leurs variations de couleurs. Chaque composition visuelle anticipe
+        l'expérience du jardin dans le temps, articulant botanique et dessin
+        dans une lecture sensible et stratégique, rendant visible la dimension
+        temporelle et vivante du paysage.
+      </p>
     </div>
   );
 }
