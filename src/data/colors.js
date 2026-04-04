@@ -1,4 +1,4 @@
-export const DEFAULT_STATE_COLORS = {
+const DEFAULT_STATE_COLORS = {
   dormant: "#8B7355",
   sprouting: "#90EE90",
   foliage: "#228B22",

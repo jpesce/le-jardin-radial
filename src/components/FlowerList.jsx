@@ -137,7 +137,6 @@ export default function FlowerList({ selectedIds, onToggle, onReorder }) {
                 exit={{ opacity: 0 }}
                 className={
                   "flower-item" +
-                  (isSelected ? " flower-item--selected" : "") +
                   (isHovered ? " flower-item--hovered" : "") +
                   (showIndicatorAbove ? " drop-indicator-above" : "") +
                   (showIndicatorBelow ? " drop-indicator-below" : "")
