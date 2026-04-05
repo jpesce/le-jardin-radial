@@ -1,7 +1,7 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import RadialChart from "./components/RadialChart.jsx";
 import FlowerList from "./components/FlowerList.jsx";
-import Logo from "./components/Logo.jsx";
+import Logo, { OUTER_PALETTE, INNER_PALETTE, pick } from "./components/Logo.jsx";
 import { flowers } from "./data/flowers.js";
 import "./App.css";
 
@@ -11,7 +11,35 @@ export default function App() {
   const [selectedIds, setSelectedIds] = useState(INITIAL_IDS);
   const [showLabels, setShowLabels] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [gardenOwner, setGardenOwner] = useState("TAINAH DRUMMOND");
+  const [gardenOwner, setGardenOwner] = useState("Tainah Drummond");
+
+  useEffect(() => {
+    document.title = gardenOwner
+      ? `Le Jardin Radial de ${gardenOwner}`
+      : "Le Jardin Radial";
+  }, [gardenOwner]);
+
+  useEffect(() => {
+    const link =
+      document.querySelector('link[rel="icon"]') ||
+      (() => {
+        const el = document.createElement("link");
+        el.rel = "icon";
+        document.head.appendChild(el);
+        return el;
+      })();
+
+    const update = () => {
+      const outer = pick(OUTER_PALETTE);
+      const inner = pick(INNER_PALETTE);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle fill="${outer}" cx="50" cy="50" r="50"/><circle fill="${inner}" cx="50" cy="50" r="28"/></svg>`;
+      link.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    };
+
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleToggle = useCallback((id) => {
     setSelectedIds((prev) =>
