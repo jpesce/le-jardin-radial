@@ -6,9 +6,9 @@
   <b>LE JARDIN RADIAL</b> translates gardens into radial graphics that reveal, throughout the year, blooming cycles and their color patterns. Each visual composition anticipates the garden's unfolding over time, articulating botany and design into a sensitive and strategic reading, making the temporal and living dimension of the landscape visible.
 </p>
 
-<!-- <p align="center">
-  <img width="600" src="" alt="Screenshot"/>
-</p> -->
+<p align="center">
+  <img width="600" src="docs/screenshot.png" alt="Screenshot"/>
+</p>
 
 ## Features
 
