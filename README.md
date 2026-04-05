@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="400" src="logo-le-jardin-radial.svg" alt="Le Jardin Radial"/>
+  <img width="400" src="docs/logo-le-jardin-radial.svg" alt="Le Jardin Radial"/>
 </p>
 
 <p align="center">
@@ -15,7 +15,7 @@
 - 🌸 Radial chart with 12 monthly segments showing flower lifecycles
 - 🌷 24 flowers spanning all seasons with unique bloom colors
 - ✏️ Select, deselect, and drag-to-reorder flowers on the chart
-- 🏷️ Curved flower name labels on rings
+- 🏷️ Curved flower name labels on rings and hover tooltips
 - 👤 Personalized garden with your name and unique logo colors
 - ✨ Smooth animated transitions
 
