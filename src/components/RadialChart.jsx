@@ -107,7 +107,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr("y", r * Math.sin(angle))
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "central")
-        .attr("fill", "#aaa")
+        .attr("fill", "#c1bcb7")
         .text(label.toLowerCase());
     });
 
@@ -167,7 +167,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
 
     // Empty message
     g.select(".empty-msg")
-      .attr("fill", flowers.length === 0 ? "#ccc" : "none")
+      .attr("fill", flowers.length === 0 ? "#dad7d4" : "none")
       .text(flowers.length === 0 ? "select flowers to begin" : "");
 
     // Build flat cell data
