@@ -34,7 +34,7 @@ npm run dev
 - **React** — UI
 - **D3.js** — radial chart
 - **Framer Motion** — animations
-- **Lucide React** — icons
+- **Lucide** — icons
 
 ## Credits
 
