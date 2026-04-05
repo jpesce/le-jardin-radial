@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flower } from "lucide-react";
+import { Sprout } from "lucide-react";
 import { flowers } from "../data/flowers.js";
 import "./FlowerList.css";
 
@@ -125,7 +125,7 @@ export default function FlowerList({
         className="panel-toggle"
         onClick={onTogglePanel}
       >
-        <Flower size={14} />
+        <Sprout size={14} />
         {isOpen ? "done" : "plan garden"}
       </button>
       <AnimatePresence>

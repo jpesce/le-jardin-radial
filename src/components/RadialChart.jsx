@@ -17,6 +17,7 @@ const MONTH_LABEL_PX = 12;
 const EMPTY_MSG_PX = 12;
 const CELL_STROKE_PX = 1;
 const LINE_STROKE_PX = 1.5;
+const ICON_SIZE = 16;
 
 const arcGen = d3.arc();
 
@@ -97,18 +98,114 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em");
 
-    // Month labels (positioned once, font-size updated via scale)
+    // Month labels (positions updated in scale effect)
     MONTH_LABELS.forEach((label, i) => {
       const angle = i * MONTH_SLICE + MONTH_SLICE / 2 + ANGLE_OFFSET;
-      const r = OUTER_RADIUS + LABEL_OFFSET;
       g.select(".month-labels")
         .append("text")
-        .attr("x", r * Math.cos(angle))
-        .attr("y", r * Math.sin(angle))
+        .attr("data-angle", angle)
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "central")
         .attr("fill", "#c1bcb7")
         .text(label.toLowerCase());
+    });
+
+    // Season markers at boundaries
+    const SEASON_ICONS = [
+      { monthIdx: 2, name: "spring", range: "mar – may", paths: [ // Flower (Spring)
+        "M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5",
+        "M12 7.5V9", "M7.5 12H9", "M16.5 12H15", "M12 16.5V15",
+        "m8 8 1.88 1.88", "M14.12 9.88 16 8",
+        "m8 16 1.88-1.88", "M14.12 14.12 16 16",
+      ], circle: { cx: 12, cy: 12, r: 3 } },
+      { monthIdx: 5, name: "summer", range: "jun – aug", paths: [ // Sun (Summer)
+        "M12 .5v2", "M12 21.5v2", "m3.87 3.87 1.41 1.41",
+        "m18.72 18.72 1.41 1.41", "M.5 12h2", "M21.5 12h2",
+        "m5.28 18.72-1.41 1.41", "m20.13 3.87-1.41 1.41",
+      ], circle: { cx: 12, cy: 12, r: 5.5 } },
+      { monthIdx: 8, name: "autumn", range: "sep – nov", paths: [ // Leaf (Autumn)
+        "M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z",
+        "M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12",
+      ], rotate: 90 },
+      { monthIdx: 11, name: "winter", range: "dec – feb", paths: [ // Snowflake (Winter)
+        "m10 20-1.25-2.5L6 18", "M10 4 8.75 6.5 6 6",
+        "m14 20 1.25-2.5L18 18", "m14 4 1.25 2.5L18 6",
+        "m17 21-3-6h-4", "m17 3-3 6 1.5 3", "M2 12h6.5L10 9",
+        "m20 10-1.5 2 1.5 2", "M22 12h-6.5L14 15", "m4 10 1.5 2L4 14",
+        "m7 21 3-6-1.5-3", "m7 3 3 6h4",
+      ] },
+    ];
+
+    g.append("g").attr("class", "season-markers");
+    SEASON_ICONS.forEach(({ monthIdx, name, range, paths, circle, rotate }) => {
+      const angle = monthIdx * MONTH_SLICE + ANGLE_OFFSET;
+      const rIcon = OUTER_RADIUS + LABEL_OFFSET * 2;
+      const rLineStart = OUTER_RADIUS;
+      const rLineEnd = rIcon - LABEL_OFFSET * 0.5;
+
+      // Dotted line from chart edge to icon
+      g.select(".season-markers")
+        .append("line")
+        .attr("x1", rLineStart * Math.cos(angle))
+        .attr("y1", rLineStart * Math.sin(angle))
+        .attr("x2", rLineEnd * Math.cos(angle))
+        .attr("y2", rLineEnd * Math.sin(angle))
+        .attr("stroke", "#c1bcb7")
+        .attr("stroke-dasharray", "2,3")
+        .attr("vector-effect", "non-scaling-stroke")
+        .style("pointer-events", "none");
+
+      // Icon positioned at rIcon, centered on the 24x24 viewBox
+      const x = rIcon * Math.cos(angle);
+      const y = rIcon * Math.sin(angle);
+      const s = ICON_SIZE / 24;
+
+      const rot = rotate ? `rotate(${rotate},12,12)` : "";
+      const icon = g.select(".season-markers")
+        .append("g")
+        .attr("class", "season-icon")
+        .attr("data-x", x)
+        .attr("data-y", y)
+        .attr("data-rotate", rotate || 0)
+        .attr("transform", `translate(${x},${y}) scale(${s}) translate(-12,-12) ${rot}`)
+        .attr("fill", "none")
+        .attr("stroke", "#c1bcb7")
+        .attr("stroke-width", 1.5)
+        .attr("stroke-linecap", "round")
+        .attr("stroke-linejoin", "round")
+        .attr("vector-effect", "non-scaling-stroke");
+
+      // Invisible hit area for hover
+      icon.append("rect")
+        .attr("x", 0).attr("y", 0)
+        .attr("width", 24).attr("height", 24)
+        .attr("fill", "transparent")
+        .attr("stroke", "none");
+
+      paths.forEach((d) => icon.append("path").attr("d", d));
+      if (circle) {
+        icon.append("circle")
+          .attr("cx", circle.cx)
+          .attr("cy", circle.cy)
+          .attr("r", circle.r);
+      }
+
+      // Tooltip on icon hover
+      icon
+        .style("cursor", "default")
+        .style("pointer-events", "all")
+        .on("mouseenter", () => {
+          const svgRect = svgRef.current.getBoundingClientRect();
+          const svgScale = svgRect.width / SIZE;
+          const tip = d3.select(tooltipRef.current);
+          tip.style("opacity", 1)
+            .html(`<strong>${name[0].toUpperCase() + name.slice(1)}</strong><br/>${range}`)
+            .style("left", `${(x + CENTER) * svgScale + 16}px`)
+            .style("top", `${(y + CENTER) * svgScale - 12}px`);
+        })
+        .on("mouseleave", () => {
+          d3.select(tooltipRef.current).style("opacity", 0);
+        });
     });
 
     // Radial divider lines
@@ -133,13 +230,33 @@ export default function RadialChart({ flowers, showLabels = true }) {
     if (!svgRef.current || !initialized.current) return;
     const g = d3.select(svgRef.current).select(".root");
 
-    // Month label font size
+    // Month label font size and position (fixed 4px gap from outer ring)
+    const labelR = OUTER_RADIUS + 24 * inv;
     g.select(".month-labels")
       .selectAll("text")
-      .attr("font-size", `${MONTH_LABEL_PX * inv}px`);
+      .attr("font-size", `${MONTH_LABEL_PX * inv}px`)
+      .each(function () {
+        const el = d3.select(this);
+        const angle = parseFloat(el.attr("data-angle"));
+        el.attr("x", labelR * Math.cos(angle))
+          .attr("y", labelR * Math.sin(angle));
+      });
 
     // Empty message font size
     g.select(".empty-msg").attr("font-size", `${EMPTY_MSG_PX * inv}px`);
+
+    // Season marker icon scale (non-scaling)
+    g.select(".season-markers")
+      .selectAll(".season-icon")
+      .each(function () {
+        const el = d3.select(this);
+        const x = el.attr("data-x");
+        const y = el.attr("data-y");
+        const s = (ICON_SIZE * inv) / 24;
+        const r = el.attr("data-rotate");
+        const rot = r && r !== "0" ? `rotate(${r},12,12)` : "";
+        el.attr("transform", `translate(${x},${y}) scale(${s}) translate(-12,-12) ${rot}`);
+      });
 
     // Curved label font size and stroke
     const curvedTexts = g.select(".curved-labels").selectAll("text");
@@ -167,7 +284,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
 
     // Empty message
     g.select(".empty-msg")
-      .attr("fill", flowers.length === 0 ? "#dad7d4" : "none")
+      .attr("fill", flowers.length === 0 ? "#c1bcb7" : "none")
       .text(flowers.length === 0 ? "select flowers to begin" : "");
 
     // Build flat cell data
