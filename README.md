@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img width="600" src="docs/screenshot.png" alt="Screenshot"/>
+  <img width="100%" src="docs/screenshot.png" alt="Screenshot"/>
 </p>
 
 ## Features
