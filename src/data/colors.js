@@ -1,7 +1,7 @@
 const DEFAULT_STATE_COLORS = {
-  dormant: "#8B7355",
-  sprouting: "#90EE90",
-  foliage: "#228B22",
+  dormant: "#8f967a",
+  sprouting: "#9fbc8f",
+  foliage: "#86a084",
   blooming: "#E84393",
 };
 
