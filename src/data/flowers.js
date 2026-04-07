@@ -1,6 +1,6 @@
 import { parseMonths, firstBloomStart } from "./months.js";
 
-const raw = [
+export const raw = [
   {
     id: "snowdrop",
     names: { en: "Snowdrop", fr: "Perce-neige" },

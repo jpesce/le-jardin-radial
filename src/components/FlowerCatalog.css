@@ -1,0 +1,23 @@
+.catalog-back {
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: 12px;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0 1rem 0.5rem;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+}
+
+.catalog-back:hover {
+  color: var(--color-text);
+}
+
+.catalog-search {
+  width: calc(100% - 2rem);
+}
+
+.catalog-label {
+  padding-left: 0.5rem;
+}

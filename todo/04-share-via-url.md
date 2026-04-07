@@ -1,4 +1,4 @@
-# 04 — Share via URL
+# 04 — Share garden
 
 ## Depends on
 
@@ -6,7 +6,7 @@ Todo 01 (state model), Todo 03 (localStorage)
 
 ## Scope
 
-~1 hour. New dependency (lz-string), encode/decode logic, share button UI.
+~1 hour. Share button UI + two sharing methods.
 
 ## New dependency
 
@@ -62,12 +62,31 @@ const initial = () => {
 };
 ```
 
+## Alternative: JSON file export/import (no dependency needed)
+
+Fully client-side, zero dependencies. Could replace or complement URL sharing.
+
+**Export:** `Blob` → `URL.createObjectURL` → trigger download as `garden.json`
+**Import:** `<input type="file" accept=".json">` → `FileReader` → `JSON.parse`
+
+Tradeoffs vs URL sharing:
+
+| | URL sharing | JSON file |
+|---|---|---|
+| Seamless | Yes — just paste a link | No — download, send file, import |
+| Dependency | lz-string (~4KB) | None |
+| Size limit | ~50 flowers (~8K chars) | Unlimited |
+| Works offline | Yes | Yes |
+| Shareable via messaging | Yes — it's a link | Need to attach a file |
+
+Could offer both: link icon copies URL, download icon exports JSON. Or start with JSON (simpler, no dependency) and add URL later.
+
 ## Files to create/modify
 
 | File | Change |
 |------|--------|
-| `src/hooks/useGarden.js` | Add encode/decode, URL param detection |
-| `src/components/ShareButton.jsx` | New — icon button with copy feedback |
+| `src/hooks/useGarden.js` | Add encode/decode, URL param detection, export/import helpers |
+| `src/components/ShareButton.jsx` | New — icon button with dropdown (copy link, export JSON, import JSON) |
 | `src/App.jsx` or panel area | Place ShareButton next to panel toggle |
-| `package.json` | Add lz-string dependency |
-| `src/i18n/translations/*.json` | Add `"shareCopied"` key |
+| `package.json` | Add lz-string dependency (only if URL sharing) |
+| `src/i18n/translations/*.json` | Add sharing keys |

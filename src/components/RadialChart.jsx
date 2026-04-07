@@ -404,52 +404,79 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .attr("fill", (d) => d.color)
       .attrTween("d", arcTween);
 
-    // Curved text labels
+    // Curved text labels — data join for smooth transitions
     const defs = g.select("defs");
     const textGroup = g.select(".curved-labels");
+    const labelSize = Math.min(MONTH_LABEL_PX * invRef.current, bandHeight * 0.6);
 
-    defs.selectAll("path").remove();
-    textGroup.selectAll("text").remove();
-
-    if (showLabels && flowers.length > 0) {
-      const labelSize = Math.min(MONTH_LABEL_PX * invRef.current, bandHeight * 0.6);
-
-      flowers.forEach((flower, flowerIdx) => {
-        const outerR = INNER_RADIUS + (flowerIdx + 1) * bandHeight;
-        const textR = outerR - 5;
-        const pathId = `text-path-${flower.id}`;
-
-        defs
-          .append("path")
-          .attr("id", pathId)
-          .attr(
-            "d",
-            `M 0,${-textR} A ${textR},${textR} 0 1,1 -0.01,${-textR}`,
-          );
-
-        textGroup
-          .append("text")
-          .attr("font-size", labelSize)
-          .attr("font-family", "'JetBrains Mono', monospace")
-          .attr("dominant-baseline", "hanging")
-          .attr("fill", "#fff")
-          .attr("opacity", 0)
-          .attr("stroke", "rgba(0,0,0,0.4)")
-          .attr("stroke-width", labelSize * 0.12)
-          .attr("paint-order", "stroke")
-          .attr("font-weight", 800)
-          .style("pointer-events", "none")
-          .append("textPath")
-          .attr("href", `#${pathId}`)
-          .attr("startOffset", 5)
-          .text(flower.displayName);
-
-        textGroup
-          .selectAll("text:last-child")
-          .transition(tr)
-          .attr("opacity", 0.85);
-      });
+    function arcPath(r) {
+      return `M 0,${-r} A ${r},${r} 0 1,1 -0.01,${-r}`;
     }
+
+    const labelData = showLabels && flowers.length > 0
+      ? flowers.map((flower, i) => ({
+          id: flower.id,
+          displayName: flower.displayName,
+          textR: INNER_RADIUS + (i + 1) * bandHeight - 5,
+        }))
+      : [];
+
+    // Def paths — data join
+    const defPaths = defs.selectAll("path").data(labelData, (d) => d.id);
+    defPaths.exit().transition(tr).remove();
+    const defPathsEnter = defPaths.enter()
+      .append("path")
+      .attr("id", (d) => `text-path-${d.id}`)
+      .attr("d", (d) => arcPath(d.textR))
+      .each(function (d) { this.__prevR = d.textR; });
+    defPathsEnter.merge(defPaths)
+      .transition(tr)
+      .attrTween("d", function (d) {
+        const prev = this.__prevR ?? d.textR;
+        const interp = d3.interpolate(prev, d.textR);
+        return (t) => arcPath(interp(t));
+      })
+      .on("end", function (d) { this.__prevR = d.textR; });
+
+    // Text elements — data join
+    const texts = textGroup.selectAll("text").data(labelData, (d) => d.id);
+
+    texts.exit()
+      .transition(tr)
+      .attr("opacity", 0)
+      .remove();
+
+    const textsEnter = texts.enter()
+      .append("text")
+      .attr("font-size", labelSize)
+      .attr("font-family", "'JetBrains Mono', monospace")
+      .attr("dominant-baseline", "hanging")
+      .attr("fill", "#fff")
+      .attr("opacity", 0)
+      .attr("stroke", "rgba(0,0,0,0.4)")
+      .attr("stroke-width", labelSize * 0.12)
+      .attr("paint-order", "stroke")
+      .attr("font-weight", 800)
+      .style("pointer-events", "none");
+
+    textsEnter
+      .append("textPath")
+      .attr("href", (d) => `#text-path-${d.id}`)
+      .attr("startOffset", 5)
+      .text((d) => d.displayName);
+
+    textsEnter
+      .transition()
+      .delay(T_DURATION * 0.5)
+      .duration(T_DURATION * 0.6)
+      .ease(d3.easeCubicInOut)
+      .attr("opacity", 0.85);
+
+    // Update existing labels — refresh text and size
+    texts.select("textPath").text((d) => d.displayName);
+    texts
+      .attr("font-size", labelSize)
+      .attr("stroke-width", labelSize * 0.12);
   }, [flowers, showLabels, t]);
 
   const chartDesc = flowers.length > 0

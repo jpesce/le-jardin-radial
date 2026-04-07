@@ -1,18 +1,21 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sprout } from "lucide-react";
-import { flowers } from "../data/flowers.js";
+import { Sprout, Pencil } from "lucide-react";
 import { bloomRanges } from "../data/months.js";
 import { useI18n } from "../i18n/I18nContext.jsx";
+import FlowerCatalog from "./FlowerCatalog.jsx";
 import "./FlowerList.css";
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: "easeInOut" };
 const DRAG_THRESHOLD = 3;
 
 export default function FlowerList({
-  selectedIds,
+  gardenFlowers,
+  allFlowers,
+  selected,
   onToggle,
   onReorder,
+  onToggleGarden,
   showLabels,
   onShowLabelsChange,
   gardenOwner,
@@ -21,31 +24,29 @@ export default function FlowerList({
   onTogglePanel,
   onClose,
 }) {
-  const { t, lang } = useI18n();
-  const [search, setSearch] = useState("");
+  const { t } = useI18n();
   const [hoveredId, setHoveredId] = useState(null);
   const [dragFrom, setDragFrom] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
+  const [view, setView] = useState("garden");
   const listRef = useRef(null);
   const panelRef = useRef(null);
   const buttonRef = useRef(null);
 
-  const isSearching = search.length > 0;
+  // Reset to garden view when panel closes
+  useEffect(() => {
+    if (!isOpen) setView("garden");
+  }, [isOpen]);
 
   const sortedFlowers = useMemo(() => {
-    const q = search.toLowerCase();
-    const filtered = flowers.filter((f) =>
-      f.names[lang].toLowerCase().includes(q),
-    );
-    if (isSearching) return filtered;
-    const selected = selectedIds
-      .map((id) => filtered.find((f) => f.id === id))
+    const sel = selected
+      .map((id) => gardenFlowers.find((f) => f.id === id))
       .filter(Boolean);
-    const unselected = filtered.filter((f) => !selectedIds.includes(f.id));
-    return [...selected, ...unselected];
-  }, [selectedIds, search, isSearching, lang]);
+    const unselected = gardenFlowers.filter((f) => !selected.includes(f.id));
+    return [...sel, ...unselected];
+  }, [gardenFlowers, selected]);
 
-  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
 
   // Global grabbing cursor while dragging
   useEffect(() => {
@@ -71,7 +72,7 @@ export default function FlowerList({
     if (e.button !== 0) return;
 
     const startY = e.clientY;
-    const currentIds = [...selectedIds];
+    const currentIds = [...selected];
     let isDragging = false;
     let currentTarget = null;
 
@@ -142,135 +143,152 @@ export default function FlowerList({
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
-            <div className="panel-section">
-              <label className="toggle-label">
-                {t("gardenerLabel")}
-              </label>
-              <input
-                type="text"
-                className="panel-input"
-                value={gardenOwner}
-                onChange={(e) => onGardenOwnerChange(e.target.value)}
+            {view === "manage" ? (
+              <FlowerCatalog
+                flowers={allFlowers}
+                onToggle={onToggleGarden}
+                onBack={() => setView("garden")}
               />
-              <label className="toggle-label">
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  checked={showLabels}
-                  onChange={(e) => onShowLabelsChange(e.target.checked)}
-                />
-                {t("showFlowerNames")}
-              </label>
-            </div>
-            <h3 className="panel-title">{t("pickFlowers")}</h3>
+            ) : (
+              <>
+                <div className="panel-section">
+                  <label className="toggle-label">
+                    {t("gardenerLabel")}
+                  </label>
+                  <input
+                    type="text"
+                    className="panel-input"
+                    value={gardenOwner}
+                    onChange={(e) => onGardenOwnerChange(e.target.value)}
+                  />
+                  <label className="toggle-label">
+                    <input
+                      type="checkbox"
+                      className="checkbox"
+                      checked={showLabels}
+                      onChange={(e) => onShowLabelsChange(e.target.checked)}
+                    />
+                    {t("showFlowerNames")}
+                  </label>
+                </div>
+                <h3 className="panel-title">{t("pickFlowers")}</h3>
 
-            <ul ref={listRef} className="flower-items">
-              <AnimatePresence initial={false}>
-                {sortedFlowers.flatMap((flower) => {
-                  const isSelected = selectedSet.has(flower.id);
-                  const selectedIdx = selectedIds.indexOf(flower.id);
+                <ul ref={listRef} className="flower-items">
+                  <AnimatePresence initial={false}>
+                    {sortedFlowers.flatMap((flower) => {
+                      const isSelected = selectedSet.has(flower.id);
+                      const selectedIdx = selected.indexOf(flower.id);
 
-                  const isDragging = dragFrom !== null;
-                  const isDraggedItem = isSelected && dragFrom === selectedIdx;
-                  const isHovered = hoveredId === flower.id;
+                      const isDragging = dragFrom !== null;
+                      const isDraggedItem = isSelected && dragFrom === selectedIdx;
+                      const isHovered = hoveredId === flower.id;
 
-                  const showIndicatorAbove =
-                    isDragging &&
-                    isSelected &&
-                    !isSearching &&
-                    dropTarget === selectedIdx &&
-                    dropTarget !== dragFrom &&
-                    dropTarget !== dragFrom + 1;
+                      const showIndicatorAbove =
+                        isDragging &&
+                        isSelected &&
 
-                  const showIndicatorBelow =
-                    isDragging &&
-                    isSelected &&
-                    !isSearching &&
-                    selectedIdx === selectedIds.length - 1 &&
-                    dropTarget === selectedIds.length &&
-                    dropTarget !== dragFrom + 1;
+                        dropTarget === selectedIdx &&
+                        dropTarget !== dragFrom &&
+                        dropTarget !== dragFrom + 1;
 
-                  const items = [
-                    <motion.li
-                      key={flower.id}
-                      layout
-                      transition={{ layout: LAYOUT_TRANSITION }}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: isDraggedItem ? 0.4 : 1 }}
-                      exit={{ opacity: 0 }}
-                      className={
-                        "flower-item" +
-                        (isHovered ? " flower-item--hovered" : "") +
-                        (showIndicatorAbove ? " drop-indicator-above" : "") +
-                        (showIndicatorBelow ? " drop-indicator-below" : "")
-                      }
-                      data-selected-idx={
-                        isSelected && !isSearching ? selectedIdx : undefined
-                      }
-                      onPointerMove={() => {
-                        if (dragFrom === null && hoveredId !== flower.id)
-                          setHoveredId(flower.id);
-                      }}
-                      onMouseLeave={() => setHoveredId(null)}
-                      onPointerDown={
-                        isSelected && !isSearching
-                          ? (e) => handlePointerDown(e, selectedIdx)
-                          : undefined
-                      }
-                    >
-                      <label className="flower-label">
-                        {isSelected && !isSearching && (
-                          <span className="drag-handle" role="img" aria-label="reorder">&#x2630;</span>
-                        )}
-                        <input
-                          type="checkbox"
-                          className="checkbox"
-                          checked={isSelected}
-                          onChange={() => onToggle(flower.id)}
-                        />
-                        <span
-                          className="flower-swatch"
-                          style={{
-                            background: flower.colors?.blooming ?? "var(--color-text)",
+                      const showIndicatorBelow =
+                        isDragging &&
+                        isSelected &&
+
+                        selectedIdx === selected.length - 1 &&
+                        dropTarget === selected.length &&
+                        dropTarget !== dragFrom + 1;
+
+                      const items = [
+                        <motion.li
+                          key={flower.id}
+                          layout
+                          transition={{ layout: LAYOUT_TRANSITION }}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: isDraggedItem ? 0.4 : 1 }}
+                          exit={{ opacity: 0 }}
+                          className={
+                            "flower-item" +
+                            (isHovered ? " flower-item--hovered" : "") +
+                            (showIndicatorAbove ? " drop-indicator-above" : "") +
+                            (showIndicatorBelow ? " drop-indicator-below" : "")
+                          }
+                          data-selected-idx={
+                            isSelected ? selectedIdx : undefined
+                          }
+                          onPointerMove={() => {
+                            if (dragFrom === null && hoveredId !== flower.id)
+                              setHoveredId(flower.id);
                           }}
-                        />
-                        <span className="flower-name">{flower.names[lang]}</span>
-                        <span className="flower-bloom-range">
-                          {bloomRanges(flower.monthStates)
-                            .map(({ start, end }) => {
-                              const months = t("months");
-                              return start === end
-                                ? months[start]
-                                : `${months[start]}–${months[end]}`;
-                            })
-                            .join(", ")}
-                        </span>
-                      </label>
-                    </motion.li>,
-                  ];
+                          onMouseLeave={() => setHoveredId(null)}
+                          onPointerDown={
+                            isSelected
+                              ? (e) => handlePointerDown(e, selectedIdx)
+                              : undefined
+                          }
+                        >
+                          <label className="flower-label">
+                            {isSelected && (
+                              <span className="drag-handle" role="img" aria-label="reorder">&#x2630;</span>
+                            )}
+                            <input
+                              type="checkbox"
+                              className="checkbox"
+                              checked={isSelected}
+                              onChange={() => onToggle(flower.id)}
+                            />
+                            <span
+                              className="flower-swatch"
+                              style={{
+                                background: flower.colors?.blooming ?? "var(--color-text)",
+                              }}
+                            />
+                            <span className="flower-name">{flower.displayName}</span>
+                            <span className="flower-bloom-range">
+                              {bloomRanges(flower.monthStates)
+                                .map(({ start, end }) => {
+                                  const months = t("months");
+                                  return start === end
+                                    ? months[start]
+                                    : `${months[start]}–${months[end]}`;
+                                })
+                                .join(", ")}
+                            </span>
+                          </label>
+                        </motion.li>,
+                      ];
 
-                  const isLastSelected =
-                    !isSearching &&
-                    isSelected &&
-                    selectedIdx === selectedIds.length - 1 &&
-                    sortedFlowers.length > selectedIds.length;
+                      const isLastSelected =
 
-                  if (isLastSelected) {
-                    items.push(
-                      <motion.li
-                        key="__divider"
-                        layout
-                        transition={{ layout: LAYOUT_TRANSITION }}
-                        className="flower-divider-inline"
-                        aria-hidden
-                      />,
-                    );
-                  }
+                        isSelected &&
+                        selectedIdx === selected.length - 1 &&
+                        sortedFlowers.length > selected.length;
 
-                  return items;
-                })}
-              </AnimatePresence>
-            </ul>
+                      if (isLastSelected) {
+                        items.push(
+                          <motion.li
+                            key="__divider"
+                            layout
+                            transition={{ layout: LAYOUT_TRANSITION }}
+                            className="flower-divider-inline"
+                            aria-hidden
+                          />,
+                        );
+                      }
+
+                      return items;
+                    })}
+                  </AnimatePresence>
+                </ul>
+
+                <button
+                  className="panel-edit-btn"
+                  onClick={() => setView("manage")}
+                >
+                  <Pencil size={12} /> {t("editButton")}
+                </button>
+              </>
+            )}
           </motion.aside>
         )}
       </AnimatePresence>

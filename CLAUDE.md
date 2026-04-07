@@ -12,13 +12,30 @@ React + D3.js garden visualization. Deployed at jardin.pesce.cc via GitHub Pages
 
 ## Architecture decisions
 
+### Garden state — `useGarden` hook
+
+All garden state is managed by a `useReducer`-based hook in `src/hooks/useGarden.js`.
+
+- **State model**: `{ owner, labels, selected: string[], flowers: RawFlower[] }` — fully serializable, ready for persistence (localStorage, URL sharing).
+- `flowers.js` is a **catalog** (read-only library). The hook seeds the initial garden from it with 8 random flowers (4 selected).
+- `gardenFlowers`, `selectedFlowers`, `allFlowers` are computed via `useMemo` (enriched with `monthStates`, `firstBloom`, `displayName`). Raw state stores only serializable data.
+- `displayName` comes from `flower.names[lang]` — the hook receives `lang` as a parameter (not calling `useI18n` internally, keeps it testable).
+- **IDs**: catalog flowers have stable slugs (`"rose"`, `"snowdrop"`). Custom flowers (future) will use `crypto.randomUUID()`.
+- `panelOpen` stays in App.jsx — it's UI state, not garden state.
+- Adding a flower from the manage view auto-selects it for the chart.
+
+### Two panel views
+
+- **Garden view** (default): shows flowers in your garden. Checkboxes toggle chart visibility. Drag to reorder. No add/remove here.
+- **Manage view** (via "✎ modifier" button): shows all 24 catalog flowers. Checkboxes toggle garden membership. Stable bloom order, no reordering on check/uncheck.
+
 ### i18n — no library
 
 Lightweight React Context + JSON. No react-i18next — the app has ~30 translatable strings.
 
 - `/` = French (default), `/en` = English. Path-based via `pushState`.
 - UI strings, months, seasons, states → `src/i18n/translations/{fr,en}.json`
-- Flower names live in `src/data/flowers.js` as `names: { en, fr }` — NOT in translation files. Adding a flower = one file to edit.
+- Flower names live in `src/data/flowers.js` as `names: { en, fr }` — NOT in translation files.
 - The brand "Le Jardin Radial" and subtitle "de {owner}" are always French. Intentional.
 
 ### Design tokens — two tiers
@@ -35,12 +52,13 @@ The radial chart uses D3 direct DOM manipulation inside `useEffect` hooks. This 
 - **Init effect** (`[]`): creates SVG structure once
 - **Language effect** (`[t]`): updates month label text
 - **Scale effect** (`[inv]`): updates non-scaling elements on resize
-- **Data effect** (`[flowers, showLabels, t]`): data joins, transitions, tooltips
+- **Data effect** (`[flowers, showLabels, t]`): data joins for cells AND curved labels, transitions, tooltips
 - **`tRef` pattern**: a ref to the current `t()` function so D3 event handlers (closures set during init) always read the latest translations
+- **Label animations**: curved text labels use a proper D3 data join (enter/update/exit). New labels fade in after the ring animation. Existing labels smoothly transition to new radii via `attrTween`.
 
 ### Data
 
-- `flowers.js`: single source of truth. `name` property does not exist — use `names[lang]` or `displayName` (set by App.jsx).
+- `flowers.js`: catalog source. Exports `raw` (for seeding garden state) and `flowers` (enriched with `monthStates`, `firstBloom`, sorted by bloom). `name` property does not exist — use `names[lang]` or `displayName`.
 - `months.js`: `bloomRanges()` returns `[{ start, end }]` index pairs. Formatting with translated month names happens in components.
 - `colors.js`: resolves plant state → color. State colors are botanical, not theme colors.
 

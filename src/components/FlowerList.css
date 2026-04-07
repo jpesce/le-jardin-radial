@@ -201,6 +201,31 @@
   bottom: 0;
 }
 
+.panel-edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: calc(100% - 1.5rem);
+  background: none;
+  border: 1px dashed var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  margin: 0.75rem 0.75rem 0.25rem;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.panel-edit-btn:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text);
+}
+
 @media (max-width: 480px) {
   .panel-wrapper {
     top: 0.75rem;
