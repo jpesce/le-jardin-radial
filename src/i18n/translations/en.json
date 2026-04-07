@@ -8,6 +8,8 @@
   "showFlowerNames": "show flower names",
   "pickFlowers": "pick flowers",
   "emptyState": "select flowers to begin",
+  "chartTitle": "Radial garden chart",
+  "chartDesc": "Blooming cycles of {flowers} throughout the year.",
   "months": ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"],
   "seasons": {
     "spring": { "name": "spring", "range": "mar – may" },

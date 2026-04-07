@@ -452,13 +452,26 @@ export default function RadialChart({ flowers, showLabels = true }) {
     }
   }, [flowers, showLabels, t]);
 
+  const chartDesc = flowers.length > 0
+    ? t("chartDesc", {
+        flowers: new Intl.ListFormat(lang, { style: "long", type: "conjunction" })
+          .format(flowers.map((f) => f.displayName)),
+      })
+    : t("emptyState");
+
   return (
     <div className="radial-chart-wrapper">
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         className="radial-chart-svg"
-      />
+        role="img"
+        aria-labelledby="chart-title chart-desc"
+        focusable="false"
+      >
+        <title id="chart-title">{t("chartTitle")}</title>
+        <desc id="chart-desc">{chartDesc}</desc>
+      </svg>
       <div ref={tooltipRef} className="chart-tooltip" />
     </div>
   );
