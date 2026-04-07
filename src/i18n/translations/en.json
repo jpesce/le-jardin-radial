@@ -1,0 +1,29 @@
+{
+  "credits": "Cultivated\u00a0\ud83e\udeb4 with love by Tainah Drummond\u00a0\ud83d\udc69\u200d\ud83c\udf3e, in collaboration with João Pesce\u00a0\ud83d\udc68\u200d\ud83d\udcbb and Chandra Drummond\u00a0\ud83d\udc69\u200d\ud83c\udfa8, rooted in France\u00a0\ud83c\uddeb\ud83c\uddf7 and Brazil\u00a0\ud83c\udde7\ud83c\uddf7.",
+  "descriptionBrand": "LE JARDIN RADIAL",
+  "descriptionBody": "translates gardens into radial graphics that reveal blooming cycles and color patterns throughout the year. Each visual composition anticipates the garden experience over time, articulating botany and design in a sensitive and strategic reading, making visible the temporal and living dimension of the landscape.",
+  "buttonDone": "done",
+  "buttonPlanGarden": "plan garden",
+  "gardenerLabel": "gardener",
+  "showFlowerNames": "show flower names",
+  "pickFlowers": "pick flowers",
+  "emptyState": "select flowers to begin",
+  "months": ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"],
+  "seasons": {
+    "spring": { "name": "spring", "range": "mar – may" },
+    "summer": { "name": "summer", "range": "jun – aug" },
+    "autumn": { "name": "autumn", "range": "sep – nov" },
+    "winter": { "name": "winter", "range": "dec – feb" }
+  },
+  "states": {
+    "dormant": "dormant",
+    "sprouting": "sprouting",
+    "foliage": "foliage",
+    "blooming": "blooming"
+  },
+  "meta": {
+    "title": "Le Jardin Radial de {owner}",
+    "titleDefault": "Le Jardin Radial",
+    "description": "Translates gardens into radial graphics that reveal blooming cycles and color patterns throughout the year."
+  }
+}

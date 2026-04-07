@@ -2,7 +2,8 @@ import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sprout } from "lucide-react";
 import { flowers } from "../data/flowers.js";
-import { bloomRange } from "../data/months.js";
+import { bloomRanges } from "../data/months.js";
+import { useI18n } from "../i18n/I18nContext.jsx";
 import "./FlowerList.css";
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: "easeInOut" };
@@ -20,6 +21,7 @@ export default function FlowerList({
   onTogglePanel,
   onClose,
 }) {
+  const { t, lang } = useI18n();
   const [search, setSearch] = useState("");
   const [hoveredId, setHoveredId] = useState(null);
   const [dragFrom, setDragFrom] = useState(null);
@@ -31,8 +33,9 @@ export default function FlowerList({
   const isSearching = search.length > 0;
 
   const sortedFlowers = useMemo(() => {
+    const q = search.toLowerCase();
     const filtered = flowers.filter((f) =>
-      f.name.toLowerCase().includes(search.toLowerCase()),
+      f.names[lang].toLowerCase().includes(q),
     );
     if (isSearching) return filtered;
     const selected = selectedIds
@@ -40,7 +43,7 @@ export default function FlowerList({
       .filter(Boolean);
     const unselected = filtered.filter((f) => !selectedIds.includes(f.id));
     return [...selected, ...unselected];
-  }, [selectedIds, search, isSearching]);
+  }, [selectedIds, search, isSearching, lang]);
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
@@ -127,7 +130,7 @@ export default function FlowerList({
         onClick={onTogglePanel}
       >
         <Sprout size={14} />
-        {isOpen ? "done" : "plan garden"}
+        {isOpen ? t("buttonDone") : t("buttonPlanGarden")}
       </button>
       <AnimatePresence>
         {isOpen && (
@@ -141,7 +144,7 @@ export default function FlowerList({
           >
             <div className="panel-section">
               <label className="toggle-label">
-                gardener
+                {t("gardenerLabel")}
               </label>
               <input
                 type="text"
@@ -156,10 +159,10 @@ export default function FlowerList({
                   checked={showLabels}
                   onChange={(e) => onShowLabelsChange(e.target.checked)}
                 />
-                show flower names
+                {t("showFlowerNames")}
               </label>
             </div>
-            <h3 className="panel-title">pick flowers</h3>
+            <h3 className="panel-title">{t("pickFlowers")}</h3>
 
             <ul ref={listRef} className="flower-items">
               <AnimatePresence initial={false}>
@@ -231,9 +234,16 @@ export default function FlowerList({
                             background: flower.colors?.blooming ?? "#E84393",
                           }}
                         />
-                        <span className="flower-name">{flower.name}</span>
+                        <span className="flower-name">{flower.names[lang]}</span>
                         <span className="flower-bloom-range">
-                          {bloomRange(flower.monthStates)}
+                          {bloomRanges(flower.monthStates)
+                            .map(({ start, end }) => {
+                              const months = t("months");
+                              return start === end
+                                ? months[start]
+                                : `${months[start]}–${months[end]}`;
+                            })
+                            .join(", ")}
                         </span>
                       </label>
                     </motion.li>,

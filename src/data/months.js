@@ -1,18 +1,8 @@
-export const MONTH_LABELS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-];
-
-const SHORT_MONTHS = [
-  "jan", "feb", "mar", "apr", "may", "jun",
-  "jul", "aug", "sep", "oct", "nov", "dec",
-];
-
 /**
  * Returns bloom ranges as an array of { start, end } month indices (0–11),
- * handling wrap-around. Shared by bloomRange and firstBloomStart.
+ * handling wrap-around.
  */
-function getBloomRanges(monthStates) {
+export function bloomRanges(monthStates) {
   const blooming = monthStates.map((s) => s === "blooming");
   const offset = blooming.indexOf(false);
   if (offset === -1) return [{ start: 0, end: 11 }];
@@ -42,23 +32,8 @@ function getBloomRanges(monthStates) {
  * handling wrap-around. Returns 12 if no blooming.
  */
 export function firstBloomStart(monthStates) {
-  const ranges = getBloomRanges(monthStates);
+  const ranges = bloomRanges(monthStates);
   return ranges.length > 0 ? ranges[0].start : 12;
-}
-
-/**
- * Returns a string like "may–oct" or "dec–mar" for blooming months.
- */
-export function bloomRange(monthStates) {
-  const ranges = getBloomRanges(monthStates);
-  if (ranges.length === 0) return "";
-  return ranges
-    .map(({ start, end }) =>
-      start === end
-        ? SHORT_MONTHS[start]
-        : `${SHORT_MONTHS[start]}–${SHORT_MONTHS[end]}`,
-    )
-    .join(", ");
 }
 
 /**

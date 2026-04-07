@@ -1,8 +1,11 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import RadialChart from "./components/RadialChart.jsx";
 import FlowerList from "./components/FlowerList.jsx";
+import LanguageSwitcher from "./components/LanguageSwitcher.jsx";
 import Logo, { OUTER_PALETTE, INNER_PALETTE, pick } from "./components/Logo.jsx";
 import { flowers } from "./data/flowers.js";
+import { useI18n } from "./i18n/I18nContext.jsx";
+import { updateMeta } from "./i18n/updateMeta.js";
 import "./App.css";
 
 const INITIAL_IDS = ["rose", "lavender", "sunflower", "tulip", "snowdrop"];
@@ -12,12 +15,11 @@ export default function App() {
   const [showLabels, setShowLabels] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
   const [gardenOwner, setGardenOwner] = useState("Tainah Drummond");
+  const { lang, t } = useI18n();
 
   useEffect(() => {
-    document.title = gardenOwner
-      ? `Le Jardin Radial de ${gardenOwner}`
-      : "Le Jardin Radial";
-  }, [gardenOwner]);
+    updateMeta(lang, gardenOwner);
+  }, [lang, gardenOwner]);
 
   useEffect(() => {
     const link =
@@ -48,20 +50,24 @@ export default function App() {
   }, []);
 
   // Reverse so top of sidebar list = outermost ring
+  // Attach displayName from translations
   const selected = useMemo(
     () =>
       [...selectedIds]
         .reverse()
         .map((id) => flowers.find((f) => f.id === id))
-        .filter(Boolean),
-    [selectedIds],
+        .filter(Boolean)
+        .map((f) => ({ ...f, displayName: f.names[lang] })),
+    [selectedIds, lang],
   );
 
   return (
     <div className="app">
       <div className="app-logo-wrapper">
         <Logo className="app-logo" name={gardenOwner} />
-        <span className="app-logo-subtitle">de {gardenOwner}</span>
+        <span className="app-logo-subtitle">
+          de {gardenOwner}
+        </span>
       </div>
       <main className="chart-area">
         <RadialChart flowers={selected} showLabels={showLabels} />
@@ -78,20 +84,13 @@ export default function App() {
         onTogglePanel={() => setPanelOpen((prev) => !prev)}
         onClose={() => setPanelOpen(false)}
       />
-      <p className="app-credits">
-        Cultivé&nbsp;🪴 avec amour par Tainah Drummond&nbsp;👩‍🌾, en
-        collaboration avec João Pesce&nbsp;👨‍💻 et
-        Chandra Drummond&nbsp;👩‍🎨, enraciné en
-        France&nbsp;🇫🇷 et au Brésil&nbsp;🇧🇷.
-      </p>
-      <p className="app-description">
-        <strong>LE JARDIN RADIAL</strong> traduisent les jardins en graphiques
-        radiaux qui révèlent, au fil de l'année, les cycles de floraison et
-        leurs variations de couleurs. Chaque composition visuelle anticipe
-        l'expérience du jardin dans le temps, articulant botanique et dessin
-        dans une lecture sensible et stratégique, rendant visible la dimension
-        temporelle et vivante du paysage.
-      </p>
+      <p className="app-credits">{t("credits")}</p>
+      <div className="app-bottom-left">
+        <LanguageSwitcher />
+        <p className="app-description">
+          <strong>{t("descriptionBrand")}</strong> {t("descriptionBody")}
+        </p>
+      </div>
     </div>
   );
 }

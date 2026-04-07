@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import * as d3 from "d3";
-import { MONTH_LABELS } from "../data/months.js";
 import { resolveColor } from "../data/colors.js";
+import { useI18n } from "../i18n/I18nContext.jsx";
 
 const SIZE = 600;
 const CENTER = SIZE / 2;
@@ -54,11 +54,41 @@ function arcTweenExit(d) {
     });
 }
 
+const SEASON_ICONS = [
+  { monthIdx: 2, key: "spring", paths: [
+    "M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5",
+    "M12 7.5V9", "M7.5 12H9", "M16.5 12H15", "M12 16.5V15",
+    "m8 8 1.88 1.88", "M14.12 9.88 16 8",
+    "m8 16 1.88-1.88", "M14.12 14.12 16 16",
+  ], circle: { cx: 12, cy: 12, r: 3 } },
+  { monthIdx: 5, key: "summer", paths: [
+    "M12 .5v2", "M12 21.5v2", "m3.87 3.87 1.41 1.41",
+    "m18.72 18.72 1.41 1.41", "M.5 12h2", "M21.5 12h2",
+    "m5.28 18.72-1.41 1.41", "m20.13 3.87-1.41 1.41",
+  ], circle: { cx: 12, cy: 12, r: 5.5 } },
+  { monthIdx: 8, key: "autumn", paths: [
+    "M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z",
+    "M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12",
+  ], rotate: 90 },
+  { monthIdx: 11, key: "winter", paths: [
+    "m10 20-1.25-2.5L6 18", "M10 4 8.75 6.5 6 6",
+    "m14 20 1.25-2.5L18 18", "m14 4 1.25 2.5L18 6",
+    "m17 21-3-6h-4", "m17 3-3 6 1.5 3", "M2 12h6.5L10 9",
+    "m20 10-1.5 2 1.5 2", "M22 12h-6.5L14 15", "m4 10 1.5 2L4 14",
+    "m7 21 3-6-1.5-3", "m7 3 3 6h4",
+  ] },
+];
+
 export default function RadialChart({ flowers, showLabels = true }) {
   const svgRef = useRef(null);
   const tooltipRef = useRef(null);
   const initialized = useRef(false);
   const [scale, setScale] = useState(1);
+  const { t, lang } = useI18n();
+
+  // Keep a ref to t so D3 event handlers always read the current translation
+  const tRef = useRef(t);
+  tRef.current = t;
 
   // Track the display scale: rendered pixels / viewBox units
   useEffect(() => {
@@ -98,46 +128,21 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em");
 
-    // Month labels (positions updated in scale effect)
-    MONTH_LABELS.forEach((label, i) => {
+    // Month label placeholders (text set in language effect)
+    for (let i = 0; i < 12; i++) {
       const angle = i * MONTH_SLICE + MONTH_SLICE / 2 + ANGLE_OFFSET;
       g.select(".month-labels")
         .append("text")
+        .attr("data-month-idx", i)
         .attr("data-angle", angle)
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "central")
-        .attr("fill", "#c1bcb7")
-        .text(label.toLowerCase());
-    });
+        .attr("fill", "#c1bcb7");
+    }
 
     // Season markers at boundaries
-    const SEASON_ICONS = [
-      { monthIdx: 2, name: "spring", range: "mar – may", paths: [ // Flower (Spring)
-        "M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5",
-        "M12 7.5V9", "M7.5 12H9", "M16.5 12H15", "M12 16.5V15",
-        "m8 8 1.88 1.88", "M14.12 9.88 16 8",
-        "m8 16 1.88-1.88", "M14.12 14.12 16 16",
-      ], circle: { cx: 12, cy: 12, r: 3 } },
-      { monthIdx: 5, name: "summer", range: "jun – aug", paths: [ // Sun (Summer)
-        "M12 .5v2", "M12 21.5v2", "m3.87 3.87 1.41 1.41",
-        "m18.72 18.72 1.41 1.41", "M.5 12h2", "M21.5 12h2",
-        "m5.28 18.72-1.41 1.41", "m20.13 3.87-1.41 1.41",
-      ], circle: { cx: 12, cy: 12, r: 5.5 } },
-      { monthIdx: 8, name: "autumn", range: "sep – nov", paths: [ // Leaf (Autumn)
-        "M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z",
-        "M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12",
-      ], rotate: 90 },
-      { monthIdx: 11, name: "winter", range: "dec – feb", paths: [ // Snowflake (Winter)
-        "m10 20-1.25-2.5L6 18", "M10 4 8.75 6.5 6 6",
-        "m14 20 1.25-2.5L18 18", "m14 4 1.25 2.5L18 6",
-        "m17 21-3-6h-4", "m17 3-3 6 1.5 3", "M2 12h6.5L10 9",
-        "m20 10-1.5 2 1.5 2", "M22 12h-6.5L14 15", "m4 10 1.5 2L4 14",
-        "m7 21 3-6-1.5-3", "m7 3 3 6h4",
-      ] },
-    ];
-
     g.append("g").attr("class", "season-markers");
-    SEASON_ICONS.forEach(({ monthIdx, name, range, paths, circle, rotate }) => {
+    SEASON_ICONS.forEach(({ monthIdx, key, paths, circle, rotate }) => {
       const angle = monthIdx * MONTH_SLICE + ANGLE_OFFSET;
       const rIcon = OUTER_RADIUS + LABEL_OFFSET * 2;
       const rLineStart = OUTER_RADIUS;
@@ -164,6 +169,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
       const icon = g.select(".season-markers")
         .append("g")
         .attr("class", "season-icon")
+        .attr("data-season-key", key)
         .attr("data-x", x)
         .attr("data-y", y)
         .attr("data-rotate", rotate || 0)
@@ -190,11 +196,14 @@ export default function RadialChart({ flowers, showLabels = true }) {
           .attr("r", circle.r);
       }
 
-      // Tooltip on icon hover
+      // Tooltip on icon hover (reads tRef.current for live translations)
       icon
         .style("cursor", "default")
         .style("pointer-events", "all")
         .on("mouseenter", () => {
+          const tr = tRef.current;
+          const name = tr("seasons." + key + ".name");
+          const range = tr("seasons." + key + ".range");
           const svgRect = svgRef.current.getBoundingClientRect();
           const svgScale = svgRect.width / SIZE;
           const tip = d3.select(tooltipRef.current);
@@ -224,6 +233,20 @@ export default function RadialChart({ flowers, showLabels = true }) {
 
     initialized.current = true;
   }, []);
+
+  // Update month label text when language changes
+  useEffect(() => {
+    if (!svgRef.current || !initialized.current) return;
+    const months = t("months");
+    const g = d3.select(svgRef.current).select(".root");
+    g.select(".month-labels")
+      .selectAll("text")
+      .each(function () {
+        const el = d3.select(this);
+        const idx = parseInt(el.attr("data-month-idx"));
+        el.text(months[idx]);
+      });
+  }, [t]);
 
   // Update non-scaling sizes when scale changes
   useEffect(() => {
@@ -280,12 +303,13 @@ export default function RadialChart({ flowers, showLabels = true }) {
     const svg = d3.select(svgRef.current);
     const g = svg.select(".root");
     const tooltip = d3.select(tooltipRef.current);
-    const t = d3.transition().duration(T_DURATION).ease(d3.easeCubicInOut);
+    const tr = d3.transition().duration(T_DURATION).ease(d3.easeCubicInOut);
+    const months = t("months");
 
     // Empty message
     g.select(".empty-msg")
       .attr("fill", flowers.length === 0 ? "#c1bcb7" : "none")
-      .text(flowers.length === 0 ? "select flowers to begin" : "");
+      .text(flowers.length === 0 ? t("emptyState") : "");
 
     // Build flat cell data
     const bandHeight =
@@ -321,7 +345,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
     // Exit
     cells
       .exit()
-      .transition(t)
+      .transition(tr)
       .attrTween("d", arcTweenExit)
       .style("opacity", 0)
       .remove();
@@ -357,10 +381,14 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .merge(cells)
       .attr("stroke-width", CELL_STROKE_PX)
       .on("mouseenter", function (event, d) {
+        const tr = tRef.current;
+        const monthLabels = tr("months");
+        const flowerName = d.flower.displayName;
+        const stateName = tr("states." + d.state);
         tooltip
           .style("opacity", 1)
           .html(
-            `<strong>${d.flower.name}</strong><br/><em>${d.flower.scientificName}</em><br/>${MONTH_LABELS[d.monthIdx].toLowerCase()} · ${d.state}`,
+            `<strong>${flowerName}</strong><br/><em>${d.flower.scientificName}</em><br/>${monthLabels[d.monthIdx]} · ${stateName}`,
           );
       })
       .on("mousemove", function (event) {
@@ -372,7 +400,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .on("mouseleave", function () {
         tooltip.style("opacity", 0);
       })
-      .transition(t)
+      .transition(tr)
       .attr("fill", (d) => d.color)
       .attrTween("d", arcTween);
 
@@ -414,15 +442,15 @@ export default function RadialChart({ flowers, showLabels = true }) {
           .append("textPath")
           .attr("href", `#${pathId}`)
           .attr("startOffset", 5)
-          .text(flower.name);
+          .text(flower.displayName);
 
         textGroup
           .selectAll("text:last-child")
-          .transition(t)
+          .transition(tr)
           .attr("opacity", 0.85);
       });
     }
-  }, [flowers, showLabels]);
+  }, [flowers, showLabels, t]);
 
   return (
     <div className="radial-chart-wrapper">
