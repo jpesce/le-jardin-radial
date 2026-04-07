@@ -8,7 +8,7 @@ function setMeta(selector, attr, value) {
   if (el) el.setAttribute(attr, value);
 }
 
-function sanitize(str) {
+export function sanitize(str) {
   return str.replace(/[<>"'&]/g, "");
 }
 

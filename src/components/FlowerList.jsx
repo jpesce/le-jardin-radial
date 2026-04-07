@@ -220,7 +220,7 @@ export default function FlowerList({
                     >
                       <label className="flower-label">
                         {isSelected && !isSearching && (
-                          <span className="drag-handle">&#x2630;</span>
+                          <span className="drag-handle" role="img" aria-label="reorder">&#x2630;</span>
                         )}
                         <input
                           type="checkbox"
