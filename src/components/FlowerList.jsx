@@ -231,7 +231,7 @@ export default function FlowerList({
                         <span
                           className="flower-swatch"
                           style={{
-                            background: flower.colors?.blooming ?? "#E84393",
+                            background: flower.colors?.blooming ?? "var(--color-text)",
                           }}
                         />
                         <span className="flower-name">{flower.names[lang]}</span>

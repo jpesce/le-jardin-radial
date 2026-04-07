@@ -8,10 +8,15 @@ function setMeta(selector, attr, value) {
   if (el) el.setAttribute(attr, value);
 }
 
+function sanitize(str) {
+  return str.replace(/[<>"'&]/g, "");
+}
+
 export function updateMeta(lang, owner) {
   const meta = translations[lang].meta;
-  const title = owner
-    ? meta.title.replace("{owner}", owner)
+  const safe = owner ? sanitize(owner) : "";
+  const title = safe
+    ? meta.title.replace("{owner}", safe)
     : meta.titleDefault;
 
   document.title = title;
