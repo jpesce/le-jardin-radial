@@ -107,6 +107,10 @@
   color: #443528;
 }
 
+.flower-item--hovered .flower-bloom-range {
+  color: #9b938c;
+}
+
 .flower-item--hovered .checkbox {
   border-color: #443528;
 }
@@ -130,10 +134,18 @@
 }
 
 .flower-name {
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   user-select: none;
+}
+
+.flower-bloom-range {
+  flex-shrink: 0;
+  color: #c1bcb7;
+  font-size: 11px;
+  text-align: right;
 }
 
 .drag-handle {

@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sprout } from "lucide-react";
 import { flowers } from "../data/flowers.js";
+import { bloomRange } from "../data/months.js";
 import "./FlowerList.css";
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: "easeInOut" };
@@ -231,6 +232,9 @@ export default function FlowerList({
                           }}
                         />
                         <span className="flower-name">{flower.name}</span>
+                        <span className="flower-bloom-range">
+                          {bloomRange(flower.monthStates)}
+                        </span>
                       </label>
                     </motion.li>,
                   ];

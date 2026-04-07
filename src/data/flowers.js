@@ -1,4 +1,4 @@
-import { parseMonths } from "./months.js";
+import { parseMonths, firstBloomStart } from "./months.js";
 
 const raw = [
   {
@@ -171,7 +171,9 @@ const raw = [
   },
 ];
 
-export const flowers = raw.map((f) => ({
-  ...f,
-  monthStates: parseMonths(f.months),
-}));
+export const flowers = raw
+  .map((f) => {
+    const monthStates = parseMonths(f.months);
+    return { ...f, monthStates, firstBloom: firstBloomStart(monthStates) };
+  })
+  .sort((a, b) => a.firstBloom - b.firstBloom);
