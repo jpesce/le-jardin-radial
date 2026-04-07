@@ -57,6 +57,9 @@ export default function App() {
         onToggle={garden.toggleSelected}
         onReorder={garden.reorderSelected}
         onToggleGarden={garden.toggleGarden}
+        onAddCustomFlower={garden.addCustomFlower}
+        onEditFlower={garden.editFlower}
+        onDeleteFlower={garden.deleteFlower}
         showLabels={garden.labels}
         onShowLabelsChange={garden.setLabels}
         gardenOwner={garden.owner}

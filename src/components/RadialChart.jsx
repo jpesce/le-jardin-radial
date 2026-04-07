@@ -388,7 +388,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
         tooltip
           .style("opacity", 1)
           .html(
-            `<strong>${flowerName}</strong><br/><em>${d.flower.scientificName}</em><br/>${monthLabels[d.monthIdx]} · ${stateName}`,
+            `<strong>${flowerName}</strong>${d.flower.scientificName ? `<br/><em>${d.flower.scientificName}</em>` : ""}<br/>${monthLabels[d.monthIdx]} · ${stateName}`,
           );
       })
       .on("mousemove", function (event) {
@@ -493,12 +493,9 @@ export default function RadialChart({ flowers, showLabels = true }) {
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         className="radial-chart-svg"
         role="img"
-        aria-labelledby="chart-title chart-desc"
+        aria-label={`${t("chartTitle")} — ${chartDesc}`}
         focusable="false"
-      >
-        <title id="chart-title">{t("chartTitle")}</title>
-        <desc id="chart-desc">{chartDesc}</desc>
-      </svg>
+      />
       <div ref={tooltipRef} className="chart-tooltip" />
     </div>
   );

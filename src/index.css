@@ -23,6 +23,7 @@
   --color-bg-input:     var(--earth-25);
   --color-divider:      var(--earth-50);
   --color-drag-handle:  var(--earth-200);
+  --color-warning:      #c49b2a;
 }
 
 *,

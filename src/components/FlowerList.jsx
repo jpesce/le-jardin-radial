@@ -1,12 +1,15 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sprout, Pencil } from "lucide-react";
-import { bloomRanges } from "../data/months.js";
+import { Sprout, Pencil, GripVertical } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext.jsx";
+import { raw as catalogRaw } from "../data/flowers.js";
 import FlowerCatalog from "./FlowerCatalog.jsx";
+import FlowerEditor from "./FlowerEditor.jsx";
+import FlowerRow from "./FlowerRow.jsx";
 import "./FlowerList.css";
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: "easeInOut" };
+const CATALOG_IDS = new Set(catalogRaw.map((f) => f.id));
 const DRAG_THRESHOLD = 3;
 
 export default function FlowerList({
@@ -16,6 +19,9 @@ export default function FlowerList({
   onToggle,
   onReorder,
   onToggleGarden,
+  onAddCustomFlower,
+  onEditFlower,
+  onDeleteFlower,
   showLabels,
   onShowLabelsChange,
   gardenOwner,
@@ -66,6 +72,42 @@ export default function FlowerList({
     document.addEventListener("pointerdown", handler);
     return () => document.removeEventListener("pointerdown", handler);
   }, [isOpen, onClose, dragFrom]);
+
+  // Escape key: navigate back or close panel
+  useEffect(() => {
+    if (!isOpen) return;
+    const isEditorView = view === "create" || (typeof view === "object" && view.edit);
+    const handler = (e) => {
+      if (e.key !== "Escape" && e.key !== "Enter") return;
+      // Don't intercept if focus is in a color picker or other native dialog
+      if (document.activeElement?.type === "color") return;
+      // If an input is focused, blur it first
+      const active = document.activeElement;
+      if (active?.tagName === "INPUT" || active?.tagName === "TEXTAREA") {
+        active.blur();
+        return;
+      }
+      if (e.key === "Enter") {
+        // Only handle Enter in editor views — submit the form
+        if (!isEditorView) return;
+        const form = panelRef.current?.querySelector("form");
+        if (form) form.requestSubmit();
+        return;
+      }
+      e.preventDefault();
+      if (typeof view === "object" && view.edit) {
+        setView(view.from || "garden");
+      } else if (view === "create") {
+        setView("manage");
+      } else if (view === "manage") {
+        setView("garden");
+      } else {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [isOpen, view, onClose]);
 
   const handlePointerDown = (e, selectedIdx) => {
     if (e.target.closest('input[type="checkbox"]')) return;
@@ -148,6 +190,21 @@ export default function FlowerList({
                 flowers={allFlowers}
                 onToggle={onToggleGarden}
                 onBack={() => setView("garden")}
+                onCreateFlower={() => setView("create")}
+                onEditFlower={(id) => setView({ edit: id, from: "manage" })}
+              />
+            ) : view === "create" ? (
+              <FlowerEditor
+                flower={null}
+                onSave={(data) => { onAddCustomFlower(data); setView("manage"); }}
+                onCancel={() => setView("manage")}
+              />
+            ) : typeof view === "object" && view.edit ? (
+              <FlowerEditor
+                flower={allFlowers.find((f) => f.id === view.edit)}
+                onSave={(data) => { onEditFlower(view.edit, data); setView(view.from || "garden"); }}
+                onCancel={() => setView(view.from || "garden")}
+                onDelete={!CATALOG_IDS.has(view.edit) ? () => { onDeleteFlower(view.edit); setView(view.from || "garden"); } : undefined}
               />
             ) : (
               <>
@@ -228,32 +285,17 @@ export default function FlowerList({
                           }
                         >
                           <label className="flower-label">
-                            {isSelected && (
-                              <span className="drag-handle" role="img" aria-label="reorder">&#x2630;</span>
-                            )}
-                            <input
-                              type="checkbox"
-                              className="checkbox"
+                            <FlowerRow
+                              flower={flower}
                               checked={isSelected}
-                              onChange={() => onToggle(flower.id)}
+                              onToggle={() => onToggle(flower.id)}
+                              onEdit={() => setView({ edit: flower.id, from: "garden" })}
+                              dragHandle={
+                                isSelected
+                                  ? <span className="drag-handle" role="img" aria-label="reorder"><GripVertical size={11} /></span>
+                                  : null
+                              }
                             />
-                            <span
-                              className="flower-swatch"
-                              style={{
-                                background: flower.colors?.blooming ?? "var(--color-text)",
-                              }}
-                            />
-                            <span className="flower-name">{flower.displayName}</span>
-                            <span className="flower-bloom-range">
-                              {bloomRanges(flower.monthStates)
-                                .map(({ start, end }) => {
-                                  const months = t("months");
-                                  return start === end
-                                    ? months[start]
-                                    : `${months[start]}–${months[end]}`;
-                                })
-                                .join(", ")}
-                            </span>
                           </label>
                         </motion.li>,
                       ];

@@ -1,5 +1,5 @@
 import { useReducer, useMemo, useCallback } from "react";
-import { raw as catalogRaw, flowers as catalogFlowers } from "../data/flowers.js";
+import { raw as catalogRaw } from "../data/flowers.js";
 import { parseMonths, firstBloomStart } from "../data/months.js";
 
 const GARDEN_SIZE = 8;
@@ -20,15 +20,18 @@ function pickRaw({ id, names, scientificName, colors, months }) {
 }
 
 function initialState() {
-  const shuffled = shuffle(catalogRaw);
-  const gardenFlowers = shuffled.slice(0, GARDEN_SIZE);
-  const selected = gardenFlowers.slice(0, SELECTED_SIZE).map((f) => f.id);
+  const catalog = catalogRaw.map(pickRaw);
+  const shuffled = shuffle(catalog);
+  const garden = shuffled.slice(0, GARDEN_SIZE).map((f) => f.id);
+  const selected = garden.slice(0, SELECTED_SIZE);
 
   return {
     owner: DEFAULT_OWNER,
     labels: true,
+    defaultCatalog: catalog,
+    garden,
     selected,
-    flowers: gardenFlowers.map(pickRaw),
+    customFlowers: {},
   };
 }
 
@@ -43,27 +46,55 @@ function reducer(state, action) {
       if (state.selected.includes(id)) {
         return { ...state, selected: state.selected.filter((x) => x !== id) };
       }
-      if (!state.flowers.some((f) => f.id === id)) return state;
+      if (!state.garden.includes(id)) return state;
       return { ...state, selected: [...state.selected, id] };
     }
     case "REORDER_SELECTED":
       return { ...state, selected: action.ids };
     case "TOGGLE_GARDEN": {
       const id = action.id;
-      const inGarden = state.flowers.some((f) => f.id === id);
-      if (inGarden) {
+      if (state.garden.includes(id)) {
         return {
           ...state,
-          flowers: state.flowers.filter((f) => f.id !== id),
+          garden: state.garden.filter((x) => x !== id),
           selected: state.selected.filter((x) => x !== id),
         };
       }
-      const entry = catalogRaw.find((f) => f.id === id);
-      if (!entry) return state;
+      const known = state.defaultCatalog.some((f) => f.id === id) || id in state.customFlowers;
+      if (!known) return state;
       return {
         ...state,
-        flowers: [...state.flowers, pickRaw(entry)],
+        garden: [...state.garden, id],
         selected: [...state.selected, id],
+      };
+    }
+    case "EDIT_FLOWER":
+      return {
+        ...state,
+        customFlowers: {
+          ...state.customFlowers,
+          [action.id]: {
+            ...(state.customFlowers[action.id] || {}),
+            ...action.payload,
+          },
+        },
+      };
+    case "ADD_CUSTOM_FLOWER": {
+      const { id, ...data } = action.payload;
+      return {
+        ...state,
+        customFlowers: { ...state.customFlowers, [id]: data },
+        garden: [...state.garden, id],
+        selected: [...state.selected, id],
+      };
+    }
+    case "DELETE_FLOWER": {
+      const { [action.id]: _, ...rest } = state.customFlowers;
+      return {
+        ...state,
+        customFlowers: rest,
+        garden: state.garden.filter((x) => x !== action.id),
+        selected: state.selected.filter((x) => x !== action.id),
       };
     }
     default:
@@ -84,14 +115,32 @@ function enrich(flower, lang) {
 export function useGarden(lang) {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
 
-  const gardenFlowers = useMemo(
-    () =>
-      state.flowers
-        .map((f) => enrich(f, lang))
-        .sort((a, b) => a.firstBloom - b.firstBloom),
-    [state.flowers, lang],
+  // All available flowers: catalog merged with overrides + pure custom entries
+  const catalogIds = useMemo(
+    () => new Set(state.defaultCatalog.map((f) => f.id)),
+    [state.defaultCatalog],
   );
 
+  const availableFlowers = useMemo(() => {
+    const fromCatalog = state.defaultCatalog.map((f) => {
+      const override = state.customFlowers[f.id];
+      return enrich(override ? { ...f, ...override } : f, lang);
+    });
+    const custom = Object.entries(state.customFlowers)
+      .filter(([id]) => !catalogIds.has(id))
+      .map(([id, data]) => enrich({ id, ...data }, lang));
+    return [...fromCatalog, ...custom].sort((a, b) => a.firstBloom - b.firstBloom);
+  }, [state.defaultCatalog, state.customFlowers, catalogIds, lang]);
+
+  // Garden flowers: available flowers that are in the garden
+  const gardenSet = useMemo(() => new Set(state.garden), [state.garden]);
+
+  const gardenFlowers = useMemo(
+    () => availableFlowers.filter((f) => gardenSet.has(f.id)),
+    [availableFlowers, gardenSet],
+  );
+
+  // Selected flowers: garden flowers on the chart (reversed for ring order)
   const selectedFlowers = useMemo(
     () =>
       [...state.selected]
@@ -101,19 +150,10 @@ export function useGarden(lang) {
     [state.selected, gardenFlowers],
   );
 
-  const gardenIds = useMemo(
-    () => new Set(state.flowers.map((f) => f.id)),
-    [state.flowers],
-  );
-
-  const allFlowersEnriched = useMemo(
-    () =>
-      catalogFlowers.map((f) => ({
-        ...f,
-        displayName: f.names[lang],
-        inGarden: gardenIds.has(f.id),
-      })),
-    [gardenIds, lang],
+  // All flowers for manage view: available flowers with inGarden flag
+  const allFlowers = useMemo(
+    () => availableFlowers.map((f) => ({ ...f, inGarden: gardenSet.has(f.id) })),
+    [availableFlowers, gardenSet],
   );
 
   const setOwner = useCallback((v) => dispatch({ type: "SET_OWNER", value: v }), []);
@@ -121,6 +161,11 @@ export function useGarden(lang) {
   const toggleSelected = useCallback((id) => dispatch({ type: "TOGGLE_SELECTED", id }), []);
   const reorderSelected = useCallback((ids) => dispatch({ type: "REORDER_SELECTED", ids }), []);
   const toggleGarden = useCallback((id) => dispatch({ type: "TOGGLE_GARDEN", id }), []);
+  const editFlower = useCallback((id, data) => dispatch({ type: "EDIT_FLOWER", id, payload: data }), []);
+  const addCustomFlower = useCallback((data) => {
+    dispatch({ type: "ADD_CUSTOM_FLOWER", payload: { id: crypto.randomUUID(), ...data } });
+  }, []);
+  const deleteFlower = useCallback((id) => dispatch({ type: "DELETE_FLOWER", id }), []);
 
   return {
     owner: state.owner,
@@ -128,11 +173,14 @@ export function useGarden(lang) {
     selected: state.selected,
     gardenFlowers,
     selectedFlowers,
-    allFlowers: allFlowersEnriched,
+    allFlowers,
     setOwner,
     setLabels,
     toggleSelected,
     reorderSelected,
     toggleGarden,
+    editFlower,
+    addCustomFlower,
+    deleteFlower,
   };
 }

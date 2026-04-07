@@ -33,14 +33,14 @@
 
 .flower-panel {
   margin-top: 0.5rem;
-  width: 260px;
+  width: 300px;
   max-height: calc(100dvh - 6rem);
   overflow-y: auto;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow: 0 4px 24px color-mix(in srgb, var(--color-text) 8%, transparent);
-  padding: 1.25rem 0.75rem 0.75rem;
+  padding: 1.5rem 1.875rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -62,14 +62,14 @@
   color: var(--color-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 1.25rem 1rem 0.15rem;
+  padding: 1.25rem 0 0.15rem;
 }
 
 .panel-input {
   font-family: inherit;
   font-size: 12px;
   padding: 0.4rem 0.6rem;
-  margin: 0 1rem;
+  margin: 0;
   border: 1px solid var(--color-border);
   border-radius: 6px;
   outline: none;
@@ -87,7 +87,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding-left: 1rem;
+  padding-left: 0;
   font-size: 12px;
   color: var(--color-muted);
   cursor: pointer;
@@ -103,15 +103,22 @@
   gap: 1px;
 }
 
-.flower-item--hovered .flower-name {
+.flower-item {
+  position: relative;
+}
+
+.flower-item--hovered .flower-name,
+body:not(.is-dragging) .flower-item:hover .flower-name {
   color: var(--color-text);
 }
 
-.flower-item--hovered .flower-bloom-range {
+.flower-item--hovered .flower-bloom-range,
+body:not(.is-dragging) .flower-item:hover .flower-bloom-range {
   color: var(--color-subtle);
 }
 
-.flower-item--hovered .checkbox {
+.flower-item--hovered .checkbox,
+body:not(.is-dragging) .flower-item:hover .checkbox {
   border-color: var(--color-text);
 }
 
@@ -119,8 +126,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.5rem 0.35rem 1rem;
+  padding: 0.2rem 0;
   cursor: pointer;
+  flex: 1;
   font-size: 12px;
   color: var(--color-subtle);
 }
@@ -149,21 +157,30 @@
 }
 
 .drag-handle {
-  flex-shrink: 0;
+  position: absolute;
+  left: calc(-20px - 4.5px);
+  top: 50%;
+  transform: translateY(-50%);
   width: 20px;
-  margin-left: -20px;
-  margin-right: -0.5rem;
   cursor: grab;
   color: var(--color-drag-handle);
-  font-size: 15px;
   user-select: none;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
-  transition: opacity 0.1s;
-  text-align: center;
+  transition: opacity 0.1s, background 0.1s;
+  background: transparent;
+  border-radius: 3px;
+  padding: 4px 0;
 }
 
-.flower-item--hovered .drag-handle {
+.drag-handle:hover {
+  background: var(--color-divider);
+}
+
+.flower-item--hovered .drag-handle,
+body:not(.is-dragging) .flower-item:hover .drag-handle {
   opacity: 1;
 }
 
@@ -201,12 +218,41 @@
   bottom: 0;
 }
 
+.edit-btn {
+  position: absolute;
+  right: calc(-20px - 4.5px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: var(--color-drag-handle);
+  cursor: pointer;
+  padding: 4px 0;
+  opacity: 0;
+  transition: opacity 0.1s, color 0.1s, background 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flower-item--hovered .edit-btn,
+body:not(.is-dragging) .flower-item:hover .edit-btn {
+  opacity: 1;
+}
+
+.edit-btn:hover {
+  color: var(--color-text);
+  background: var(--color-divider);
+}
+
 .panel-edit-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  width: calc(100% - 1.5rem);
+  width: 100%;
   background: none;
   border: 1px dashed var(--color-border);
   border-radius: 6px;
@@ -215,7 +261,7 @@
   color: var(--color-muted);
   cursor: pointer;
   padding: 0.5rem 1rem;
-  margin: 0.75rem 0.75rem 0.25rem;
+  margin: 0.75rem 0 0.25rem;
   text-transform: lowercase;
   letter-spacing: 0.03em;
   transition: border-color 0.15s, color 0.15s;

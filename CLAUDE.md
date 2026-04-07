@@ -16,18 +16,23 @@ React + D3.js garden visualization. Deployed at jardin.pesce.cc via GitHub Pages
 
 All garden state is managed by a `useReducer`-based hook in `src/hooks/useGarden.js`.
 
-- **State model**: `{ owner, labels, selected: string[], flowers: RawFlower[] }` — fully serializable, ready for persistence (localStorage, URL sharing).
-- `flowers.js` is a **catalog** (read-only library). The hook seeds the initial garden from it with 8 random flowers (4 selected).
-- `gardenFlowers`, `selectedFlowers`, `allFlowers` are computed via `useMemo` (enriched with `monthStates`, `firstBloom`, `displayName`). Raw state stores only serializable data.
-- `displayName` comes from `flower.names[lang]` — the hook receives `lang` as a parameter (not calling `useI18n` internally, keeps it testable).
-- **IDs**: catalog flowers have stable slugs (`"rose"`, `"snowdrop"`). Custom flowers (future) will use `crypto.randomUUID()`.
-- `panelOpen` stays in App.jsx — it's UI state, not garden state.
+- **State model**: `{ owner, labels, defaultCatalog, garden: string[], selected: string[], customFlowers: {} }` — fully serializable.
+  - `defaultCatalog`: copy of `flowers.js` raw data, stored for future reconciliation when catalog updates between deploys.
+  - `garden`: array of IDs (which available flowers are in the user's garden).
+  - `selected`: ordered array of IDs (which garden flowers are on the chart, order = ring order).
+  - `customFlowers`: object keyed by ID — overrides for catalog flowers + full custom flower data. Editing any flower puts/merges data here.
+- **Available flowers** = `defaultCatalog` merged with `customFlowers` overrides + pure custom entries. Computed, not stored.
+- `flowers.js` is a **catalog** (read-only source). The hook seeds the initial garden with 8 random flowers (4 selected).
+- `displayName` comes from `flower.names[lang]` — the hook receives `lang` as a parameter (keeps it testable).
+- **IDs**: catalog flowers have stable slugs (`"rose"`, `"snowdrop"`). Custom flowers use `crypto.randomUUID()`.
+- `panelOpen` stays in App.jsx — UI state, not garden state.
 - Adding a flower from the manage view auto-selects it for the chart.
 
-### Two panel views
+### Three panel views
 
-- **Garden view** (default): shows flowers in your garden. Checkboxes toggle chart visibility. Drag to reorder. No add/remove here.
-- **Manage view** (via "✎ modifier" button): shows all 24 catalog flowers. Checkboxes toggle garden membership. Stable bloom order, no reordering on check/uncheck.
+- **Garden view** (default): shows flowers in your garden. Checkboxes toggle chart visibility. Drag to reorder. Edit icon per flower.
+- **Manage view** (via "✎ modifier" button): shows all available flowers (catalog + custom). Checkboxes toggle garden membership. Stable bloom order. Edit icon per flower. "créer une fleur" button for custom flowers.
+- **Editor view**: create or edit a flower. Name (en/fr), scientific name, bloom color, month grid. Save/cancel returns to the originating view. Delete available for custom flowers only.
 
 ### i18n — no library
 
