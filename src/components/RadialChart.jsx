@@ -510,7 +510,10 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .enter()
       .append('text')
       .attr('font-size', labelSize)
-      .attr('font-family', "'JetBrains Mono', monospace")
+      .attr(
+        'font-family',
+        "'JetBrains Mono', 'JetBrains Mono Fallback', monospace",
+      )
       .attr('dominant-baseline', 'hanging')
       .attr('fill', COLOR_LABEL_FILL)
       .attr('opacity', 0)

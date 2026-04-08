@@ -1,6 +1,6 @@
 .shared-banner {
   width: 100%;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
   font-size: 12px;
 }
 
@@ -91,7 +91,7 @@
 }
 
 .shared-confirm-title {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
   font-size: 12px;
   font-weight: 700;
   color: var(--color-text);
@@ -100,7 +100,7 @@
 
 .shared-confirm-text {
   margin-top: 0.15rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
   font-size: 11px;
   line-height: 1.5;
   color: var(--color-subtle);
