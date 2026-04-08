@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import RadialChart from './components/RadialChart.jsx';
 import FlowerList from './components/FlowerList.jsx';
 import LanguageSwitcher from './components/LanguageSwitcher.jsx';
@@ -71,30 +71,39 @@ export default function App() {
           flowers={garden.selectedFlowers}
           showLabels={garden.labels}
         />
-        {!garden.isShared && (
-          <FlowerList
-            gardenFlowers={garden.gardenFlowers}
-            allFlowers={garden.allFlowers}
-            selected={garden.selected}
-            onToggle={garden.toggleSelected}
-            onReorder={garden.reorderSelected}
-            onToggleGarden={garden.toggleGarden}
-            onAddCustomFlower={garden.addCustomFlower}
-            onEditFlower={garden.editFlower}
-            onDeleteFlower={garden.deleteFlower}
-            onReset={garden.reset}
-            onGetShareUrl={garden.getShareUrl}
-            onExportJson={garden.exportJson}
-            onImportJson={garden.importJson}
-            showLabels={garden.labels}
-            onShowLabelsChange={garden.setLabels}
-            gardenOwner={garden.owner}
-            onGardenOwnerChange={garden.setOwner}
-            isOpen={panelOpen}
-            onTogglePanel={() => setPanelOpen((prev) => !prev)}
-            onClose={() => setPanelOpen(false)}
-          />
-        )}
+        <AnimatePresence>
+          {!garden.isShared && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <FlowerList
+                gardenFlowers={garden.gardenFlowers}
+                allFlowers={garden.allFlowers}
+                selected={garden.selected}
+                onToggle={garden.toggleSelected}
+                onReorder={garden.reorderSelected}
+                onToggleGarden={garden.toggleGarden}
+                onAddCustomFlower={garden.addCustomFlower}
+                onEditFlower={garden.editFlower}
+                onDeleteFlower={garden.deleteFlower}
+                onReset={garden.reset}
+                onGetShareUrl={garden.getShareUrl}
+                onExportJson={garden.exportJson}
+                onImportJson={garden.importJson}
+                showLabels={garden.labels}
+                onShowLabelsChange={garden.setLabels}
+                gardenOwner={garden.owner}
+                onGardenOwnerChange={garden.setOwner}
+                isOpen={panelOpen}
+                onTogglePanel={() => setPanelOpen((prev) => !prev)}
+                onClose={() => setPanelOpen(false)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <p className="app-credits">{t('credits')}</p>
         <div className="app-bottom-left">
           <LanguageSwitcher />

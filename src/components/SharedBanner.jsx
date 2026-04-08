@@ -27,15 +27,10 @@ export default function SharedBanner({
     <motion.div
       className="shared-banner"
       style={{ background: outer, color: textColor }}
-      initial={
-        animateEntry ? { height: 0, opacity: 0, overflow: 'hidden' } : false
-      }
-      animate={{ height: 'auto', opacity: 1, overflow: 'visible' }}
-      exit={{ height: 0, opacity: 0, overflow: 'hidden' }}
-      transition={{
-        height: { duration: 0.3, ease: 'easeInOut' },
-        opacity: { duration: 0.15 },
-      }}
+      initial={animateEntry ? { height: 0, overflow: 'hidden' } : false}
+      animate={{ height: 'auto', overflow: 'visible' }}
+      exit={{ height: 0, overflow: 'hidden' }}
+      transition={{ height: { duration: 0.3, ease: 'easeInOut' } }}
     >
       <div className="shared-banner-content">
         <button
