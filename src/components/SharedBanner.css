@@ -20,6 +20,9 @@
 }
 
 .shared-banner-back {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
   padding: 0;
   font: inherit;
   font-size: 12px;
@@ -34,7 +37,7 @@
 }
 
 .shared-banner-arrow {
-  display: inline-block;
+  flex-shrink: 0;
   transition: transform 0.15s ease;
 }
 

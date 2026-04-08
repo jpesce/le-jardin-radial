@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye } from 'lucide-react';
+import { Eye, ArrowLeft } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext.jsx';
 import { useClickOutside } from '../hooks/useClickOutside.js';
 import { colorsFromName, isLight } from './logo-colors.js';
@@ -43,7 +43,8 @@ export default function SharedBanner({
           style={{ color: textColor }}
           onClick={onDismiss}
         >
-          <span className="shared-banner-arrow">←</span> {t('dismissShared')}
+          <ArrowLeft className="shared-banner-arrow" size={11} />{' '}
+          {t('dismissShared')}
         </button>
         <div className="shared-banner-actions">
           <span className="shared-banner-text">
