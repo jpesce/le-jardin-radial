@@ -1,6 +1,6 @@
-import { Pencil, User } from "lucide-react";
-import { bloomRanges } from "../data/months.js";
-import { useI18n } from "../i18n/I18nContext.jsx";
+import { Pencil, User } from 'lucide-react';
+import { bloomRanges } from '../data/months.js';
+import { useI18n } from '../i18n/I18nContext.jsx';
 
 export default function FlowerRow({
   flower,
@@ -10,7 +10,7 @@ export default function FlowerRow({
   dragHandle,
 }) {
   const { t } = useI18n();
-  const months = t("months");
+  const months = t('months');
 
   return (
     <>
@@ -24,7 +24,7 @@ export default function FlowerRow({
       <span
         className="flower-swatch"
         style={{
-          background: flower.colors?.blooming ?? "var(--color-text)",
+          background: flower.colors?.blooming ?? 'var(--color-text)',
         }}
       />
       <span className="flower-name">
@@ -34,16 +34,18 @@ export default function FlowerRow({
       <span className="flower-bloom-range">
         {bloomRanges(flower.monthStates)
           .map(({ start, end }) =>
-            start === end
-              ? months[start]
-              : `${months[start]}–${months[end]}`,
+            start === end ? months[start] : `${months[start]}–${months[end]}`,
           )
-          .join(", ")}
+          .join(', ')}
       </span>
       {onEdit && flower.isCustom && (
         <button
           className="edit-btn"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onEdit();
+          }}
           onPointerDown={(e) => e.stopPropagation()}
         >
           <Pencil size={11} />

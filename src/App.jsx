@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react";
-import RadialChart from "./components/RadialChart.jsx";
-import FlowerList from "./components/FlowerList.jsx";
-import LanguageSwitcher from "./components/LanguageSwitcher.jsx";
-import Logo, { OUTER_PALETTE, INNER_PALETTE, pick } from "./components/Logo.jsx";
-import { useGarden } from "./hooks/useGarden.js";
-import { useI18n } from "./i18n/I18nContext.jsx";
-import { updateMeta } from "./i18n/updateMeta.js";
-import "./App.css";
+import { useState, useEffect } from 'react';
+import RadialChart from './components/RadialChart.jsx';
+import FlowerList from './components/FlowerList.jsx';
+import LanguageSwitcher from './components/LanguageSwitcher.jsx';
+import Logo, {
+  OUTER_PALETTE,
+  INNER_PALETTE,
+  pick,
+} from './components/Logo.jsx';
+import { useGarden } from './hooks/useGarden.js';
+import { useI18n } from './i18n/I18nContext.jsx';
+import { updateMeta } from './i18n/updateMeta.js';
+import './App.css';
 
 export default function App() {
   const { lang, t } = useI18n();
@@ -21,8 +25,8 @@ export default function App() {
     const link =
       document.querySelector('link[rel="icon"]') ||
       (() => {
-        const el = document.createElement("link");
-        el.rel = "icon";
+        const el = document.createElement('link');
+        el.rel = 'icon';
         document.head.appendChild(el);
         return el;
       })();
@@ -43,12 +47,13 @@ export default function App() {
     <div className="app">
       <div className="app-logo-wrapper">
         <Logo className="app-logo" name={garden.owner} />
-        <span className="app-logo-subtitle">
-          de {garden.owner}
-        </span>
+        <span className="app-logo-subtitle">de {garden.owner}</span>
       </div>
       <main className="chart-area">
-        <RadialChart flowers={garden.selectedFlowers} showLabels={garden.labels} />
+        <RadialChart
+          flowers={garden.selectedFlowers}
+          showLabels={garden.labels}
+        />
       </main>
       <FlowerList
         gardenFlowers={garden.gardenFlowers}
@@ -69,11 +74,11 @@ export default function App() {
         onTogglePanel={() => setPanelOpen((prev) => !prev)}
         onClose={() => setPanelOpen(false)}
       />
-      <p className="app-credits">{t("credits")}</p>
+      <p className="app-credits">{t('credits')}</p>
       <div className="app-bottom-left">
         <LanguageSwitcher />
         <p className="app-description">
-          <strong>{t("descriptionBrand")}</strong> {t("descriptionBody")}
+          <strong>{t('descriptionBrand')}</strong> {t('descriptionBody')}
         </p>
       </div>
     </div>

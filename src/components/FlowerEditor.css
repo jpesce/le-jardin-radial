@@ -36,7 +36,9 @@
   cursor: pointer;
   background: none;
   flex-shrink: 0;
-  transition: border-color 0.15s, transform 0.1s;
+  transition:
+    border-color 0.15s,
+    transform 0.1s;
   overflow: hidden;
 }
 
@@ -76,7 +78,7 @@
 }
 
 .month-grid::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   border-radius: 6px;
@@ -97,14 +99,14 @@
   transition: opacity 0.15s;
   padding: 0.4rem 0;
   gap: 2px;
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .month-cell:nth-child(3n) {
   border-right: none;
 }
 
-.month-cell:nth-last-child(-n+3) {
+.month-cell:nth-last-child(-n + 3) {
   border-bottom: none;
 }
 

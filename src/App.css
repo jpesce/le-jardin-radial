@@ -19,7 +19,7 @@
 
 .app-logo-subtitle {
   display: block;
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.95vw;
   font-weight: 400;
   color: var(--color-text);
@@ -55,7 +55,7 @@
   bottom: 2rem;
   right: 2rem;
   width: 360px;
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   font-weight: 400;
   color: var(--color-text);
@@ -73,7 +73,7 @@
 }
 
 .lang-switcher {
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   color: var(--color-muted);
   margin-bottom: 0.75rem;
@@ -102,7 +102,7 @@
 }
 
 .app-description {
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   font-weight: 400;
   color: var(--color-text);

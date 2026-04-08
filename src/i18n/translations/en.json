@@ -31,7 +31,20 @@
   "validationBlooming": "at least one blooming month",
   "chartTitle": "Radial garden chart",
   "chartDesc": "Blooming cycles of {flowers} throughout the year.",
-  "months": ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"],
+  "months": [
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec"
+  ],
   "seasons": {
     "spring": { "name": "spring", "range": "mar – may" },
     "summer": { "name": "summer", "range": "jun – aug" },

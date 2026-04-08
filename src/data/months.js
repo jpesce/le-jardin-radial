@@ -3,7 +3,7 @@
  * handling wrap-around.
  */
 export function bloomRanges(monthStates) {
-  const blooming = monthStates.map((s) => s === "blooming");
+  const blooming = monthStates.map((s) => s === 'blooming');
   const offset = blooming.indexOf(false);
   if (offset === -1) return [{ start: 0, end: 11 }];
   if (!blooming.includes(true)) return [];
@@ -43,11 +43,11 @@ export function firstBloomStart(monthStates) {
  * Returns an array where index 0 = January, index 11 = December.
  */
 export function parseMonths(monthsObj) {
-  const result = new Array(12).fill("dormant");
+  const result = new Array(12).fill('dormant');
 
   for (const [key, state] of Object.entries(monthsObj)) {
-    if (key.includes("-")) {
-      const [start, end] = key.split("-").map(Number);
+    if (key.includes('-')) {
+      const [start, end] = key.split('-').map(Number);
       for (let m = start; m <= end; m++) {
         result[m - 1] = state;
       }

@@ -7,24 +7,24 @@
   --earth-200: #dad7d4;
   --earth-150: #e8e6e5;
   --earth-100: #eeedec;
-  --earth-50:  #f3f2f1;
-  --earth-25:  #fbfbfb;
-  --earth-0:   #ffffff;
+  --earth-50: #f3f2f1;
+  --earth-25: #fbfbfb;
+  --earth-0: #ffffff;
 
   /* Semantic */
-  --color-text:         var(--earth-900);
-  --color-subtle:       var(--earth-500);
-  --color-muted:        var(--earth-400);
-  --color-faint:        var(--earth-300);
-  --color-border:       var(--earth-100);
+  --color-text: var(--earth-900);
+  --color-subtle: var(--earth-500);
+  --color-muted: var(--earth-400);
+  --color-faint: var(--earth-300);
+  --color-border: var(--earth-100);
   --color-border-hover: var(--earth-200);
   --color-border-input: var(--earth-150);
-  --color-bg:           var(--earth-0);
-  --color-bg-input:     var(--earth-25);
-  --color-divider:      var(--earth-50);
-  --color-drag-handle:  var(--earth-200);
-  --color-warning:      #c49b2a;
-  --color-danger:       #c0392b;
+  --color-bg: var(--earth-0);
+  --color-bg-input: var(--earth-25);
+  --color-divider: var(--earth-50);
+  --color-drag-handle: var(--earth-200);
+  --color-warning: #c49b2a;
+  --color-danger: #c0392b;
 }
 
 *,
@@ -41,7 +41,7 @@
 }
 
 body {
-  font-family: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
   font-size: 13px;
   background: var(--color-bg);
   color: var(--color-text);
@@ -72,7 +72,7 @@ body.is-dragging * {
 }
 
 .checkbox::before {
-  content: "";
+  content: '';
   width: 8px;
   height: 8px;
   transform: scale(0);

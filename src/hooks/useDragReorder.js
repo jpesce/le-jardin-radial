@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 const DRAG_THRESHOLD = 3;
 
@@ -8,8 +8,8 @@ export function useDragReorder(listRef, selected, onReorder) {
 
   // Global grabbing cursor while dragging
   useEffect(() => {
-    document.body.classList.toggle("is-dragging", dragFrom !== null);
-    return () => document.body.classList.remove("is-dragging");
+    document.body.classList.toggle('is-dragging', dragFrom !== null);
+    return () => document.body.classList.remove('is-dragging');
   }, [dragFrom]);
 
   const handlePointerDown = useCallback(
@@ -23,7 +23,7 @@ export function useDragReorder(listRef, selected, onReorder) {
       let currentTarget = null;
 
       const getInsertIndex = (clientY) => {
-        const items = listRef.current?.querySelectorAll("[data-selected-idx]");
+        const items = listRef.current?.querySelectorAll('[data-selected-idx]');
         if (!items) return selectedIdx;
         for (const item of items) {
           const idx = parseInt(item.dataset.selectedIdx);
@@ -45,8 +45,8 @@ export function useDragReorder(listRef, selected, onReorder) {
       };
 
       const onUp = () => {
-        document.removeEventListener("pointermove", onMove);
-        document.removeEventListener("pointerup", onUp);
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
 
         if (isDragging && currentTarget !== null) {
           let toIdx = currentTarget;
@@ -63,8 +63,8 @@ export function useDragReorder(listRef, selected, onReorder) {
         setDropTarget(null);
       };
 
-      document.addEventListener("pointermove", onMove);
-      document.addEventListener("pointerup", onUp);
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
     },
     [selected, onReorder, listRef],
   );

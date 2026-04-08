@@ -31,7 +31,20 @@
   "validationBlooming": "au moins un mois en floraison",
   "chartTitle": "Graphique radial du jardin",
   "chartDesc": "Cycles de floraison de {flowers} au fil de l\u2019année.",
-  "months": ["jan", "fév", "mar", "avr", "mai", "jun", "jul", "aoû", "sep", "oct", "nov", "déc"],
+  "months": [
+    "jan",
+    "fév",
+    "mar",
+    "avr",
+    "mai",
+    "jun",
+    "jul",
+    "aoû",
+    "sep",
+    "oct",
+    "nov",
+    "déc"
+  ],
   "seasons": {
     "spring": { "name": "printemps", "range": "mar – mai" },
     "summer": { "name": "été", "range": "jun – aoû" },

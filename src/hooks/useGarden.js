@@ -1,11 +1,11 @@
-import { useReducer, useMemo, useCallback, useEffect } from "react";
-import { raw as catalogRaw } from "../data/flowers.js";
-import { parseMonths, firstBloomStart } from "../data/months.js";
+import { useReducer, useMemo, useCallback, useEffect } from 'react';
+import { raw as catalogRaw } from '../data/flowers.js';
+import { parseMonths, firstBloomStart } from '../data/months.js';
 
 const GARDEN_SIZE = 8;
 const SELECTED_SIZE = 4;
-const DEFAULT_OWNER = "Tainah Drummond";
-const STORAGE_KEY = "jardin-radial";
+const DEFAULT_OWNER = 'Tainah Drummond';
+const STORAGE_KEY = 'jardin-radial';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -42,9 +42,9 @@ function isValidState(s) {
     Array.isArray(s.defaultCatalog) &&
     Array.isArray(s.garden) &&
     Array.isArray(s.selected) &&
-    typeof s.customFlowers === "object" &&
-    typeof s.owner === "string" &&
-    typeof s.labels === "boolean"
+    typeof s.customFlowers === 'object' &&
+    typeof s.owner === 'string' &&
+    typeof s.labels === 'boolean'
   );
 }
 
@@ -58,13 +58,19 @@ function reconcile(saved) {
 
   // Keep saved catalog flowers that were removed from current BUT are in use
   for (const f of saved.defaultCatalog) {
-    if (!currentIds.has(f.id) && (gardenSet.has(f.id) || f.id in saved.customFlowers)) {
+    if (
+      !currentIds.has(f.id) &&
+      (gardenSet.has(f.id) || f.id in saved.customFlowers)
+    ) {
       merged.push(f);
     }
   }
 
   // Clean garden/selected: remove IDs that no longer exist anywhere
-  const allIds = new Set([...merged.map((f) => f.id), ...Object.keys(saved.customFlowers)]);
+  const allIds = new Set([
+    ...merged.map((f) => f.id),
+    ...Object.keys(saved.customFlowers),
+  ]);
 
   return {
     ...saved,
@@ -81,17 +87,19 @@ function initialState() {
       const parsed = JSON.parse(saved);
       if (isValidState(parsed)) return reconcile(parsed);
     }
-  } catch {}
+  } catch {
+    // Corrupted or invalid localStorage — start fresh
+  }
   return freshState();
 }
 
 function reducer(state, action) {
   switch (action.type) {
-    case "SET_OWNER":
+    case 'SET_OWNER':
       return { ...state, owner: action.value };
-    case "SET_LABELS":
+    case 'SET_LABELS':
       return { ...state, labels: action.value };
-    case "TOGGLE_SELECTED": {
+    case 'TOGGLE_SELECTED': {
       const id = action.id;
       if (state.selected.includes(id)) {
         return { ...state, selected: state.selected.filter((x) => x !== id) };
@@ -99,9 +107,9 @@ function reducer(state, action) {
       if (!state.garden.includes(id)) return state;
       return { ...state, selected: [...state.selected, id] };
     }
-    case "REORDER_SELECTED":
+    case 'REORDER_SELECTED':
       return { ...state, selected: action.ids };
-    case "TOGGLE_GARDEN": {
+    case 'TOGGLE_GARDEN': {
       const id = action.id;
       if (state.garden.includes(id)) {
         return {
@@ -110,7 +118,9 @@ function reducer(state, action) {
           selected: state.selected.filter((x) => x !== id),
         };
       }
-      const known = state.defaultCatalog.some((f) => f.id === id) || id in state.customFlowers;
+      const known =
+        state.defaultCatalog.some((f) => f.id === id) ||
+        id in state.customFlowers;
       if (!known) return state;
       return {
         ...state,
@@ -118,7 +128,7 @@ function reducer(state, action) {
         selected: [...state.selected, id],
       };
     }
-    case "EDIT_FLOWER":
+    case 'EDIT_FLOWER':
       return {
         ...state,
         customFlowers: {
@@ -129,7 +139,7 @@ function reducer(state, action) {
           },
         },
       };
-    case "ADD_CUSTOM_FLOWER": {
+    case 'ADD_CUSTOM_FLOWER': {
       const { id, ...data } = action.payload;
       return {
         ...state,
@@ -138,7 +148,7 @@ function reducer(state, action) {
         selected: [...state.selected, id],
       };
     }
-    case "DELETE_FLOWER": {
+    case 'DELETE_FLOWER': {
       const { [action.id]: _, ...rest } = state.customFlowers;
       return {
         ...state,
@@ -147,7 +157,7 @@ function reducer(state, action) {
         selected: state.selected.filter((x) => x !== action.id),
       };
     }
-    case "RESET":
+    case 'RESET':
       return freshState();
     default:
       return state;
@@ -185,8 +195,13 @@ export function useGarden(lang) {
     });
     const custom = Object.entries(state.customFlowers)
       .filter(([id]) => !catalogIds.has(id))
-      .map(([id, data]) => ({ ...enrich({ id, ...data }, lang), isCustom: true }));
-    const sortedCatalog = fromCatalog.sort((a, b) => a.firstBloom - b.firstBloom);
+      .map(([id, data]) => ({
+        ...enrich({ id, ...data }, lang),
+        isCustom: true,
+      }));
+    const sortedCatalog = fromCatalog.sort(
+      (a, b) => a.firstBloom - b.firstBloom,
+    );
     const sortedCustom = custom.sort((a, b) => a.firstBloom - b.firstBloom);
     return [...sortedCustom, ...sortedCatalog];
   }, [state.defaultCatalog, state.customFlowers, catalogIds, lang]);
@@ -211,21 +226,46 @@ export function useGarden(lang) {
 
   // All flowers for manage view: available flowers with inGarden flag
   const allFlowers = useMemo(
-    () => availableFlowers.map((f) => ({ ...f, inGarden: gardenSet.has(f.id) })),
+    () =>
+      availableFlowers.map((f) => ({ ...f, inGarden: gardenSet.has(f.id) })),
     [availableFlowers, gardenSet],
   );
 
-  const setOwner = useCallback((v) => dispatch({ type: "SET_OWNER", value: v }), []);
-  const setLabels = useCallback((v) => dispatch({ type: "SET_LABELS", value: v }), []);
-  const toggleSelected = useCallback((id) => dispatch({ type: "TOGGLE_SELECTED", id }), []);
-  const reorderSelected = useCallback((ids) => dispatch({ type: "REORDER_SELECTED", ids }), []);
-  const toggleGarden = useCallback((id) => dispatch({ type: "TOGGLE_GARDEN", id }), []);
-  const editFlower = useCallback((id, data) => dispatch({ type: "EDIT_FLOWER", id, payload: data }), []);
+  const setOwner = useCallback(
+    (v) => dispatch({ type: 'SET_OWNER', value: v }),
+    [],
+  );
+  const setLabels = useCallback(
+    (v) => dispatch({ type: 'SET_LABELS', value: v }),
+    [],
+  );
+  const toggleSelected = useCallback(
+    (id) => dispatch({ type: 'TOGGLE_SELECTED', id }),
+    [],
+  );
+  const reorderSelected = useCallback(
+    (ids) => dispatch({ type: 'REORDER_SELECTED', ids }),
+    [],
+  );
+  const toggleGarden = useCallback(
+    (id) => dispatch({ type: 'TOGGLE_GARDEN', id }),
+    [],
+  );
+  const editFlower = useCallback(
+    (id, data) => dispatch({ type: 'EDIT_FLOWER', id, payload: data }),
+    [],
+  );
   const addCustomFlower = useCallback((data) => {
-    dispatch({ type: "ADD_CUSTOM_FLOWER", payload: { id: crypto.randomUUID(), ...data } });
+    dispatch({
+      type: 'ADD_CUSTOM_FLOWER',
+      payload: { id: crypto.randomUUID(), ...data },
+    });
   }, []);
-  const deleteFlower = useCallback((id) => dispatch({ type: "DELETE_FLOWER", id }), []);
-  const reset = useCallback(() => dispatch({ type: "RESET" }), []);
+  const deleteFlower = useCallback(
+    (id) => dispatch({ type: 'DELETE_FLOWER', id }),
+    [],
+  );
+  const reset = useCallback(() => dispatch({ type: 'RESET' }), []);
 
   return {
     owner: state.owner,

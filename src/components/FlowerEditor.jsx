@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { CircleAlert } from "lucide-react";
-import { useI18n } from "../i18n/I18nContext.jsx";
-import MonthGrid from "./MonthGrid.jsx";
-import { parseMonths } from "../data/months.js";
-import "./FlowerEditor.css";
+import { useState } from 'react';
+import { CircleAlert } from 'lucide-react';
+import { useI18n } from '../i18n/I18nContext.jsx';
+import MonthGrid from './MonthGrid.jsx';
+import { parseMonths } from '../data/months.js';
+import './FlowerEditor.css';
 
-const DEFAULT_MONTHS = new Array(12).fill("dormant");
+const DEFAULT_MONTHS = new Array(12).fill('dormant');
 
 function compactMonths(states) {
   const result = {};
@@ -24,20 +24,26 @@ function compactMonths(states) {
 export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
   const { t } = useI18n();
 
-  const [nameEn, setNameEn] = useState(flower?.names?.en ?? "");
-  const [nameFr, setNameFr] = useState(flower?.names?.fr ?? "");
-  const [scientificName, setScientificName] = useState(flower?.scientificName ?? "");
-  const [bloomColor, setBloomColor] = useState(flower?.colors?.blooming ?? "#E84393");
+  const [nameEn, setNameEn] = useState(flower?.names?.en ?? '');
+  const [nameFr, setNameFr] = useState(flower?.names?.fr ?? '');
+  const [scientificName, setScientificName] = useState(
+    flower?.scientificName ?? '',
+  );
+  const [bloomColor, setBloomColor] = useState(
+    flower?.colors?.blooming ?? '#E84393',
+  );
   const [monthStates, setMonthStates] = useState(
-    flower?.monthStates ?? (flower?.months ? parseMonths(flower.months) : [...DEFAULT_MONTHS]),
+    flower?.monthStates ??
+      (flower?.months ? parseMonths(flower.months) : [...DEFAULT_MONTHS]),
   );
   const [attempted, setAttempted] = useState(false);
 
   const missingNameEn = nameEn.trim().length === 0;
   const missingNameFr = nameFr.trim().length === 0;
   const invalidColor = !/^#[0-9a-fA-F]{6}$/.test(bloomColor);
-  const noBlooming = !monthStates.includes("blooming");
-  const isValid = !missingNameEn && !missingNameFr && !invalidColor && !noBlooming;
+  const noBlooming = !monthStates.includes('blooming');
+  const isValid =
+    !missingNameEn && !missingNameFr && !invalidColor && !noBlooming;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -54,94 +60,91 @@ export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
   return (
     <form className="flower-editor" onSubmit={handleSubmit}>
       <button className="catalog-back" onClick={onCancel} type="button">
-        ← {t("cancel")}
+        ← {t('cancel')}
       </button>
 
-        <label className="editor-label">
-          {t("flowerNameEn")}
+      <label className="editor-label">
+        {t('flowerNameEn')}
+        <input
+          type="text"
+          className="panel-input editor-input"
+          value={nameEn}
+          onChange={(e) => setNameEn(e.target.value)}
+          autoFocus
+        />
+      </label>
+
+      <label className="editor-label">
+        {t('flowerNameFr')}
+        <input
+          type="text"
+          className="panel-input editor-input"
+          value={nameFr}
+          onChange={(e) => setNameFr(e.target.value)}
+        />
+      </label>
+
+      <label className="editor-label">
+        {t('scientificName')}
+        <input
+          type="text"
+          className="panel-input editor-input"
+          value={scientificName}
+          onChange={(e) => setScientificName(e.target.value)}
+        />
+      </label>
+
+      <label className="editor-label">
+        {t('bloomColor')}
+        <div className="editor-color-row">
+          <input
+            type="color"
+            className="editor-color-picker"
+            value={bloomColor}
+            onChange={(e) => setBloomColor(e.target.value)}
+          />
           <input
             type="text"
-            className="panel-input editor-input"
-            value={nameEn}
-            onChange={(e) => setNameEn(e.target.value)}
-            autoFocus
-          />
-        </label>
-
-        <label className="editor-label">
-          {t("flowerNameFr")}
-          <input
-            type="text"
-            className="panel-input editor-input"
-            value={nameFr}
-            onChange={(e) => setNameFr(e.target.value)}
-          />
-        </label>
-
-        <label className="editor-label">
-          {t("scientificName")}
-          <input
-            type="text"
-            className="panel-input editor-input"
-            value={scientificName}
-            onChange={(e) => setScientificName(e.target.value)}
-          />
-        </label>
-
-        <label className="editor-label">
-          {t("bloomColor")}
-          <div className="editor-color-row">
-            <input
-              type="color"
-              className="editor-color-picker"
-              value={bloomColor}
-              onChange={(e) => setBloomColor(e.target.value)}
-            />
-            <input
-              type="text"
-              className="panel-input editor-color-hex"
-              value={bloomColor}
-              onChange={(e) => setBloomColor(e.target.value)}
-              maxLength={7}
-            />
-          </div>
-        </label>
-
-        <div className="editor-label">
-          {t("monthSchedule")}
-          <MonthGrid
-            value={monthStates}
-            onChange={setMonthStates}
-            bloomColor={bloomColor}
+            className="panel-input editor-color-hex"
+            value={bloomColor}
+            onChange={(e) => setBloomColor(e.target.value)}
+            maxLength={7}
           />
         </div>
+      </label>
+
+      <div className="editor-label">
+        {t('monthSchedule')}
+        <MonthGrid
+          value={monthStates}
+          onChange={setMonthStates}
+          bloomColor={bloomColor}
+        />
+      </div>
 
       <div className="editor-actions">
         <button className="editor-cancel-btn" onClick={onCancel} type="button">
-          {t("cancel")}
+          {t('cancel')}
         </button>
-        <button
-          className="editor-save-btn"
-          type="submit"
-        >
-          {t("save")}
+        <button className="editor-save-btn" type="submit">
+          {t('save')}
         </button>
       </div>
       {attempted && !isValid && (
         <p className="editor-hint">
           <CircleAlert size={12} />
-          {missingNameEn || missingNameFr ? t("validationName") :
-           invalidColor ? t("validationColor") :
-           noBlooming ? t("validationBlooming") : ""}
+          {missingNameEn || missingNameFr
+            ? t('validationName')
+            : invalidColor
+              ? t('validationColor')
+              : noBlooming
+                ? t('validationBlooming')
+                : ''}
         </p>
       )}
       {onDelete && (
-        <button
-          className="editor-delete-btn"
-          onClick={onDelete}
-          type="button"
-        >
-          {t("deleteFlower")}
+        <button className="editor-delete-btn" onClick={onDelete} type="button">
+          {t('deleteFlower')}
         </button>
       )}
     </form>

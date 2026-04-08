@@ -1,11 +1,16 @@
-import { useState, useMemo } from "react";
-import { useI18n } from "../i18n/I18nContext.jsx";
-import FlowerRow from "./FlowerRow.jsx";
-import "./FlowerCatalog.css";
+import { useState, useMemo } from 'react';
+import { useI18n } from '../i18n/I18nContext.jsx';
+import FlowerRow from './FlowerRow.jsx';
+import './FlowerCatalog.css';
 
-export default function FlowerCatalog({ flowers, onToggle, onBack, onEditFlower }) {
+export default function FlowerCatalog({
+  flowers,
+  onToggle,
+  onBack,
+  onEditFlower,
+}) {
   const { t } = useI18n();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -31,18 +36,18 @@ export default function FlowerCatalog({ flowers, onToggle, onBack, onEditFlower 
   return (
     <>
       <button className="catalog-back" onClick={onBack}>
-        ← {t("backButton")}
+        ← {t('backButton')}
       </button>
       <div className="catalog-header">
-        <h3 className="panel-title">{t("catalogTitle")}</h3>
-        <p className="catalog-hint">{t("catalogHint")}</p>
+        <h3 className="panel-title">{t('catalogTitle')}</h3>
+        <p className="catalog-hint">{t('catalogHint')}</p>
       </div>
       <input
         type="text"
         className="panel-input catalog-search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder={t("searchPlaceholder")}
+        placeholder={t('searchPlaceholder')}
         autoFocus
       />
       <ul className="flower-items catalog-list">
