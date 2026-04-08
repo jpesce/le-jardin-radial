@@ -25,3 +25,27 @@ export const INNER_PALETTE = [
 ];
 
 export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+export function isLight(hex) {
+  const c = hex.replace('#', '');
+  const r = parseInt(c.substring(0, 2), 16);
+  const g = parseInt(c.substring(2, 4), 16);
+  const b = parseInt(c.substring(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 150;
+}
+
+function hashString(str) {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash + str.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
+export function colorsFromName(name) {
+  const h = hashString(name.toUpperCase().trim());
+  return {
+    outer: OUTER_PALETTE[h % OUTER_PALETTE.length],
+    inner: INNER_PALETTE[(h >>> 8) % INNER_PALETTE.length],
+  };
+}

@@ -1,6 +1,11 @@
 import { useReducer, useMemo, useCallback, useEffect } from 'react';
+import {
+  compressToEncodedURIComponent,
+  decompressFromEncodedURIComponent,
+} from 'lz-string';
 import { raw as catalogRaw } from '../data/flowers.js';
 import { parseMonths, firstBloomStart } from '../data/months.js';
+import { LANG_STORAGE_KEY, SUPPORTED, saveLang } from '../i18n/i18n-utils.js';
 
 const GARDEN_SIZE = 8;
 const SELECTED_SIZE = 4;
@@ -33,6 +38,7 @@ function freshState() {
     garden,
     selected,
     customFlowers: {},
+    isShared: false,
   };
 }
 
@@ -81,12 +87,36 @@ export function reconcile(saved) {
   };
 }
 
+function getSharedState() {
+  const match = window.location.pathname.match(/^\/share\/(.+)/);
+  if (!match) return null;
+  try {
+    const decoded = JSON.parse(decompressFromEncodedURIComponent(match[1]));
+    const { lang: sharedLang, ...gardenState } = decoded;
+    if (!isValidState(gardenState)) return null;
+    // Use shared language as fallback if user has no stored preference
+    if (sharedLang && SUPPORTED.includes(sharedLang)) {
+      const stored = localStorage.getItem(LANG_STORAGE_KEY);
+      if (!stored) saveLang(sharedLang);
+    }
+    return reconcile(gardenState);
+  } catch {
+    console.warn('Invalid share URL');
+  }
+  return null;
+}
+
 function initialState() {
+  // 1. Check share URL
+  const shared = getSharedState();
+  if (shared) return { ...shared, isShared: true };
+  // 2. Check localStorage
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (isValidState(parsed)) return reconcile(parsed);
+      if (isValidState(parsed))
+        return { ...reconcile(parsed), isShared: false };
     }
   } catch {
     // Corrupted or invalid localStorage — start fresh
@@ -158,6 +188,23 @@ export function reducer(state, action) {
         selected: state.selected.filter((x) => x !== action.id),
       };
     }
+    case 'SAVE_SHARED':
+      return { ...state, isShared: false };
+    case 'DISMISS_SHARED': {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (isValidState(parsed))
+            return { ...reconcile(parsed), isShared: false };
+        }
+      } catch {
+        // Fall through to fresh
+      }
+      return freshState();
+    }
+    case 'IMPORT':
+      return { ...action.payload, isShared: action.payload.isShared ?? false };
     case 'RESET':
       return freshState();
     default:
@@ -178,13 +225,29 @@ function enrich(flower, lang) {
 export function useGarden(lang) {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
 
-  // Auto-save to localStorage (debounced to avoid excessive writes)
+  // Auto-save to localStorage (debounced, skip when viewing shared garden)
   useEffect(() => {
+    if (state.isShared) return;
     const timer = setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const { isShared: _, ...saveable } = state;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveable));
     }, 500);
     return () => clearTimeout(timer);
   }, [state]);
+
+  // Re-check share URL on browser back/forward
+  useEffect(() => {
+    const handler = () => {
+      const shared = getSharedState();
+      if (shared) {
+        dispatch({ type: 'IMPORT', payload: { ...shared, isShared: true } });
+      } else if (state.isShared) {
+        dispatch({ type: 'DISMISS_SHARED' });
+      }
+    };
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, [state.isShared]);
 
   // All available flowers: catalog merged with overrides + pure custom entries
   const catalogIds = useMemo(
@@ -271,10 +334,63 @@ export function useGarden(lang) {
   );
   const reset = useCallback(() => dispatch({ type: 'RESET' }), []);
 
+  const getShareUrl = useCallback(() => {
+    const { isShared: _, defaultCatalog, ...shareable } = state;
+    const shareSet = new Set(state.garden);
+    const minimalCatalog = defaultCatalog.filter((f) => shareSet.has(f.id));
+    const payload = { ...shareable, defaultCatalog: minimalCatalog, lang };
+    const compressed = compressToEncodedURIComponent(JSON.stringify(payload));
+    return `${window.location.origin}/share/${compressed}`;
+  }, [state, lang]);
+
+  const exportJson = useCallback(() => {
+    const { isShared: _, ...shareable } = state;
+    const blob = new Blob([JSON.stringify(shareable, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `jardin-radial-${state.owner.toLowerCase().replace(/\s+/g, '-')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [state]);
+
+  const importJson = useCallback((file, { onSuccess, onError } = {}) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (isValidState(parsed)) {
+          dispatch({ type: 'IMPORT', payload: reconcile(parsed) });
+          onSuccess?.();
+        } else {
+          onError?.('invalid');
+        }
+      } catch {
+        onError?.('parse');
+      }
+    };
+    reader.readAsText(file);
+  }, []);
+
+  const saveShared = useCallback(() => {
+    dispatch({ type: 'SAVE_SHARED' });
+    // replaceState: share URL is consumed, back button won't re-show shared view
+    window.history.replaceState(null, '', '/');
+  }, []);
+
+  const dismissShared = useCallback(() => {
+    dispatch({ type: 'DISMISS_SHARED' });
+    // pushState (not replace): keeps share URL in history so back button works
+    window.history.pushState(null, '', '/');
+  }, []);
+
   return {
     owner: state.owner,
     labels: state.labels,
     selected: state.selected,
+    isShared: state.isShared,
     gardenFlowers,
     selectedFlowers,
     allFlowers,
@@ -287,5 +403,10 @@ export function useGarden(lang) {
     addCustomFlower,
     deleteFlower,
     reset,
+    getShareUrl,
+    exportJson,
+    importJson,
+    saveShared,
+    dismissShared,
   };
 }

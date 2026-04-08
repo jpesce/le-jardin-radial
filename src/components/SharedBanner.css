@@ -1,0 +1,147 @@
+.shared-banner {
+  width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.shared-banner-content {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 2rem;
+}
+
+.shared-banner-actions {
+  position: relative;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.shared-banner-back {
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  cursor: pointer;
+  background: none;
+  border: none;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.shared-banner-arrow {
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.shared-banner-back:hover {
+  opacity: 1;
+}
+
+.shared-banner-back:hover .shared-banner-arrow {
+  transform: translateX(-3px);
+}
+
+.shared-banner-text {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  letter-spacing: 0.03em;
+  opacity: 0.8;
+}
+
+.shared-banner-btn {
+  padding: 0.3rem 0.75rem;
+  font: inherit;
+  font-size: 11px;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.shared-banner-save {
+  background: var(--btn-bg);
+}
+
+.shared-banner-save:hover {
+  background: var(--btn-hover-bg);
+}
+
+.shared-confirm {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 200;
+  width: 16rem;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.shared-confirm-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: lowercase;
+}
+
+.shared-confirm-text {
+  margin-top: 0.15rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-subtle);
+}
+
+.shared-confirm-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.shared-confirm-btn {
+  flex: 1;
+  padding: 0.3rem 0.75rem;
+  font: inherit;
+  font-size: 11px;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.shared-confirm-keep {
+  color: var(--color-muted);
+  background: none;
+  border: 1px solid var(--color-border);
+}
+
+.shared-confirm-keep:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-hover);
+}
+
+.shared-confirm-replace {
+  color: var(--color-bg);
+  background: var(--color-danger);
+  transition: opacity 0.15s;
+}
+
+.shared-confirm-replace:hover {
+  opacity: 0.85;
+}

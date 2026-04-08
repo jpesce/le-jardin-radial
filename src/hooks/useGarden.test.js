@@ -271,6 +271,96 @@ describe('reducer', () => {
     });
   });
 
+  describe('SAVE_SHARED', () => {
+    it('sets isShared to false', () => {
+      const state = { ...baseState(), isShared: true };
+      const next = reducer(state, { type: 'SAVE_SHARED' });
+      expect(next.isShared).toBe(false);
+    });
+
+    it('preserves garden state', () => {
+      const state = { ...baseState(), isShared: true };
+      const next = reducer(state, { type: 'SAVE_SHARED' });
+      expect(next.owner).toBe(state.owner);
+      expect(next.garden).toBe(state.garden);
+      expect(next.selected).toBe(state.selected);
+    });
+  });
+
+  describe('DISMISS_SHARED', () => {
+    it('returns fresh state when no localStorage', () => {
+      const state = { ...baseState(), isShared: true, owner: 'Shared User' };
+      const next = reducer(state, { type: 'DISMISS_SHARED' });
+      expect(next.isShared).toBe(false);
+      expect(next.owner).toBe('Tainah Drummond');
+    });
+  });
+
+  describe('shared garden flow', () => {
+    it('dismiss then re-import restores shared state (back button)', () => {
+      const shared = { ...baseState(), owner: 'Shared', isShared: true };
+      let state = reducer(baseState(), { type: 'IMPORT', payload: shared });
+      expect(state.isShared).toBe(true);
+      expect(state.owner).toBe('Shared');
+
+      state = reducer(state, { type: 'DISMISS_SHARED' });
+      expect(state.isShared).toBe(false);
+
+      // Simulates popstate navigating back to the share URL
+      state = reducer(state, {
+        type: 'IMPORT',
+        payload: { ...shared, isShared: true },
+      });
+      expect(state.isShared).toBe(true);
+      expect(state.owner).toBe('Shared');
+    });
+
+    it('save then re-import shows shared view again', () => {
+      const shared = { ...baseState(), owner: 'Shared', isShared: true };
+      let state = reducer(baseState(), { type: 'IMPORT', payload: shared });
+
+      state = reducer(state, { type: 'SAVE_SHARED' });
+      expect(state.isShared).toBe(false);
+      expect(state.owner).toBe('Shared');
+
+      // If somehow navigated back to share URL
+      state = reducer(state, {
+        type: 'IMPORT',
+        payload: { ...shared, isShared: true },
+      });
+      expect(state.isShared).toBe(true);
+    });
+  });
+
+  describe('IMPORT', () => {
+    it('replaces state with payload', () => {
+      const state = baseState();
+      const imported = {
+        ...baseState(),
+        owner: 'Imported',
+        garden: ['lily'],
+        selected: ['lily'],
+      };
+      const next = reducer(state, { type: 'IMPORT', payload: imported });
+      expect(next.owner).toBe('Imported');
+      expect(next.garden).toEqual(['lily']);
+    });
+
+    it('defaults isShared to false when not in payload', () => {
+      const state = baseState();
+      const imported = { ...baseState(), owner: 'Imported' };
+      const next = reducer(state, { type: 'IMPORT', payload: imported });
+      expect(next.isShared).toBe(false);
+    });
+
+    it('preserves isShared when set in payload', () => {
+      const state = baseState();
+      const imported = { ...baseState(), isShared: true };
+      const next = reducer(state, { type: 'IMPORT', payload: imported });
+      expect(next.isShared).toBe(true);
+    });
+  });
+
   describe('unknown action', () => {
     it('returns state unchanged', () => {
       const state = baseState();

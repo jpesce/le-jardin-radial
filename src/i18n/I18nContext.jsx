@@ -10,8 +10,8 @@ import fr from './translations/fr.json';
 import en from './translations/en.json';
 import {
   SUPPORTED,
-  DEFAULT_LANG,
   resolveLang,
+  saveLang,
   get,
   interpolate,
 } from './i18n-utils.js';
@@ -26,18 +26,10 @@ export function I18nProvider({ children }) {
     (newLang) => {
       if (!SUPPORTED.includes(newLang) || newLang === lang) return;
       setLangState(newLang);
-      const path = newLang === DEFAULT_LANG ? '/' : `/${newLang}`;
-      window.history.pushState(null, '', path);
+      saveLang(newLang);
     },
     [lang],
   );
-
-  // Sync on browser back/forward
-  useEffect(() => {
-    const handler = () => setLangState(resolveLang());
-    window.addEventListener('popstate', handler);
-    return () => window.removeEventListener('popstate', handler);
-  }, []);
 
   // Update <html lang>
   useEffect(() => {
@@ -49,7 +41,7 @@ export function I18nProvider({ children }) {
       const val = get(translations[lang], key);
       if (val === undefined) return key;
       if (typeof val === 'string') return interpolate(val, vars);
-      return val; // arrays, objects
+      return val;
     },
     [lang],
   );

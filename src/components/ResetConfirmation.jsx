@@ -1,59 +1,49 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RotateCcw } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext.jsx';
 import { useClickOutside } from '../hooks/useClickOutside.js';
 
 export default function ResetConfirmation({
+  isOpen,
+  onToggle,
+  onClose,
   onReset,
-  isOpen: panelIsOpen,
-  onClosePanel,
 }) {
   const { t } = useI18n();
-  const [openState, setOpenState] = useState(false);
-  const open = openState && !panelIsOpen;
 
-  const close = useCallback(() => setOpenState(false), []);
+  useClickOutside(onClose, isOpen);
 
-  // Click outside closes confirmation
-  useClickOutside(close, open);
-
-  // Escape closes confirmation
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
     const handler = (e) => {
       if (e.key === 'Escape') {
-        setOpenState(false);
+        onClose();
         document.activeElement?.blur();
         e.preventDefault();
       }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [open]);
-
-  const handleToggle = () => {
-    if (panelIsOpen) onClosePanel();
-    setOpenState((prev) => !prev);
-  };
+  }, [isOpen, onClose]);
 
   const handleConfirm = () => {
     onReset();
-    setOpenState(false);
+    onClose();
   };
 
   return (
-    <>
+    <div className="popover-anchor">
       <button
-        className={'panel-reset' + (open ? ' panel-reset--active' : '')}
+        className={'panel-reset' + (isOpen ? ' panel-reset--active' : '')}
         onPointerDown={(e) => e.stopPropagation()}
-        onClick={handleToggle}
+        onClick={onToggle}
         aria-label="reset"
       >
         <RotateCcw size={14} />
       </button>
       <AnimatePresence>
-        {open && (
+        {isOpen && (
           <motion.div
             className="reset-confirm"
             onPointerDown={(e) => e.stopPropagation()}
@@ -65,7 +55,7 @@ export default function ResetConfirmation({
             <p className="reset-confirm-title">{t('resetTitle')}</p>
             <p className="reset-confirm-text">{t('resetConfirm')}</p>
             <div className="reset-confirm-actions">
-              <button className="reset-confirm-no" onClick={close}>
+              <button className="reset-confirm-no" onClick={onClose}>
                 {t('resetNo')}
               </button>
               <button className="reset-confirm-yes" onClick={handleConfirm}>
@@ -75,6 +65,6 @@ export default function ResetConfirmation({
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

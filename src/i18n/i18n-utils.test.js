@@ -1,39 +1,61 @@
 import { describe, it, expect } from 'vitest';
 import {
-  resolveLang,
+  resolveLangFromPath,
   get,
   interpolate,
   SUPPORTED,
   DEFAULT_LANG,
 } from './i18n-utils.js';
 
-describe('resolveLang', () => {
-  it('returns fr for root path', () => {
-    expect(resolveLang('/')).toBe('fr');
+describe('resolveLangFromPath', () => {
+  it('returns browser lang for root path with no stored lang', () => {
+    // Falls back to browser language detection
+    const result = resolveLangFromPath('/', null);
+    expect(SUPPORTED).toContain(result);
   });
 
   it('returns fr for /fr', () => {
-    expect(resolveLang('/fr')).toBe('fr');
+    expect(resolveLangFromPath('/fr', null)).toBe('fr');
   });
 
   it('returns en for /en', () => {
-    expect(resolveLang('/en')).toBe('en');
+    expect(resolveLangFromPath('/en', null)).toBe('en');
   });
 
-  it('returns default for unsupported language', () => {
-    expect(resolveLang('/de')).toBe('fr');
+  it('returns browser lang for unsupported language', () => {
+    const result = resolveLangFromPath('/de', null);
+    expect(SUPPORTED).toContain(result);
   });
 
-  it('returns default for garbage path', () => {
-    expect(resolveLang('/ksjahdfkjdhsaf')).toBe('fr');
+  it('returns browser lang for garbage path', () => {
+    const result = resolveLangFromPath('/ksjahdfkjdhsaf', null);
+    expect(SUPPORTED).toContain(result);
   });
 
   it('reads only the first path segment', () => {
-    expect(resolveLang('/en/some/other/path')).toBe('en');
+    expect(resolveLangFromPath('/en/some/other/path', null)).toBe('en');
   });
 
-  it('returns default for empty string', () => {
-    expect(resolveLang('')).toBe('fr');
+  it('returns browser lang for empty string', () => {
+    const result = resolveLangFromPath('', null);
+    expect(SUPPORTED).toContain(result);
+  });
+
+  it('uses stored lang when path is root', () => {
+    expect(resolveLangFromPath('/', 'en')).toBe('en');
+  });
+
+  it('uses stored lang for /share/ paths', () => {
+    expect(resolveLangFromPath('/share/abc123', 'en')).toBe('en');
+  });
+
+  it('URL lang overrides stored lang', () => {
+    expect(resolveLangFromPath('/fr', 'en')).toBe('fr');
+  });
+
+  it('ignores invalid stored lang', () => {
+    const result = resolveLangFromPath('/', 'de');
+    expect(SUPPORTED).toContain(result);
   });
 });
 

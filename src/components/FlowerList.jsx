@@ -9,6 +9,7 @@ import FlowerCatalog from './FlowerCatalog.jsx';
 import FlowerEditor from './FlowerEditor.jsx';
 import FlowerRow from './FlowerRow.jsx';
 import ResetConfirmation from './ResetConfirmation.jsx';
+import ShareButton from './ShareButton.jsx';
 import './FlowerList.css';
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: 'easeInOut' };
@@ -25,6 +26,9 @@ export default function FlowerList({
   onEditFlower,
   onDeleteFlower,
   onReset,
+  onGetShareUrl,
+  onExportJson,
+  onImportJson,
   showLabels,
   onShowLabelsChange,
   gardenOwner,
@@ -40,6 +44,7 @@ export default function FlowerList({
     setHoveredId(null);
     setViewRaw(v);
   };
+  const [activePopover, setActivePopover] = useState(null);
   const listRef = useRef(null);
   const panelRef = useRef(null);
   const buttonRef = useRef(null);
@@ -54,6 +59,24 @@ export default function FlowerList({
     setViewRaw('garden');
     onClose();
   }, [onClose]);
+
+  const closePopover = useCallback(() => setActivePopover(null), []);
+
+  const togglePopover = useCallback(
+    (name) => {
+      setActivePopover((prev) => {
+        if (prev === name) return null;
+        if (isOpen) closePanel();
+        return name;
+      });
+    },
+    [isOpen, closePanel],
+  );
+
+  const handleTogglePanel = useCallback(() => {
+    setActivePopover(null);
+    onTogglePanel();
+  }, [onTogglePanel]);
 
   const sortedFlowers = useMemo(() => {
     const sel = selected
@@ -111,14 +134,23 @@ export default function FlowerList({
     <div className="panel-wrapper">
       <div className="panel-actions">
         <ResetConfirmation
+          isOpen={activePopover === 'reset'}
+          onToggle={() => togglePopover('reset')}
+          onClose={closePopover}
           onReset={onReset}
-          isOpen={isOpen}
-          onClosePanel={closePanel}
+        />
+        <ShareButton
+          isOpen={activePopover === 'share'}
+          onToggle={() => togglePopover('share')}
+          onClose={closePopover}
+          onGetShareUrl={onGetShareUrl}
+          onExportJson={onExportJson}
+          onImportJson={onImportJson}
         />
         <button
           ref={buttonRef}
           className="panel-toggle"
-          onClick={onTogglePanel}
+          onClick={handleTogglePanel}
         >
           <Sprout size={14} />
           {isOpen ? t('buttonDone') : t('buttonPlanGarden')}

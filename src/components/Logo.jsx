@@ -1,21 +1,10 @@
 import { useState, useEffect } from 'react';
-import { OUTER_PALETTE, INNER_PALETTE, pick } from './logo-colors.js';
-
-function hashString(str) {
-  let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) + hash + str.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-}
-
-function colorsFromName(name) {
-  const h = hashString(name.toUpperCase().trim());
-  return {
-    outer: OUTER_PALETTE[h % OUTER_PALETTE.length],
-    inner: INNER_PALETTE[(h >>> 8) % INNER_PALETTE.length],
-  };
-}
+import {
+  OUTER_PALETTE,
+  INNER_PALETTE,
+  pick,
+  colorsFromName,
+} from './logo-colors.js';
 
 export default function Logo({
   textColor = '#443528',

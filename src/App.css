@@ -1,10 +1,11 @@
 .app {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   min-height: 100dvh;
 }
 
 .app-logo-wrapper {
-  position: fixed;
+  position: absolute;
   top: 2rem;
   left: 2rem;
   z-index: 50;
@@ -29,7 +30,9 @@
 }
 
 .chart-area {
+  position: relative;
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   width: 100%;
@@ -51,7 +54,7 @@
 }
 
 .app-credits {
-  position: fixed;
+  position: absolute;
   right: 2rem;
   bottom: 2rem;
   z-index: 50;
@@ -65,7 +68,7 @@
 }
 
 .app-bottom-left {
-  position: fixed;
+  position: absolute;
   bottom: 2rem;
   left: 2rem;
   z-index: 50;
