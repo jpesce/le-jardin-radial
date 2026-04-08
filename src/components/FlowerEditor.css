@@ -15,31 +15,31 @@
 }
 
 .editor-input {
-  margin: 0;
   width: 100%;
+  margin: 0;
 }
 
 .editor-color-row {
   display: flex;
-  align-items: center;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .editor-color-picker {
-  appearance: none;
-  -webkit-appearance: none;
+  flex-shrink: 0;
   width: 24px;
   height: 24px;
-  border: 2px solid var(--color-border);
-  border-radius: 50%;
   padding: 0;
+  overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
   cursor: pointer;
   background: none;
-  flex-shrink: 0;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
   transition:
     border-color 0.15s,
     transform 0.1s;
-  overflow: hidden;
 }
 
 .editor-color-picker::-webkit-color-swatch-wrapper {
@@ -62,44 +62,44 @@
 }
 
 .editor-color-hex {
-  margin: 0;
   flex: 1;
+  margin: 0;
   font-family: inherit;
   letter-spacing: 0.05em;
 }
 
 .month-grid {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   margin-top: 0.25rem;
-  border-radius: 6px;
   overflow: hidden;
-  position: relative;
+  border-radius: 6px;
 }
 
 .month-grid::after {
-  content: '';
   position: absolute;
   inset: 0;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
   pointer-events: none;
+  content: '';
+  border: 1px solid rgb(0 0 0 / 10%);
+  border-radius: 6px;
 }
 
 .month-cell {
-  border: none;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 0;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
+  gap: 2px;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.15s;
   padding: 0.4rem 0;
-  gap: 2px;
   font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  border: none;
+  border-right: 1px solid rgb(0 0 0 / 10%);
+  border-bottom: 1px solid rgb(0 0 0 / 10%);
+  border-radius: 0;
+  transition: opacity 0.15s;
 }
 
 .month-cell:nth-child(3n) {
@@ -115,22 +115,22 @@
 }
 
 .month-cell-label {
-  font-size: 11px;
   font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: lowercase;
+  letter-spacing: 0.05em;
   pointer-events: none;
   opacity: 0.9;
-  font-weight: 700;
-  letter-spacing: 0.05em;
 }
 
 .month-cell-state {
-  font-size: 9.5px;
   font-family: inherit;
+  font-size: 9.5px;
   text-transform: lowercase;
+  letter-spacing: 0.03em;
   pointer-events: none;
   opacity: 0.55;
-  letter-spacing: 0.03em;
 }
 
 .editor-actions {
@@ -141,49 +141,49 @@
 
 .editor-save-btn {
   flex: 1;
-  background: var(--color-text);
-  color: var(--color-bg);
-  border: none;
-  border-radius: 6px;
+  padding: 0.5rem;
   font: inherit;
   font-size: 12px;
-  padding: 0.5rem;
-  cursor: pointer;
+  color: var(--color-bg);
   text-transform: lowercase;
   letter-spacing: 0.03em;
+  cursor: pointer;
+  background: var(--color-text);
+  border: none;
+  border-radius: 6px;
   transition: opacity 0.15s;
 }
 
 .editor-cancel-btn {
   flex: 1;
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  padding: 0.5rem;
   font: inherit;
   font-size: 12px;
   color: var(--color-muted);
-  padding: 0.5rem;
-  cursor: pointer;
   text-transform: lowercase;
   letter-spacing: 0.03em;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
 }
 
 .editor-cancel-btn:hover {
-  border-color: var(--color-border-hover);
   color: var(--color-text);
+  border-color: var(--color-border-hover);
 }
 
 .editor-delete-btn {
-  background: none;
-  border: none;
+  align-self: center;
+  padding: 0.5rem 0 0;
   font: inherit;
   font-size: 11px;
   color: var(--color-muted);
-  cursor: pointer;
   text-transform: lowercase;
   letter-spacing: 0.03em;
-  align-self: center;
-  padding: 0.5rem 0 0;
+  cursor: pointer;
+  background: none;
+  border: none;
   transition: color 0.15s;
 }
 
@@ -192,10 +192,10 @@
 }
 
 .editor-hint {
-  font-size: 11px;
-  color: var(--color-warning);
   display: flex;
+  gap: 0.3rem;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
+  font-size: 11px;
+  color: var(--color-warning);
 }

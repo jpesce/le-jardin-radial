@@ -1,14 +1,14 @@
 .catalog-back {
-  background: none;
-  border: none;
+  align-self: flex-start;
+  padding: 0;
   font: inherit;
   font-size: 12px;
   color: var(--color-muted);
-  cursor: pointer;
-  padding: 0;
   text-transform: lowercase;
   letter-spacing: 0.03em;
-  align-self: flex-start;
+  cursor: pointer;
+  background: none;
+  border: none;
 }
 
 .catalog-back:hover {
@@ -38,7 +38,7 @@
 }
 
 .catalog-hint {
+  margin: 0.15rem 0 0;
   font-size: 11px;
   color: var(--color-faint);
-  margin: 0.15rem 0 0;
 }

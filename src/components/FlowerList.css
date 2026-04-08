@@ -9,24 +9,24 @@
 }
 
 .panel-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
   position: relative;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
 }
 
 .panel-reset {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text);
-  background: none;
-  border: 1px solid var(--color-border-input);
-  border-radius: 20px;
   width: 33.89px;
   height: 33.89px;
   padding: 0;
+  color: var(--color-text);
   cursor: pointer;
+  background: none;
+  border: 1px solid var(--color-border-input);
+  border-radius: 20px;
   transition: border-color 0.15s;
 }
 
@@ -39,17 +39,17 @@
   position: absolute;
   top: 100%;
   right: 0;
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 16rem;
+  padding: 0.75rem 1rem;
   margin-top: 0.35rem;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 8px;
   box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text) 8%, transparent);
-  padding: 0.75rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  z-index: 101;
-  width: 16rem;
 }
 
 .reset-confirm-title {
@@ -63,8 +63,8 @@
 .reset-confirm-text {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--color-subtle);
   line-height: 1.5;
+  color: var(--color-subtle);
 }
 
 .reset-confirm-actions {
@@ -74,16 +74,16 @@
 
 .reset-confirm-yes {
   flex: 1;
-  background: var(--color-danger);
-  color: var(--color-bg);
-  border: none;
-  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
   font: inherit;
   font-size: 11px;
-  padding: 0.3rem 0.5rem;
-  cursor: pointer;
+  color: var(--color-bg);
   text-transform: lowercase;
   letter-spacing: 0.03em;
+  cursor: pointer;
+  background: var(--color-danger);
+  border: none;
+  border-radius: 4px;
   transition: opacity 0.15s;
 }
 
@@ -93,49 +93,49 @@
 
 .reset-confirm-no {
   flex: 1;
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
   font: inherit;
   font-size: 11px;
   color: var(--color-muted);
-  padding: 0.3rem 0.5rem;
-  cursor: pointer;
   text-transform: lowercase;
   letter-spacing: 0.03em;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
   transition:
     border-color 0.15s,
     color 0.15s;
 }
 
 .reset-confirm-no:hover {
-  border-color: var(--color-border-hover);
   color: var(--color-text);
+  border-color: var(--color-border-hover);
 }
 
 .panel-fade {
-  height: 1.5rem;
-  background: linear-gradient(transparent, var(--color-bg));
-  pointer-events: none;
-  flex-shrink: 0;
   position: sticky;
   bottom: 0;
+  flex-shrink: 0;
+  height: 1.5rem;
+  pointer-events: none;
+  background: linear-gradient(transparent, var(--color-bg));
 }
 
 .panel-toggle {
   display: flex;
-  align-items: center;
   gap: 0.35rem;
+  align-items: center;
+  padding: 0.45rem 1rem;
   font-family: inherit;
   font-size: 13px;
   color: var(--color-text);
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
   background: none;
   border: 1px solid var(--color-border-input);
   border-radius: 20px;
-  padding: 0.45rem 1rem;
-  cursor: pointer;
-  text-transform: lowercase;
-  letter-spacing: 0.03em;
   transition:
     background 0.15s,
     color 0.15s,
@@ -143,33 +143,33 @@
 }
 
 .panel-toggle:hover {
-  background: none;
   color: var(--color-text);
+  background: none;
   border-color: var(--color-muted);
 }
 
 .flower-panel {
-  margin-top: 0.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 300px;
   max-height: calc(100dvh - 6rem);
+  margin-top: 0.5rem;
+  overflow: hidden;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow: 0 4px 24px color-mix(in srgb, var(--color-text) 8%, transparent);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 .flower-panel-inner {
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-  padding: 1.5rem 1.875rem 0;
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 0.25rem;
+  min-height: 0;
+  padding: 1.5rem 1.875rem 0;
+  overflow-y: auto;
 }
 
 .panel-section {
@@ -183,50 +183,50 @@
 }
 
 .panel-title {
+  padding: 1.25rem 0 0.15rem;
   font-size: 12px;
   font-weight: 700;
   color: var(--color-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 1.25rem 0 0.15rem;
 }
 
 .panel-input {
-  font-family: inherit;
-  font-size: 12px;
   padding: 0.4rem 0.6rem;
   margin: 0;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--color-text);
+  outline: none;
+  background: var(--color-bg-input);
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  outline: none;
-  color: var(--color-text);
-  background: var(--color-bg-input);
   transition: border-color 0.15s;
 }
 
 .panel-input:focus {
-  border-color: var(--color-border-hover);
   background: var(--color-bg);
+  border-color: var(--color-border-hover);
 }
 
 .toggle-label {
   display: flex;
-  align-items: center;
   gap: 0.4rem;
+  align-items: center;
   padding-left: 0;
   font-size: 12px;
   color: var(--color-muted);
-  cursor: pointer;
-  user-select: none;
   text-transform: lowercase;
   letter-spacing: 0.03em;
+  cursor: pointer;
+  user-select: none;
 }
 
 .flower-items {
-  list-style: none;
   display: flex;
   flex-direction: column;
   gap: 1px;
+  list-style: none;
 }
 
 .flower-item {
@@ -250,32 +250,32 @@ body:not(.is-dragging) .flower-item:hover .checkbox {
 
 .flower-label {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.2rem 0;
-  cursor: pointer;
   flex: 1;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.2rem 0;
   font-size: 12px;
   color: var(--color-subtle);
+  cursor: pointer;
 }
 
 .flower-swatch {
+  flex-shrink: 0;
   width: 10px;
   height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
   border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+  border-radius: 50%;
 }
 
 .flower-name {
+  display: flex;
   flex: 1;
-  white-space: nowrap;
+  gap: 0.25rem;
+  align-items: center;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
 }
 
 .custom-icon {
@@ -284,30 +284,30 @@ body:not(.is-dragging) .flower-item:hover .checkbox {
 
 .flower-bloom-range {
   flex-shrink: 0;
-  color: var(--color-faint);
   font-size: 11px;
+  color: var(--color-faint);
   text-align: right;
 }
 
 .drag-handle {
   position: absolute;
-  left: calc(-20px - 4.5px);
   top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  cursor: grab;
-  color: var(--color-drag-handle);
-  user-select: none;
+  left: calc(-20px - 4.5px);
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 20px;
+  padding: 4px 0;
+  color: var(--color-drag-handle);
+  cursor: grab;
+  user-select: none;
+  background: transparent;
+  border-radius: 3px;
   opacity: 0;
+  transform: translateY(-50%);
   transition:
     opacity 0.1s,
     background 0.1s;
-  background: transparent;
-  border-radius: 3px;
-  padding: 4px 0;
 }
 
 .drag-handle:hover {
@@ -320,14 +320,14 @@ body:not(.is-dragging) .flower-item:hover .drag-handle {
 }
 
 .drag-handle:active {
-  cursor: grabbing;
   color: var(--color-muted);
+  cursor: grabbing;
 }
 
 .flower-divider-inline {
   height: 1px;
-  background: var(--color-divider);
   margin: 0.4rem 0;
+  background: var(--color-divider);
 }
 
 .drop-indicator-above,
@@ -337,11 +337,11 @@ body:not(.is-dragging) .flower-item:hover .drag-handle {
 
 .drop-indicator-above::before,
 .drop-indicator-below::after {
-  content: '';
   position: absolute;
-  left: 0.5rem;
   right: 0.5rem;
+  left: 0.5rem;
   height: 1px;
+  content: '';
   background: var(--color-border-hover);
 }
 
@@ -355,24 +355,24 @@ body:not(.is-dragging) .flower-item:hover .drag-handle {
 
 .edit-btn {
   position: absolute;
-  right: calc(-20px - 4.5px);
   top: 50%;
-  transform: translateY(-50%);
+  right: calc(-20px - 4.5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 20px;
+  padding: 4px 0;
+  color: var(--color-drag-handle);
+  cursor: pointer;
   background: transparent;
   border: none;
   border-radius: 3px;
-  color: var(--color-drag-handle);
-  cursor: pointer;
-  padding: 4px 0;
   opacity: 0;
+  transform: translateY(-50%);
   transition:
     opacity 0.1s,
     color 0.1s,
     background 0.1s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .flower-item--hovered .edit-btn,
@@ -392,15 +392,15 @@ body:not(.is-dragging) .flower-item:hover .edit-btn {
 }
 
 .panel-edit-link {
-  background: transparent;
-  border: none;
-  border-radius: 3px;
-  color: var(--color-muted);
-  cursor: pointer;
   display: flex;
   align-items: center;
   padding: 4px;
   margin-left: 0.25rem;
+  color: var(--color-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
   transition:
     color 0.1s,
     background 0.1s;
@@ -417,23 +417,23 @@ body:not(.is-dragging) .flower-item:hover .edit-btn {
 }
 
 .catalog-create {
-  background: var(--color-bg);
-  border: none;
-  border-top: 1px solid var(--color-border);
-  font: inherit;
-  font-size: 12px;
-  color: var(--color-muted);
-  cursor: pointer;
-  padding: 0.75rem 1.875rem;
-  text-transform: lowercase;
-  letter-spacing: 0.03em;
+  position: relative;
+  z-index: 1;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 100%;
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
+  padding: 0.75rem 1.875rem;
+  font: inherit;
+  font-size: 12px;
+  color: var(--color-muted);
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  background: var(--color-bg);
+  border: none;
+  border-top: 1px solid var(--color-border);
   transition: color 0.15s;
 }
 
@@ -441,7 +441,7 @@ body:not(.is-dragging) .flower-item:hover .edit-btn {
   color: var(--color-text);
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .panel-wrapper {
     top: 0.75rem;
     right: 0.75rem;
