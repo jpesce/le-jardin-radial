@@ -1,16 +1,18 @@
-import { useState, useRef, useMemo, useEffect } from "react";
+import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sprout, Pencil, GripVertical, RotateCcw } from "lucide-react";
+import { Sprout, Pencil, GripVertical } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext.jsx";
 import { raw as catalogRaw } from "../data/flowers.js";
+import { useClickOutside } from "../hooks/useClickOutside.js";
+import { useDragReorder } from "../hooks/useDragReorder.js";
 import FlowerCatalog from "./FlowerCatalog.jsx";
 import FlowerEditor from "./FlowerEditor.jsx";
 import FlowerRow from "./FlowerRow.jsx";
+import ResetConfirmation from "./ResetConfirmation.jsx";
 import "./FlowerList.css";
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: "easeInOut" };
 const CATALOG_IDS = new Set(catalogRaw.map((f) => f.id));
-const DRAG_THRESHOLD = 3;
 
 export default function FlowerList({
   gardenFlowers,
@@ -33,27 +35,18 @@ export default function FlowerList({
 }) {
   const { t } = useI18n();
   const [hoveredId, setHoveredId] = useState(null);
-  const [dragFrom, setDragFrom] = useState(null);
-  const [dropTarget, setDropTarget] = useState(null);
   const [view, setViewRaw] = useState("garden");
   const setView = (v) => { setHoveredId(null); setViewRaw(v); };
-  const [confirmReset, setConfirmReset] = useState(false);
   const listRef = useRef(null);
   const panelRef = useRef(null);
   const buttonRef = useRef(null);
+
+  const { dragFrom, dropTarget, handlePointerDown } = useDragReorder(listRef, selected, onReorder);
 
   // Reset to garden view when panel closes
   useEffect(() => {
     if (!isOpen) setView("garden");
   }, [isOpen]);
-
-  // Click outside closes reset confirmation
-  useEffect(() => {
-    if (!confirmReset) return;
-    const handler = () => setConfirmReset(false);
-    document.addEventListener("pointerdown", handler);
-    return () => document.removeEventListener("pointerdown", handler);
-  }, [confirmReset]);
 
   const sortedFlowers = useMemo(() => {
     const sel = selected
@@ -65,34 +58,12 @@ export default function FlowerList({
 
   const selectedSet = useMemo(() => new Set(selected), [selected]);
 
-  // Global grabbing cursor while dragging
-  useEffect(() => {
-    document.body.classList.toggle("is-dragging", dragFrom !== null);
-    return () => document.body.classList.remove("is-dragging");
-  }, [dragFrom]);
-
   // Click outside to close panel
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e) => {
-      if (dragFrom !== null) return;
-      if (panelRef.current?.contains(e.target)) return;
-      if (buttonRef.current?.contains(e.target)) return;
-      onClose();
-    };
-    document.addEventListener("pointerdown", handler);
-    return () => document.removeEventListener("pointerdown", handler);
-  }, [isOpen, onClose, dragFrom]);
-
-  // Escape dismisses reset confirmation
-  useEffect(() => {
-    if (!confirmReset) return;
-    const handler = (e) => {
-      if (e.key === "Escape") { setConfirmReset(false); document.activeElement?.blur(); e.preventDefault(); }
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [confirmReset]);
+  const handleClosePanel = useCallback(() => {
+    if (dragFrom !== null) return;
+    onClose();
+  }, [onClose, dragFrom]);
+  useClickOutside(handleClosePanel, isOpen, [panelRef, buttonRef]);
 
   // Escape key: navigate back or close panel
   useEffect(() => {
@@ -100,16 +71,13 @@ export default function FlowerList({
     const isEditorView = view === "create" || (typeof view === "object" && view.edit);
     const handler = (e) => {
       if (e.key !== "Escape" && e.key !== "Enter") return;
-      // Don't intercept if focus is in a color picker or other native dialog
       if (document.activeElement?.type === "color") return;
-      // If an input is focused, blur it first
       const active = document.activeElement;
       if (active?.tagName === "INPUT" || active?.tagName === "TEXTAREA") {
         active.blur();
         return;
       }
       if (e.key === "Enter") {
-        // Only handle Enter in editor views — submit the form
         if (!isEditorView) return;
         const form = panelRef.current?.querySelector("form");
         if (form) form.requestSubmit();
@@ -131,102 +99,23 @@ export default function FlowerList({
     return () => document.removeEventListener("keydown", handler);
   }, [isOpen, view, onClose]);
 
-  const handlePointerDown = (e, selectedIdx) => {
-    if (e.target.closest('input[type="checkbox"]')) return;
-    if (e.button !== 0) return;
-
-    const startY = e.clientY;
-    const currentIds = [...selected];
-    let isDragging = false;
-    let currentTarget = null;
-
-    const getInsertIndex = (clientY) => {
-      const items = listRef.current?.querySelectorAll("[data-selected-idx]");
-      if (!items) return selectedIdx;
-      for (const item of items) {
-        const idx = parseInt(item.dataset.selectedIdx);
-        const rect = item.getBoundingClientRect();
-        if (clientY < rect.top + rect.height / 2) return idx;
-      }
-      return currentIds.length;
-    };
-
-    const onMove = (moveEvent) => {
-      if (!isDragging) {
-        if (Math.abs(moveEvent.clientY - startY) < DRAG_THRESHOLD) return;
-        isDragging = true;
-        setDragFrom(selectedIdx);
-        setHoveredId(null);
-      }
-      moveEvent.preventDefault();
-      currentTarget = getInsertIndex(moveEvent.clientY);
-      setDropTarget(currentTarget);
-    };
-
-    const onUp = () => {
-      document.removeEventListener("pointermove", onMove);
-      document.removeEventListener("pointerup", onUp);
-
-      if (isDragging && currentTarget !== null) {
-        let toIdx = currentTarget;
-        if (toIdx > selectedIdx) toIdx--;
-        if (selectedIdx !== toIdx) {
-          const reordered = [...currentIds];
-          const [removed] = reordered.splice(selectedIdx, 1);
-          reordered.splice(toIdx, 0, removed);
-          onReorder(reordered);
-        }
-      }
-
-      setDragFrom(null);
-      setDropTarget(null);
-      setHoveredId(null);
-    };
-
-    document.addEventListener("pointermove", onMove);
-    document.addEventListener("pointerup", onUp);
-  };
-
   return (
     <div className="panel-wrapper">
       <div className="panel-actions">
-        <button
-          className={"panel-reset" + (confirmReset ? " panel-reset--active" : "")}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => { if (isOpen) onClose(); setConfirmReset((prev) => !prev); }}
-          aria-label="reset"
-        >
-          <RotateCcw size={14} />
-        </button>
+        <ResetConfirmation
+          onReset={onReset}
+          isOpen={isOpen}
+          onClosePanel={onClose}
+        />
         <button
           ref={buttonRef}
           className="panel-toggle"
-          onClick={() => { setConfirmReset(false); onTogglePanel(); }}
+          onClick={onTogglePanel}
         >
           <Sprout size={14} />
           {isOpen ? t("buttonDone") : t("buttonPlanGarden")}
         </button>
       </div>
-      {confirmReset && (
-        <div className="reset-confirm" onPointerDown={(e) => e.stopPropagation()}>
-          <p className="reset-confirm-title">{t("resetTitle")}</p>
-          <p className="reset-confirm-text">{t("resetConfirm")}</p>
-          <div className="reset-confirm-actions">
-            <button
-              className="reset-confirm-no"
-              onClick={() => setConfirmReset(false)}
-            >
-              {t("resetNo")}
-            </button>
-            <button
-              className="reset-confirm-yes"
-              onClick={() => { onReset(); setConfirmReset(false); }}
-            >
-              {t("resetYes")}
-            </button>
-          </div>
-        </div>
-      )}
       <AnimatePresence>
         {isOpen && (
           <motion.aside
@@ -243,7 +132,6 @@ export default function FlowerList({
                 flowers={allFlowers}
                 onToggle={onToggleGarden}
                 onBack={() => setView("garden")}
-
                 onEditFlower={(id) => setView({ edit: id, from: "manage" })}
               />
             ) : view === "create" ? (
@@ -304,7 +192,6 @@ export default function FlowerList({
                       const showIndicatorAbove =
                         isDragging &&
                         isSelected &&
-
                         dropTarget === selectedIdx &&
                         dropTarget !== dragFrom &&
                         dropTarget !== dragFrom + 1;
@@ -312,7 +199,6 @@ export default function FlowerList({
                       const showIndicatorBelow =
                         isDragging &&
                         isSelected &&
-
                         selectedIdx === selected.length - 1 &&
                         dropTarget === selected.length &&
                         dropTarget !== dragFrom + 1;
@@ -362,7 +248,6 @@ export default function FlowerList({
                       ];
 
                       const isLastSelected =
-
                         isSelected &&
                         selectedIdx === selected.length - 1 &&
                         sortedFlowers.length > selected.length;
