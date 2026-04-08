@@ -1,10 +1,11 @@
-import { useReducer, useMemo, useCallback } from "react";
+import { useReducer, useMemo, useCallback, useEffect } from "react";
 import { raw as catalogRaw } from "../data/flowers.js";
 import { parseMonths, firstBloomStart } from "../data/months.js";
 
 const GARDEN_SIZE = 8;
 const SELECTED_SIZE = 4;
 const DEFAULT_OWNER = "Tainah Drummond";
+const STORAGE_KEY = "jardin-radial";
 
 function shuffle(arr) {
   const a = [...arr];
@@ -19,7 +20,7 @@ function pickRaw({ id, names, scientificName, colors, months }) {
   return { id, names, scientificName, colors, months };
 }
 
-function initialState() {
+function freshState() {
   const catalog = catalogRaw.map(pickRaw);
   const shuffled = shuffle(catalog);
   const garden = shuffled.slice(0, GARDEN_SIZE).map((f) => f.id);
@@ -33,6 +34,55 @@ function initialState() {
     selected,
     customFlowers: {},
   };
+}
+
+function isValidState(s) {
+  return (
+    s &&
+    Array.isArray(s.defaultCatalog) &&
+    Array.isArray(s.garden) &&
+    Array.isArray(s.selected) &&
+    typeof s.customFlowers === "object" &&
+    typeof s.owner === "string" &&
+    typeof s.labels === "boolean"
+  );
+}
+
+function reconcile(saved) {
+  const currentCatalog = catalogRaw.map(pickRaw);
+  const currentIds = new Set(currentCatalog.map((f) => f.id));
+  const gardenSet = new Set(saved.garden);
+
+  // Start with current catalog
+  const merged = [...currentCatalog];
+
+  // Keep saved catalog flowers that were removed from current BUT are in use
+  for (const f of saved.defaultCatalog) {
+    if (!currentIds.has(f.id) && (gardenSet.has(f.id) || f.id in saved.customFlowers)) {
+      merged.push(f);
+    }
+  }
+
+  // Clean garden/selected: remove IDs that no longer exist anywhere
+  const allIds = new Set([...merged.map((f) => f.id), ...Object.keys(saved.customFlowers)]);
+
+  return {
+    ...saved,
+    defaultCatalog: merged,
+    garden: saved.garden.filter((id) => allIds.has(id)),
+    selected: saved.selected.filter((id) => allIds.has(id)),
+  };
+}
+
+function initialState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (isValidState(parsed)) return reconcile(parsed);
+    }
+  } catch {}
+  return freshState();
 }
 
 function reducer(state, action) {
@@ -97,6 +147,8 @@ function reducer(state, action) {
         selected: state.selected.filter((x) => x !== action.id),
       };
     }
+    case "RESET":
+      return freshState();
     default:
       return state;
   }
@@ -114,6 +166,11 @@ function enrich(flower, lang) {
 
 export function useGarden(lang) {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
+
+  // Auto-save to localStorage on every state change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [state]);
 
   // All available flowers: catalog merged with overrides + pure custom entries
   const catalogIds = useMemo(
@@ -168,6 +225,7 @@ export function useGarden(lang) {
     dispatch({ type: "ADD_CUSTOM_FLOWER", payload: { id: crypto.randomUUID(), ...data } });
   }, []);
   const deleteFlower = useCallback((id) => dispatch({ type: "DELETE_FLOWER", id }), []);
+  const reset = useCallback(() => dispatch({ type: "RESET" }), []);
 
   return {
     owner: state.owner,
@@ -184,5 +242,6 @@ export function useGarden(lang) {
     editFlower,
     addCustomFlower,
     deleteFlower,
+    reset,
   };
 }

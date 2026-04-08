@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sprout, Pencil, GripVertical } from "lucide-react";
+import { Sprout, Pencil, GripVertical, RotateCcw } from "lucide-react";
 import { useI18n } from "../i18n/I18nContext.jsx";
 import { raw as catalogRaw } from "../data/flowers.js";
 import FlowerCatalog from "./FlowerCatalog.jsx";
@@ -22,6 +22,7 @@ export default function FlowerList({
   onAddCustomFlower,
   onEditFlower,
   onDeleteFlower,
+  onReset,
   showLabels,
   onShowLabelsChange,
   gardenOwner,
@@ -36,6 +37,7 @@ export default function FlowerList({
   const [dropTarget, setDropTarget] = useState(null);
   const [view, setViewRaw] = useState("garden");
   const setView = (v) => { setHoveredId(null); setViewRaw(v); };
+  const [confirmReset, setConfirmReset] = useState(false);
   const listRef = useRef(null);
   const panelRef = useRef(null);
   const buttonRef = useRef(null);
@@ -44,6 +46,14 @@ export default function FlowerList({
   useEffect(() => {
     if (!isOpen) setView("garden");
   }, [isOpen]);
+
+  // Click outside closes reset confirmation
+  useEffect(() => {
+    if (!confirmReset) return;
+    const handler = () => setConfirmReset(false);
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
+  }, [confirmReset]);
 
   const sortedFlowers = useMemo(() => {
     const sel = selected
@@ -74,6 +84,16 @@ export default function FlowerList({
     return () => document.removeEventListener("pointerdown", handler);
   }, [isOpen, onClose, dragFrom]);
 
+  // Escape dismisses reset confirmation
+  useEffect(() => {
+    if (!confirmReset) return;
+    const handler = (e) => {
+      if (e.key === "Escape") { setConfirmReset(false); document.activeElement?.blur(); e.preventDefault(); }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [confirmReset]);
+
   // Escape key: navigate back or close panel
   useEffect(() => {
     if (!isOpen) return;
@@ -96,6 +116,7 @@ export default function FlowerList({
         return;
       }
       e.preventDefault();
+      document.activeElement?.blur();
       if (typeof view === "object" && view.edit) {
         setView(view.from || "garden");
       } else if (view === "create") {
@@ -168,14 +189,44 @@ export default function FlowerList({
 
   return (
     <div className="panel-wrapper">
-      <button
-        ref={buttonRef}
-        className="panel-toggle"
-        onClick={onTogglePanel}
-      >
-        <Sprout size={14} />
-        {isOpen ? t("buttonDone") : t("buttonPlanGarden")}
-      </button>
+      <div className="panel-actions">
+        <button
+          className={"panel-reset" + (confirmReset ? " panel-reset--active" : "")}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => { if (isOpen) onClose(); setConfirmReset((prev) => !prev); }}
+          aria-label="reset"
+        >
+          <RotateCcw size={14} />
+        </button>
+        <button
+          ref={buttonRef}
+          className="panel-toggle"
+          onClick={() => { setConfirmReset(false); onTogglePanel(); }}
+        >
+          <Sprout size={14} />
+          {isOpen ? t("buttonDone") : t("buttonPlanGarden")}
+        </button>
+      </div>
+      {confirmReset && (
+        <div className="reset-confirm" onPointerDown={(e) => e.stopPropagation()}>
+          <p className="reset-confirm-title">{t("resetTitle")}</p>
+          <p className="reset-confirm-text">{t("resetConfirm")}</p>
+          <div className="reset-confirm-actions">
+            <button
+              className="reset-confirm-no"
+              onClick={() => setConfirmReset(false)}
+            >
+              {t("resetNo")}
+            </button>
+            <button
+              className="reset-confirm-yes"
+              onClick={() => { onReset(); setConfirmReset(false); }}
+            >
+              {t("resetYes")}
+            </button>
+          </div>
+        </div>
+      )}
       <AnimatePresence>
         {isOpen && (
           <motion.aside

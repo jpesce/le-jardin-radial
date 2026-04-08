@@ -60,6 +60,7 @@ export default function App() {
         onAddCustomFlower={garden.addCustomFlower}
         onEditFlower={garden.editFlower}
         onDeleteFlower={garden.deleteFlower}
+        onReset={garden.reset}
         showLabels={garden.labels}
         onShowLabelsChange={garden.setLabels}
         gardenOwner={garden.owner}

@@ -8,6 +8,104 @@
   align-items: flex-end;
 }
 
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.panel-reset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text);
+  background: none;
+  border: 1px solid var(--color-border-input);
+  border-radius: 20px;
+  width: 33.89px;
+  height: 33.89px;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.panel-reset:hover,
+.panel-reset--active {
+  border-color: var(--color-muted);
+}
+
+.reset-confirm {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-text) 8%, transparent);
+  padding: 0.75rem 1rem;
+  margin-top: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-self: flex-end;
+  max-width: 220px;
+}
+
+.reset-confirm-title {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: lowercase;
+}
+
+.reset-confirm-text {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--color-subtle);
+  line-height: 1.5;
+}
+
+.reset-confirm-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.reset-confirm-yes {
+  flex: 1;
+  background: var(--color-danger);
+  color: var(--color-bg);
+  border: none;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 11px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  transition: opacity 0.15s;
+}
+
+.reset-confirm-yes:hover {
+  opacity: 0.85;
+}
+
+.reset-confirm-no {
+  flex: 1;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 11px;
+  color: var(--color-muted);
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.reset-confirm-no:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text);
+}
 
 .panel-fade {
   height: 1.5rem;
