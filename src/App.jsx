@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import RadialChart from './components/RadialChart.jsx';
 import FlowerList from './components/FlowerList.jsx';
 import LanguageSwitcher from './components/LanguageSwitcher.jsx';
-import Logo, {
+import Logo from './components/Logo.jsx';
+import {
   OUTER_PALETTE,
   INNER_PALETTE,
   pick,
-} from './components/Logo.jsx';
+} from './components/logo-colors.js';
 import { useGarden } from './hooks/useGarden.js';
 import { useI18n } from './i18n/I18nContext.jsx';
 import { updateMeta } from './i18n/updateMeta.js';

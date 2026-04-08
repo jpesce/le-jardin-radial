@@ -36,19 +36,20 @@ function freshState() {
   };
 }
 
-function isValidState(s) {
-  return (
+export function isValidState(s) {
+  return Boolean(
     s &&
     Array.isArray(s.defaultCatalog) &&
     Array.isArray(s.garden) &&
     Array.isArray(s.selected) &&
     typeof s.customFlowers === 'object' &&
+    !Array.isArray(s.customFlowers) &&
     typeof s.owner === 'string' &&
-    typeof s.labels === 'boolean'
+    typeof s.labels === 'boolean',
   );
 }
 
-function reconcile(saved) {
+export function reconcile(saved) {
   const currentCatalog = catalogRaw.map(pickRaw);
   const currentIds = new Set(currentCatalog.map((f) => f.id));
   const gardenSet = new Set(saved.garden);
@@ -93,7 +94,7 @@ function initialState() {
   return freshState();
 }
 
-function reducer(state, action) {
+export function reducer(state, action) {
   switch (action.type) {
     case 'SET_OWNER':
       return { ...state, owner: action.value };

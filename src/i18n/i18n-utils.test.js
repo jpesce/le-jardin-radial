@@ -5,7 +5,7 @@ import {
   interpolate,
   SUPPORTED,
   DEFAULT_LANG,
-} from './I18nContext.jsx';
+} from './i18n-utils.js';
 
 describe('resolveLang', () => {
   it('returns fr for root path', () => {
