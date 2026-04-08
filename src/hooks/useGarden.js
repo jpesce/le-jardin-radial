@@ -177,9 +177,12 @@ function enrich(flower, lang) {
 export function useGarden(lang) {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
 
-  // Auto-save to localStorage on every state change
+  // Auto-save to localStorage (debounced to avoid excessive writes)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const timer = setTimeout(() => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }, 500);
+    return () => clearTimeout(timer);
   }, [state]);
 
   // All available flowers: catalog merged with overrides + pure custom entries

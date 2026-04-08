@@ -19,6 +19,12 @@ const CELL_STROKE_PX = 1;
 const LINE_STROKE_PX = 1.5;
 const ICON_SIZE = 16;
 
+// Chart chrome colors
+const COLOR_LABEL = '#c1bcb7';
+const COLOR_DIVIDER = '#fff';
+const COLOR_LABEL_FILL = '#fff';
+const COLOR_LABEL_STROKE = 'rgba(0,0,0,0.4)';
+
 const arcGen = d3.arc();
 
 function arcTween(d) {
@@ -173,7 +179,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr('data-angle', angle)
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'central')
-        .attr('fill', '#c1bcb7');
+        .attr('fill', COLOR_LABEL);
     }
 
     // Season markers at boundaries
@@ -191,7 +197,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr('y1', rLineStart * Math.sin(angle))
         .attr('x2', rLineEnd * Math.cos(angle))
         .attr('y2', rLineEnd * Math.sin(angle))
-        .attr('stroke', '#c1bcb7')
+        .attr('stroke', COLOR_LABEL)
         .attr('stroke-dasharray', '2,3')
         .attr('vector-effect', 'non-scaling-stroke')
         .style('pointer-events', 'none');
@@ -215,7 +221,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
           `translate(${x},${y}) scale(${s}) translate(-12,-12) ${rot}`,
         )
         .attr('fill', 'none')
-        .attr('stroke', '#c1bcb7')
+        .attr('stroke', COLOR_LABEL)
         .attr('stroke-width', 1.5)
         .attr('stroke-linecap', 'round')
         .attr('stroke-linejoin', 'round')
@@ -273,7 +279,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr('y1', INNER_RADIUS * Math.sin(angle))
         .attr('x2', OUTER_RADIUS * Math.cos(angle))
         .attr('y2', OUTER_RADIUS * Math.sin(angle))
-        .attr('stroke', '#fff')
+        .attr('stroke', COLOR_DIVIDER)
         .attr('vector-effect', 'non-scaling-stroke')
         .style('pointer-events', 'none');
     }
@@ -281,7 +287,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
     initialized.current = true;
   }, []);
 
-  // Update month label text when language changes
+  // Update translatable text when language changes
   useEffect(() => {
     if (!svgRef.current || !initialized.current) return;
     const months = t('months');
@@ -293,6 +299,11 @@ export default function RadialChart({ flowers, showLabels = true }) {
         const idx = parseInt(el.attr('data-month-idx'));
         el.text(months[idx]);
       });
+    // Update empty state message if visible
+    const emptyMsg = g.select('.empty-msg');
+    if (emptyMsg.text()) {
+      emptyMsg.text(t('emptyState'));
+    }
   }, [t]);
 
   // Update non-scaling sizes when scale changes
@@ -357,8 +368,8 @@ export default function RadialChart({ flowers, showLabels = true }) {
 
     // Empty message
     g.select('.empty-msg')
-      .attr('fill', flowers.length === 0 ? '#c1bcb7' : 'none')
-      .text(flowers.length === 0 ? t('emptyState') : '');
+      .attr('fill', flowers.length === 0 ? COLOR_LABEL : 'none')
+      .text(flowers.length === 0 ? tRef.current('emptyState') : '');
 
     // Build flat cell data
     const bandHeight =
@@ -397,7 +408,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .enter()
       .append('path')
       .attr('fill', (d) => d.color)
-      .attr('stroke', '#fff')
+      .attr('stroke', COLOR_DIVIDER)
       .attr('vector-effect', 'non-scaling-stroke')
       .style('cursor', 'default')
       .each(function (d) {
@@ -501,9 +512,9 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .attr('font-size', labelSize)
       .attr('font-family', "'JetBrains Mono', monospace")
       .attr('dominant-baseline', 'hanging')
-      .attr('fill', '#fff')
+      .attr('fill', COLOR_LABEL_FILL)
       .attr('opacity', 0)
-      .attr('stroke', 'rgba(0,0,0,0.4)')
+      .attr('stroke', COLOR_LABEL_STROKE)
       .attr('stroke-width', labelSize * 0.12)
       .attr('paint-order', 'stroke')
       .attr('font-weight', 800)
@@ -525,7 +536,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
     // Update existing labels — refresh text and size
     texts.select('textPath').text((d) => d.displayName);
     texts.attr('font-size', labelSize).attr('stroke-width', labelSize * 0.12);
-  }, [flowers, showLabels, t]);
+  }, [flowers, showLabels]);
 
   const chartDesc =
     flowers.length > 0

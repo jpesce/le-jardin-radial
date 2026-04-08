@@ -1,11 +1,7 @@
 import { useI18n } from '../i18n/I18nContext.jsx';
+import { DEFAULT_STATE_COLORS } from '../data/colors.js';
 
 const STATES = ['dormant', 'sprouting', 'blooming', 'foliage'];
-const STATE_COLORS = {
-  dormant: '#8f967a',
-  sprouting: '#9fbc8f',
-  foliage: '#86a084',
-};
 
 function isLight(hex) {
   const c = hex.replace('#', '');
@@ -29,7 +25,8 @@ export default function MonthGrid({ value, onChange, bloomColor = '#E84393' }) {
   return (
     <div className="month-grid">
       {value.map((state, i) => {
-        const bg = state === 'blooming' ? bloomColor : STATE_COLORS[state];
+        const bg =
+          state === 'blooming' ? bloomColor : DEFAULT_STATE_COLORS[state];
         const textColor = isLight(bg)
           ? 'rgba(0,0,0,0.6)'
           : 'rgba(255,255,255,0.9)';
