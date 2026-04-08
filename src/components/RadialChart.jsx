@@ -347,7 +347,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .exit()
       .transition(tr)
       .attrTween("d", arcTweenExit)
-      .style("opacity", 0)
       .remove();
 
     // Enter
@@ -442,7 +441,8 @@ export default function RadialChart({ flowers, showLabels = true }) {
     const texts = textGroup.selectAll("text").data(labelData, (d) => d.id);
 
     texts.exit()
-      .transition(tr)
+      .transition()
+      .duration(100)
       .attr("opacity", 0)
       .remove();
 

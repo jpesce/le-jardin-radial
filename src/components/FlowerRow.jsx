@@ -1,4 +1,4 @@
-import { Pencil } from "lucide-react";
+import { Pencil, User } from "lucide-react";
 import { bloomRanges } from "../data/months.js";
 import { useI18n } from "../i18n/I18nContext.jsx";
 
@@ -27,7 +27,10 @@ export default function FlowerRow({
           background: flower.colors?.blooming ?? "var(--color-text)",
         }}
       />
-      <span className="flower-name">{flower.displayName}</span>
+      <span className="flower-name">
+        {flower.displayName}
+        {flower.isCustom && <User size={10} className="custom-icon" />}
+      </span>
       <span className="flower-bloom-range">
         {bloomRanges(flower.monthStates)
           .map(({ start, end }) =>
@@ -37,7 +40,7 @@ export default function FlowerRow({
           )
           .join(", ")}
       </span>
-      {onEdit && (
+      {onEdit && flower.isCustom && (
         <button
           className="edit-btn"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}

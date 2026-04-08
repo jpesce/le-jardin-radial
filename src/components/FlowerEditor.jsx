@@ -64,6 +64,7 @@ export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
             className="panel-input editor-input"
             value={nameEn}
             onChange={(e) => setNameEn(e.target.value)}
+            autoFocus
           />
         </label>
 

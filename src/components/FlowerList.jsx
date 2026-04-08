@@ -34,7 +34,8 @@ export default function FlowerList({
   const [hoveredId, setHoveredId] = useState(null);
   const [dragFrom, setDragFrom] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
-  const [view, setView] = useState("garden");
+  const [view, setViewRaw] = useState("garden");
+  const setView = (v) => { setHoveredId(null); setViewRaw(v); };
   const listRef = useRef(null);
   const panelRef = useRef(null);
   const buttonRef = useRef(null);
@@ -185,12 +186,13 @@ export default function FlowerList({
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
           >
+            <div className="flower-panel-inner">
             {view === "manage" ? (
               <FlowerCatalog
                 flowers={allFlowers}
                 onToggle={onToggleGarden}
                 onBack={() => setView("garden")}
-                onCreateFlower={() => setView("create")}
+
                 onEditFlower={(id) => setView({ edit: id, from: "manage" })}
               />
             ) : view === "create" ? (
@@ -228,7 +230,15 @@ export default function FlowerList({
                     {t("showFlowerNames")}
                   </label>
                 </div>
-                <h3 className="panel-title">{t("pickFlowers")}</h3>
+                <div className="panel-title-row">
+                  <h3 className="panel-title">{t("pickFlowers")}</h3>
+                  <button
+                    className="panel-edit-link"
+                    onClick={() => setView("manage")}
+                  >
+                    <Pencil size={10} />
+                  </button>
+                </div>
 
                 <ul ref={listRef} className="flower-items">
                   <AnimatePresence initial={false}>
@@ -323,13 +333,14 @@ export default function FlowerList({
                   </AnimatePresence>
                 </ul>
 
-                <button
-                  className="panel-edit-btn"
-                  onClick={() => setView("manage")}
-                >
-                  <Pencil size={12} /> {t("editButton")}
-                </button>
               </>
+            )}
+              <div className="panel-fade" />
+            </div>
+            {view === "manage" && (
+              <button className="catalog-create" onClick={() => setView("create")}>
+                + {t("createFlower")}
+              </button>
             )}
           </motion.aside>
         )}

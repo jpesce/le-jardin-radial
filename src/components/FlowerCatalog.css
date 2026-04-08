@@ -5,7 +5,7 @@
   font-size: 12px;
   color: var(--color-muted);
   cursor: pointer;
-  padding: 0 0 0.5rem;
+  padding: 0;
   text-transform: lowercase;
   letter-spacing: 0.03em;
   align-self: flex-start;
@@ -17,32 +17,28 @@
 
 .catalog-search {
   width: 100%;
+  margin-top: 0;
 }
 
 .catalog-label {
   padding-left: 0;
 }
 
-.catalog-create {
-  background: none;
-  border: 1px dashed var(--color-border);
-  border-radius: 6px;
-  font: inherit;
-  font-size: 12px;
-  color: var(--color-muted);
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  margin: 0.75rem 0 0.25rem;
-  text-transform: lowercase;
-  letter-spacing: 0.03em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  transition: border-color 0.15s, color 0.15s;
+.catalog-list {
+  margin-top: 0.75rem;
 }
 
-.catalog-create:hover {
-  border-color: var(--color-border-hover);
-  color: var(--color-text);
+.catalog-header {
+  padding-bottom: 0.4rem;
+}
+
+.catalog-header .panel-title {
+  padding-top: 0.5rem;
+  padding-bottom: 0;
+}
+
+.catalog-hint {
+  font-size: 11px;
+  color: var(--color-faint);
+  margin: 0.15rem 0 0;
 }

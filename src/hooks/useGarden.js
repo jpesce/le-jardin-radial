@@ -128,8 +128,10 @@ export function useGarden(lang) {
     });
     const custom = Object.entries(state.customFlowers)
       .filter(([id]) => !catalogIds.has(id))
-      .map(([id, data]) => enrich({ id, ...data }, lang));
-    return [...fromCatalog, ...custom].sort((a, b) => a.firstBloom - b.firstBloom);
+      .map(([id, data]) => ({ ...enrich({ id, ...data }, lang), isCustom: true }));
+    const sortedCatalog = fromCatalog.sort((a, b) => a.firstBloom - b.firstBloom);
+    const sortedCustom = custom.sort((a, b) => a.firstBloom - b.firstBloom);
+    return [...sortedCustom, ...sortedCatalog];
   }, [state.defaultCatalog, state.customFlowers, catalogIds, lang]);
 
   // Garden flowers: available flowers that are in the garden
