@@ -43,7 +43,7 @@ const AnimatedButton = forwardRef(function AnimatedButton(
     >
       <span ref={measureRef} className="btn-inner">
         {icon}
-        {hasChildren && <span className="btn-label">{children}</span>}
+        {hasChildren && <span>{children}</span>}
       </span>
     </motion.button>
   );
@@ -70,9 +70,7 @@ const Button = forwardRef(function Button(
     <button ref={ref} className={cls} {...rest}>
       <span className="btn-inner">
         {icon}
-        {children !== undefined && children !== null && (
-          <span className="btn-label">{children}</span>
-        )}
+        {children !== undefined && children !== null && <span>{children}</span>}
       </span>
     </button>
   );
