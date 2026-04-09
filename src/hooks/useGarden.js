@@ -1,4 +1,6 @@
-import { useReducer, useMemo, useCallback, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,
@@ -60,10 +62,8 @@ export function reconcile(saved) {
   const currentIds = new Set(currentCatalog.map((f) => f.id));
   const gardenSet = new Set(saved.garden);
 
-  // Start with current catalog
   const merged = [...currentCatalog];
 
-  // Keep saved catalog flowers that were removed from current BUT are in use
   for (const f of saved.defaultCatalog) {
     if (
       !currentIds.has(f.id) &&
@@ -73,7 +73,6 @@ export function reconcile(saved) {
     }
   }
 
-  // Clean garden/selected: remove IDs that no longer exist anywhere
   const allIds = new Set([
     ...merged.map((f) => f.id),
     ...Object.keys(saved.customFlowers),
@@ -88,13 +87,13 @@ export function reconcile(saved) {
 }
 
 function getSharedState() {
+  if (typeof window === 'undefined') return null;
   const match = window.location.pathname.match(/^\/share\/(.+)/);
   if (!match) return null;
   try {
     const decoded = JSON.parse(decompressFromEncodedURIComponent(match[1]));
     const { lang: sharedLang, ...gardenState } = decoded;
     if (!isValidState(gardenState)) return null;
-    // Use shared language as fallback if user has no stored preference
     if (sharedLang && SUPPORTED.includes(sharedLang)) {
       const stored = localStorage.getItem(LANG_STORAGE_KEY);
       if (!stored) saveLang(sharedLang);
@@ -107,10 +106,9 @@ function getSharedState() {
 }
 
 function initialState() {
-  // 1. Check share URL
+  if (typeof window === 'undefined') return freshState();
   const shared = getSharedState();
   if (shared) return { ...shared, isShared: true };
-  // 2. Check localStorage
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -124,6 +122,7 @@ function initialState() {
   return freshState();
 }
 
+// Reducer kept as a pure function for testability
 export function reducer(state, action) {
   switch (action.type) {
     case 'SET_OWNER':
@@ -212,6 +211,89 @@ export function reducer(state, action) {
   }
 }
 
+function stateSlice(state) {
+  return {
+    owner: state.owner,
+    labels: state.labels,
+    defaultCatalog: state.defaultCatalog,
+    garden: state.garden,
+    selected: state.selected,
+    customFlowers: state.customFlowers,
+    isShared: state.isShared,
+  };
+}
+
+function dispatch(action) {
+  useGardenStore.setState((state) => reducer(stateSlice(state), action));
+}
+
+export const useGardenStore = create(
+  persist(
+    () => ({
+      ...initialState(),
+
+      // Actions
+      setOwner: (v) => dispatch({ type: 'SET_OWNER', value: v }),
+      setLabels: (v) => dispatch({ type: 'SET_LABELS', value: v }),
+      toggleSelected: (id) => dispatch({ type: 'TOGGLE_SELECTED', id }),
+      reorderSelected: (ids) => dispatch({ type: 'REORDER_SELECTED', ids }),
+      toggleGarden: (id) => dispatch({ type: 'TOGGLE_GARDEN', id }),
+      editFlower: (id, data) =>
+        dispatch({ type: 'EDIT_FLOWER', id, payload: data }),
+      addCustomFlower: (data) =>
+        dispatch({
+          type: 'ADD_CUSTOM_FLOWER',
+          payload: { id: crypto.randomUUID(), ...data },
+        }),
+      deleteFlower: (id) => dispatch({ type: 'DELETE_FLOWER', id }),
+      reset: () => dispatch({ type: 'RESET' }),
+
+      saveShared: () => {
+        dispatch({ type: 'SAVE_SHARED' });
+        // replaceState: share URL is consumed, back button won't re-show shared view
+        window.history.replaceState(null, '', '/');
+      },
+      dismissShared: () => {
+        dispatch({ type: 'DISMISS_SHARED' });
+        // pushState (not replace): keeps share URL in history so back button works
+        window.history.pushState(null, '', '/');
+      },
+      importJson: (file, { onSuccess, onError } = {}) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            if (isValidState(parsed)) {
+              dispatch({ type: 'IMPORT', payload: reconcile(parsed) });
+              onSuccess?.();
+            } else {
+              onError?.('invalid');
+            }
+          } catch {
+            onError?.('parse');
+          }
+        };
+        reader.readAsText(file);
+      },
+    }),
+    {
+      name: STORAGE_KEY,
+      partialize: (state) => {
+        // Don't persist actions or shared state
+        if (state.isShared) return undefined;
+        const { isShared: _, ...rest } = state;
+        // Strip action functions
+        const data = {};
+        for (const key of Object.keys(rest)) {
+          if (typeof rest[key] !== 'function') data[key] = rest[key];
+        }
+        return data;
+      },
+    },
+  ),
+);
+
+// Derived state: enrich flowers with month data and display names
 function enrich(flower, lang) {
   const monthStates = parseMonths(flower.months);
   return {
@@ -223,17 +305,7 @@ function enrich(flower, lang) {
 }
 
 export function useGarden(lang) {
-  const [state, dispatch] = useReducer(reducer, undefined, initialState);
-
-  // Auto-save to localStorage (debounced, skip when viewing shared garden)
-  useEffect(() => {
-    if (state.isShared) return;
-    const timer = setTimeout(() => {
-      const { isShared: _, ...saveable } = state;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveable));
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [state]);
+  const store = useGardenStore();
 
   // Re-check share URL on browser back/forward
   useEffect(() => {
@@ -241,26 +313,25 @@ export function useGarden(lang) {
       const shared = getSharedState();
       if (shared) {
         dispatch({ type: 'IMPORT', payload: { ...shared, isShared: true } });
-      } else if (state.isShared) {
+      } else if (useGardenStore.getState().isShared) {
         dispatch({ type: 'DISMISS_SHARED' });
       }
     };
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
-  }, [state.isShared]);
+  }, []);
 
-  // All available flowers: catalog merged with overrides + pure custom entries
   const catalogIds = useMemo(
-    () => new Set(state.defaultCatalog.map((f) => f.id)),
-    [state.defaultCatalog],
+    () => new Set(store.defaultCatalog.map((f) => f.id)),
+    [store.defaultCatalog],
   );
 
   const availableFlowers = useMemo(() => {
-    const fromCatalog = state.defaultCatalog.map((f) => {
-      const override = state.customFlowers[f.id];
+    const fromCatalog = store.defaultCatalog.map((f) => {
+      const override = store.customFlowers[f.id];
       return enrich(override ? { ...f, ...override } : f, lang);
     });
-    const custom = Object.entries(state.customFlowers)
+    const custom = Object.entries(store.customFlowers)
       .filter(([id]) => !catalogIds.has(id))
       .map(([id, data]) => ({
         ...enrich({ id, ...data }, lang),
@@ -271,142 +342,88 @@ export function useGarden(lang) {
     );
     const sortedCustom = custom.sort((a, b) => a.firstBloom - b.firstBloom);
     return [...sortedCustom, ...sortedCatalog];
-  }, [state.defaultCatalog, state.customFlowers, catalogIds, lang]);
+  }, [store.defaultCatalog, store.customFlowers, catalogIds, lang]);
 
-  // Garden flowers: available flowers that are in the garden
-  const gardenSet = useMemo(() => new Set(state.garden), [state.garden]);
+  const gardenSet = useMemo(() => new Set(store.garden), [store.garden]);
 
   const gardenFlowers = useMemo(
     () => availableFlowers.filter((f) => gardenSet.has(f.id)),
     [availableFlowers, gardenSet],
   );
 
-  // Selected flowers: garden flowers on the chart (reversed for ring order)
   const selectedFlowers = useMemo(
     () =>
-      [...state.selected]
+      [...store.selected]
         .reverse()
         .map((id) => gardenFlowers.find((f) => f.id === id))
         .filter(Boolean),
-    [state.selected, gardenFlowers],
+    [store.selected, gardenFlowers],
   );
 
-  // All flowers for manage view: available flowers with inGarden flag
   const allFlowers = useMemo(
     () =>
       availableFlowers.map((f) => ({ ...f, inGarden: gardenSet.has(f.id) })),
     [availableFlowers, gardenSet],
   );
 
-  const setOwner = useCallback(
-    (v) => dispatch({ type: 'SET_OWNER', value: v }),
-    [],
-  );
-  const setLabels = useCallback(
-    (v) => dispatch({ type: 'SET_LABELS', value: v }),
-    [],
-  );
-  const toggleSelected = useCallback(
-    (id) => dispatch({ type: 'TOGGLE_SELECTED', id }),
-    [],
-  );
-  const reorderSelected = useCallback(
-    (ids) => dispatch({ type: 'REORDER_SELECTED', ids }),
-    [],
-  );
-  const toggleGarden = useCallback(
-    (id) => dispatch({ type: 'TOGGLE_GARDEN', id }),
-    [],
-  );
-  const editFlower = useCallback(
-    (id, data) => dispatch({ type: 'EDIT_FLOWER', id, payload: data }),
-    [],
-  );
-  const addCustomFlower = useCallback((data) => {
-    dispatch({
-      type: 'ADD_CUSTOM_FLOWER',
-      payload: { id: crypto.randomUUID(), ...data },
-    });
-  }, []);
-  const deleteFlower = useCallback(
-    (id) => dispatch({ type: 'DELETE_FLOWER', id }),
-    [],
-  );
-  const reset = useCallback(() => dispatch({ type: 'RESET' }), []);
-
-  const getShareUrl = useCallback(() => {
-    const { isShared: _, defaultCatalog, ...shareable } = state;
-    const shareSet = new Set(state.garden);
-    const minimalCatalog = defaultCatalog.filter((f) => shareSet.has(f.id));
-    const payload = { ...shareable, defaultCatalog: minimalCatalog, lang };
-    const compressed = compressToEncodedURIComponent(JSON.stringify(payload));
-    return `${window.location.origin}/share/${compressed}`;
-  }, [state, lang]);
-
-  const exportJson = useCallback(() => {
-    const { isShared: _, ...shareable } = state;
-    const blob = new Blob([JSON.stringify(shareable, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `jardin-radial-${state.owner.toLowerCase().replace(/\s+/g, '-')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [state]);
-
-  const importJson = useCallback((file, { onSuccess, onError } = {}) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(reader.result);
-        if (isValidState(parsed)) {
-          dispatch({ type: 'IMPORT', payload: reconcile(parsed) });
-          onSuccess?.();
-        } else {
-          onError?.('invalid');
-        }
-      } catch {
-        onError?.('parse');
+  const getShareUrl = useMemo(() => {
+    return () => {
+      const state = useGardenStore.getState();
+      const { isShared: _, defaultCatalog, ...shareable } = state;
+      const shareSet = new Set(state.garden);
+      const minimalCatalog = defaultCatalog.filter((f) => shareSet.has(f.id));
+      // Strip action functions
+      const data = {};
+      for (const key of Object.keys(shareable)) {
+        if (typeof shareable[key] !== 'function') data[key] = shareable[key];
       }
+      const payload = { ...data, defaultCatalog: minimalCatalog, lang };
+      const compressed = compressToEncodedURIComponent(JSON.stringify(payload));
+      return `${window.location.origin}/share/${compressed}`;
     };
-    reader.readAsText(file);
-  }, []);
+  }, [lang]);
 
-  const saveShared = useCallback(() => {
-    dispatch({ type: 'SAVE_SHARED' });
-    // replaceState: share URL is consumed, back button won't re-show shared view
-    window.history.replaceState(null, '', '/');
-  }, []);
-
-  const dismissShared = useCallback(() => {
-    dispatch({ type: 'DISMISS_SHARED' });
-    // pushState (not replace): keeps share URL in history so back button works
-    window.history.pushState(null, '', '/');
+  const exportJson = useMemo(() => {
+    return () => {
+      const state = useGardenStore.getState();
+      const { isShared: _, ...shareable } = state;
+      const data = {};
+      for (const key of Object.keys(shareable)) {
+        if (typeof shareable[key] !== 'function') data[key] = shareable[key];
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `jardin-radial-${state.owner.toLowerCase().replace(/\s+/g, '-')}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
   }, []);
 
   return {
-    owner: state.owner,
-    labels: state.labels,
-    selected: state.selected,
-    isShared: state.isShared,
+    owner: store.owner,
+    labels: store.labels,
+    selected: store.selected,
+    isShared: store.isShared,
     gardenFlowers,
     selectedFlowers,
     allFlowers,
-    setOwner,
-    setLabels,
-    toggleSelected,
-    reorderSelected,
-    toggleGarden,
-    editFlower,
-    addCustomFlower,
-    deleteFlower,
-    reset,
+    setOwner: store.setOwner,
+    setLabels: store.setLabels,
+    toggleSelected: store.toggleSelected,
+    reorderSelected: store.reorderSelected,
+    toggleGarden: store.toggleGarden,
+    editFlower: store.editFlower,
+    addCustomFlower: store.addCustomFlower,
+    deleteFlower: store.deleteFlower,
+    reset: store.reset,
     getShareUrl,
     exportJson,
-    importJson,
-    saveShared,
-    dismissShared,
+    importJson: store.importJson,
+    saveShared: store.saveShared,
+    dismissShared: store.dismissShared,
   };
 }
