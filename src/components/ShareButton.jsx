@@ -109,7 +109,7 @@ export default function ShareButton({
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
             {pendingFile ? (
-              <>
+              <div className="share-confirm">
                 <p className="share-confirm-title">{t('importConfirmTitle')}</p>
                 <p className="share-confirm-text">{t('importConfirmText')}</p>
                 {importError && (
@@ -128,7 +128,7 @@ export default function ShareButton({
                     {t('importJson')}
                   </Button>
                 </div>
-              </>
+              </div>
             ) : (
               <>
                 <Button
