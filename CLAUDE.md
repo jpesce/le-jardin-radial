@@ -6,9 +6,9 @@ React + D3.js garden visualization. Deployed at jardin.pesce.cc via GitHub Pages
 
 ## Commands
 
-- `npm run dev` — development server
-- `npm run build` — production build (also generates `dist/404.html` for SPA routing)
-- `npm test` — run vitest (42 tests)
+- `pnpm dev` — development server
+- `pnpm build` — production build (also generates `dist/404.html` for SPA routing)
+- `pnpm test` — run vitest (96 tests)
 
 ## Architecture decisions
 
