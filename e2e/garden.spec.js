@@ -52,7 +52,9 @@ test.describe('panel', () => {
     await page.getByText('done').click();
 
     // Wait for persist middleware to save
-    await page.waitForTimeout(500);
+    await expect
+      .poll(() => page.evaluate(() => localStorage.getItem('jardin-radial')))
+      .toBeTruthy();
     await page.reload();
     await expect(page.locator('text=DE ALICE')).toBeVisible();
   });
@@ -87,7 +89,7 @@ test.describe('share', () => {
     await expect(page.getByText('copy link')).toBeVisible();
 
     await page.getByRole('img', { name: /radial garden/i }).click();
-    await expect(page.getByText('copy link')).not.toBeVisible();
+    await expect(page.getByText('copy link')).toBeHidden();
   });
 
   test('share and reset are mutually exclusive', async ({ page }) => {
@@ -95,7 +97,7 @@ test.describe('share', () => {
     await expect(page.getByText('copy link')).toBeVisible();
 
     await page.getByRole('button', { name: 'Reset garden' }).click();
-    await expect(page.getByText('copy link')).not.toBeVisible();
+    await expect(page.getByText('copy link')).toBeHidden();
     await expect(page.getByText('reset garden?')).toBeVisible();
   });
 });
@@ -111,7 +113,7 @@ test.describe('reset', () => {
   test('cancel closes dialog', async ({ page }) => {
     await page.getByRole('button', { name: 'Reset garden' }).click();
     await page.getByText('keep').click();
-    await expect(page.getByText('reset garden?')).not.toBeVisible();
+    await expect(page.getByText('reset garden?')).toBeHidden();
   });
 
   test('confirm resets garden', async ({ page }) => {
@@ -173,7 +175,9 @@ test.describe('shared garden', () => {
     await input.clear();
     await input.fill('Alice');
     await page.getByText('done').click();
-    await page.waitForTimeout(500);
+    await expect
+      .poll(() => page.evaluate(() => localStorage.getItem('jardin-radial')))
+      .toBeTruthy();
 
     // Get share URL and navigate
     await page.getByRole('button', { name: 'Share garden' }).click();
@@ -188,7 +192,7 @@ test.describe('shared garden', () => {
 
     // Dismiss
     await page.getByText('back to my garden').click();
-    await expect(page.getByText('view only')).not.toBeVisible();
+    await expect(page.getByText('view only')).toBeHidden();
     await expect(page.locator('text=DE ALICE')).toBeVisible();
   });
 
@@ -202,7 +206,7 @@ test.describe('shared garden', () => {
     await page.goto(shareUrl);
 
     await page.getByText('back to my garden').click();
-    await expect(page.getByText('view only')).not.toBeVisible();
+    await expect(page.getByText('view only')).toBeHidden();
 
     await page.goBack();
     await expect(page.getByText('view only')).toBeVisible();
@@ -217,13 +221,13 @@ test.describe('shared garden', () => {
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
 
-    await expect(page.getByText('plan garden')).not.toBeVisible();
+    await expect(page.getByText('plan garden')).toBeHidden();
     await expect(
       page.getByRole('button', { name: 'Reset garden' }),
-    ).not.toBeVisible();
+    ).toBeHidden();
     await expect(
       page.getByRole('button', { name: 'Share garden' }),
-    ).not.toBeVisible();
+    ).toBeHidden();
   });
 
   test('save shared garden replaces own garden', async ({ page }) => {
@@ -239,7 +243,7 @@ test.describe('shared garden', () => {
     await expect(page.getByText('replace your garden?')).toBeVisible();
     await page.getByRole('button', { name: 'replace' }).click();
 
-    await expect(page.getByText('view only')).not.toBeVisible();
+    await expect(page.getByText('view only')).toBeHidden();
     await expect(page.getByText('plan garden')).toBeVisible();
   });
 });
@@ -347,7 +351,7 @@ test.describe('flower editor', () => {
     await expect(page.getByText('available flowers')).toBeVisible();
     await expect(
       page.getByRole('listitem').filter({ hasText: 'To Delete' }),
-    ).not.toBeVisible();
+    ).toBeHidden();
   });
 
   test('cancel returns without saving', async ({ page }) => {
@@ -363,7 +367,7 @@ test.describe('flower editor', () => {
     await expect(page.getByText('available flowers')).toBeVisible();
     await expect(
       page.getByRole('listitem').filter({ hasText: 'Should Not Save' }),
-    ).not.toBeVisible();
+    ).toBeHidden();
   });
 });
 

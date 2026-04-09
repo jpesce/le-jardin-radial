@@ -71,9 +71,16 @@ test.describe('visual regression', () => {
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
     await expect(page.getByText('view only')).toBeVisible();
-    // Wait for D3 label animations to complete
+    // Wait for D3 label animations to complete (opacity transitions to 1)
     await expect(page.locator('textPath').first()).toBeVisible();
-    await page.waitForTimeout(500);
+    await expect
+      .poll(() =>
+        page
+          .locator('text[opacity]')
+          .first()
+          .evaluate((el) => el.getAttribute('opacity')),
+      )
+      .toBe('0.85');
     await expect(page).toHaveScreenshot('shared-banner.png', {
       fullPage: true,
     });
@@ -88,7 +95,14 @@ test.describe('visual regression', () => {
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
     await expect(page.locator('textPath').first()).toBeVisible();
-    await page.waitForTimeout(500);
+    await expect
+      .poll(() =>
+        page
+          .locator('text[opacity]')
+          .first()
+          .evaluate((el) => el.getAttribute('opacity')),
+      )
+      .toBe('0.85');
     await page.getByText('save to my garden').click();
     await expect(page.getByText('replace your garden?')).toBeVisible();
     await expect(page).toHaveScreenshot('shared-save-confirm.png', {
