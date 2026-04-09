@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Link, Download, Upload } from 'lucide-react';
+import { Share2, Link, Check, Download, Upload } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext.jsx';
 import { useClickOutside } from '../hooks/useClickOutside.js';
 import Button from './Button.jsx';
@@ -134,7 +134,31 @@ export default function ShareButton({
                 <Button
                   variant="ghost"
                   size="md"
-                  icon={<Link size={13} />}
+                  icon={
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.span
+                        key={copied ? 'check' : 'link'}
+                        style={{ display: 'flex' }}
+                        initial={{ scale: 0, rotate: -90 }}
+                        animate={{
+                          scale: 1,
+                          rotate: 0,
+                          transition: {
+                            type: 'spring',
+                            duration: 0.5,
+                            bounce: 0.5,
+                          },
+                        }}
+                        exit={{
+                          scale: 0,
+                          rotate: 90,
+                          transition: { duration: 0.15, ease: 'easeIn' },
+                        }}
+                      >
+                        {copied ? <Check size={13} /> : <Link size={13} />}
+                      </motion.span>
+                    </AnimatePresence>
+                  }
                   onClick={handleCopyLink}
                 >
                   {copied ? t('linkCopied') : t('copyLink')}
