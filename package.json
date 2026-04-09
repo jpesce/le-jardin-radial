@@ -37,6 +37,8 @@
     "react-use-measure": "^2.1.7"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@eslint/js": "^9.39.4",
     "@types/d3": "^7.4.3",
     "@vitejs/plugin-react": "^4.4.1",
