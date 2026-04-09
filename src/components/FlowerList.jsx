@@ -5,6 +5,7 @@ import { useI18n } from '../i18n/I18nContext.jsx';
 import { raw as catalogRaw } from '../data/flowers.js';
 import { useClickOutside } from '../hooks/useClickOutside.js';
 import { useDragReorder } from '../hooks/useDragReorder.js';
+import Button from './Button.jsx';
 import FlowerCatalog from './FlowerCatalog.jsx';
 import FlowerEditor from './FlowerEditor.jsx';
 import FlowerRow from './FlowerRow.jsx';
@@ -147,14 +148,17 @@ export default function FlowerList({
           onExportJson={onExportJson}
           onImportJson={onImportJson}
         />
-        <button
+        <Button
           ref={buttonRef}
-          className="panel-toggle"
+          variant="outline"
+          round
+          size="lg"
+          icon={<Sprout size={14} />}
+          animated
           onClick={handleTogglePanel}
         >
-          <Sprout size={14} />
           {isOpen ? t('buttonDone') : t('buttonPlanGarden')}
-        </button>
+        </Button>
       </div>
       <AnimatePresence>
         {isOpen && (
@@ -222,12 +226,13 @@ export default function FlowerList({
                   </div>
                   <div className="panel-title-row">
                     <h3 className="panel-title">{t('pickFlowers')}</h3>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      icon={<Pencil size={10} />}
                       className="panel-edit-link"
                       onClick={() => setView('manage')}
-                    >
-                      <Pencil size={10} />
-                    </button>
+                    />
                   </div>
 
                   <ul ref={listRef} className="flower-items">

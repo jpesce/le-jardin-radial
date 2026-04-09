@@ -139,56 +139,13 @@
   padding-top: 0.5rem;
 }
 
-.editor-save-btn {
+.editor-actions .btn {
   flex: 1;
-  padding: 0.5rem;
-  font: inherit;
-  font-size: 12px;
-  color: var(--color-bg);
-  text-transform: lowercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  background: var(--color-text);
-  border: none;
-  border-radius: 6px;
-  transition: opacity 0.15s;
-}
-
-.editor-cancel-btn {
-  flex: 1;
-  padding: 0.5rem;
-  font: inherit;
-  font-size: 12px;
-  color: var(--color-muted);
-  text-transform: lowercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-}
-
-.editor-cancel-btn:hover {
-  color: var(--color-text);
-  border-color: var(--color-border-hover);
 }
 
 .editor-delete-btn {
   align-self: center;
-  padding: 0.5rem 0 0;
-  font: inherit;
-  font-size: 11px;
-  color: var(--color-muted);
-  text-transform: lowercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  background: none;
-  border: none;
-  transition: color 0.15s;
-}
-
-.editor-delete-btn:hover {
-  color: var(--color-warning);
+  padding-top: 0.5rem;
 }
 
 .editor-hint {

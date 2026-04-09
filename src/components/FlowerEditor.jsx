@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CircleAlert } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext.jsx';
+import Button from './Button.jsx';
 import MonthGrid from './MonthGrid.jsx';
 import { parseMonths } from '../data/months.js';
 import './FlowerEditor.css';
@@ -123,12 +124,12 @@ export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
       </div>
 
       <div className="editor-actions">
-        <button className="editor-cancel-btn" onClick={onCancel} type="button">
+        <Button variant="outline" size="md" onClick={onCancel} type="button">
           {t('cancel')}
-        </button>
-        <button className="editor-save-btn" type="submit">
+        </Button>
+        <Button variant="solid" size="md" type="submit">
           {t('save')}
-        </button>
+        </Button>
       </div>
       {attempted && !isValid && (
         <p className="editor-hint">
@@ -143,9 +144,16 @@ export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
         </p>
       )}
       {onDelete && (
-        <button className="editor-delete-btn" onClick={onDelete} type="button">
+        <Button
+          variant="ghost"
+          size="sm"
+          color="danger"
+          className="editor-delete-btn"
+          onClick={onDelete}
+          type="button"
+        >
           {t('deleteFlower')}
-        </button>
+        </Button>
       )}
     </form>
   );

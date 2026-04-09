@@ -4,6 +4,7 @@ import { Eye, ArrowLeft } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext.jsx';
 import { useClickOutside } from '../hooks/useClickOutside.js';
 import { colorsFromName, isLight } from './logo-colors.js';
+import Button from './Button.jsx';
 import './SharedBanner.css';
 
 export default function SharedBanner({
@@ -71,18 +72,21 @@ export default function SharedBanner({
                 <p className="shared-confirm-title">{t('replaceTitle')}</p>
                 <p className="shared-confirm-text">{t('replaceConfirm')}</p>
                 <div className="shared-confirm-actions">
-                  <button
-                    className="shared-confirm-btn shared-confirm-keep"
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setConfirmOpen(false)}
                   >
                     {t('replaceKeep')}
-                  </button>
-                  <button
-                    className="shared-confirm-btn shared-confirm-replace"
+                  </Button>
+                  <Button
+                    variant="solid"
+                    size="sm"
+                    color="danger"
                     onClick={onSave}
                   >
                     {t('replaceYes')}
-                  </button>
+                  </Button>
                 </div>
               </motion.div>
             )}

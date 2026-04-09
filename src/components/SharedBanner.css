@@ -115,36 +115,6 @@
   margin-top: 0.5rem;
 }
 
-.shared-confirm-btn {
+.shared-confirm-actions .btn {
   flex: 1;
-  padding: 0.3rem 0.75rem;
-  font: inherit;
-  font-size: 11px;
-  text-transform: lowercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-  transition: background 0.15s;
-}
-
-.shared-confirm-keep {
-  color: var(--color-muted);
-  background: none;
-  border: 1px solid var(--color-border);
-}
-
-.shared-confirm-keep:hover {
-  color: var(--color-text);
-  border-color: var(--color-border-hover);
-}
-
-.shared-confirm-replace {
-  color: var(--color-bg);
-  background: var(--color-danger);
-  transition: opacity 0.15s;
-}
-
-.shared-confirm-replace:hover {
-  opacity: 0.85;
 }

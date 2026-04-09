@@ -1,6 +1,7 @@
 import { Pencil, User } from 'lucide-react';
 import { bloomRanges } from '../data/months.js';
 import { useI18n } from '../i18n/I18nContext.jsx';
+import Button from './Button.jsx';
 
 export default function FlowerRow({
   flower,
@@ -39,7 +40,10 @@ export default function FlowerRow({
           .join(', ')}
       </span>
       {onEdit && flower.isCustom && (
-        <button
+        <Button
+          variant="ghost"
+          size="xs"
+          icon={<Pencil size={11} />}
           className="edit-btn"
           onClick={(e) => {
             e.preventDefault();
@@ -47,9 +51,7 @@ export default function FlowerRow({
             onEdit();
           }}
           onPointerDown={(e) => e.stopPropagation()}
-        >
-          <Pencil size={11} />
-        </button>
+        />
       )}
     </>
   );

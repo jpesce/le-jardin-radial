@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Link, Download, Upload } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext.jsx';
 import { useClickOutside } from '../hooks/useClickOutside.js';
+import Button from './Button.jsx';
 
 export default function ShareButton({
   isOpen,
@@ -87,14 +88,16 @@ export default function ShareButton({
 
   return (
     <div className="popover-anchor">
-      <button
-        className={'panel-reset' + (isOpen ? ' panel-reset--active' : '')}
+      <Button
+        variant="outline"
+        round
+        size="lg"
+        icon={<Share2 size={14} />}
+        className={isOpen ? 'btn--active' : ''}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={onToggle}
         aria-label="share"
-      >
-        <Share2 size={14} />
-      </button>
+      />
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -113,37 +116,45 @@ export default function ShareButton({
                   <p className="share-confirm-error">{t('importError')}</p>
                 )}
                 <div className="share-confirm-actions">
-                  <button
-                    className="share-confirm-btn share-confirm-cancel"
-                    onClick={cancelImport}
-                  >
+                  <Button variant="outline" size="sm" onClick={cancelImport}>
                     {t('cancel')}
-                  </button>
-                  <button
-                    className="share-confirm-btn share-confirm-yes"
+                  </Button>
+                  <Button
+                    variant="solid"
+                    size="sm"
+                    color="danger"
                     onClick={confirmImport}
                   >
                     {t('importJson')}
-                  </button>
+                  </Button>
                 </div>
               </>
             ) : (
               <>
-                <button className="share-option" onClick={handleCopyLink}>
-                  <Link size={13} />
+                <Button
+                  variant="ghost"
+                  size="md"
+                  icon={<Link size={13} />}
+                  onClick={handleCopyLink}
+                >
                   {copied ? t('linkCopied') : t('copyLink')}
-                </button>
-                <button className="share-option" onClick={handleExport}>
-                  <Download size={13} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  icon={<Download size={13} />}
+                  onClick={handleExport}
+                >
                   {t('exportJson')}
-                </button>
-                <button
-                  className="share-option"
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  icon={<Upload size={13} />}
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Upload size={13} />
                   {t('importJson')}
-                </button>
+                </Button>
               </>
             )}
             <input
