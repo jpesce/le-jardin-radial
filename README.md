@@ -42,6 +42,19 @@ pnpm dev
 - **Lucide** — icons
 - **lz-string** — URL sharing via compressed state
 
+## Testing
+
+```bash
+pnpm test          # unit tests (vitest)
+pnpm test:e2e      # functional + visual regression tests (playwright)
+```
+
+To update visual regression baselines after intentional UI changes:
+
+```bash
+pnpm exec playwright test e2e/visual.spec.js --update-snapshots
+```
+
 ## Credits
 
 Cultivated 🪴 with love by Tainah Drummond 👩‍🌾, in collaboration with João Pesce 👨‍💻 and Chandra Drummond 👩‍🎨, rooted in France 🇫🇷 and Brazil 🇧🇷.
