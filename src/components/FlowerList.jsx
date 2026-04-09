@@ -231,6 +231,7 @@ export default function FlowerList({
                       size="xs"
                       icon={<Pencil size={10} />}
                       className="panel-edit-link"
+                      aria-label="Manage flowers"
                       onClick={() => setView('manage')}
                     />
                   </div>

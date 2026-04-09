@@ -45,6 +45,7 @@ export default function FlowerRow({
           size="xs"
           icon={<Pencil size={11} />}
           className="edit-btn"
+          aria-label="Edit flower"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();

@@ -43,7 +43,7 @@ export default function ResetConfirmation({
         className={isOpen ? 'btn--active' : ''}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={onToggle}
-        aria-label="reset"
+        aria-label="Reset garden"
       />
       <AnimatePresence>
         {isOpen && (

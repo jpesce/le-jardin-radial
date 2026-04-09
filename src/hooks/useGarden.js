@@ -105,21 +105,29 @@ function getSharedState() {
   return null;
 }
 
-function initialState() {
-  if (typeof window === 'undefined') return freshState();
-  const shared = getSharedState();
-  if (shared) return { ...shared, isShared: true };
+function loadFromStorage() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      const parsed = JSON.parse(saved);
+      const raw = JSON.parse(saved);
+      // Support both Zustand persist format ({ state: {...} }) and raw format
+      const parsed = raw.state ?? raw;
       if (isValidState(parsed))
         return { ...reconcile(parsed), isShared: false };
     }
   } catch {
     // Corrupted or invalid localStorage — start fresh
   }
-  return freshState();
+  return null;
+}
+
+function initialState() {
+  if (typeof window === 'undefined') return freshState();
+  // Share URL takes priority
+  const shared = getSharedState();
+  if (shared) return { ...shared, isShared: true };
+  // Then localStorage (read synchronously to avoid flash)
+  return loadFromStorage() ?? freshState();
 }
 
 // Reducer kept as a pure function for testability
@@ -193,7 +201,8 @@ export function reducer(state, action) {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-          const parsed = JSON.parse(saved);
+          const raw = JSON.parse(saved);
+          const parsed = raw.state ?? raw;
           if (isValidState(parsed))
             return { ...reconcile(parsed), isShared: false };
         }
@@ -278,16 +287,11 @@ export const useGardenStore = create(
     }),
     {
       name: STORAGE_KEY,
-      partialize: (state) => {
-        // Don't persist actions or shared state
-        if (state.isShared) return undefined;
-        const { isShared: _, ...rest } = state;
-        // Strip action functions
-        const data = {};
-        for (const key of Object.keys(rest)) {
-          if (typeof rest[key] !== 'function') data[key] = rest[key];
-        }
-        return data;
+      partialize: (state) => (state.isShared ? undefined : stateSlice(state)),
+      merge: (persisted, current) => {
+        // Don't let persisted state override a shared garden loaded from URL
+        if (current.isShared) return current;
+        return { ...current, ...persisted };
       },
     },
   ),

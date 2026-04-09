@@ -96,7 +96,7 @@ export default function ShareButton({
         className={isOpen ? 'btn--active' : ''}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={onToggle}
-        aria-label="share"
+        aria-label="Share garden"
       />
       <AnimatePresence>
         {isOpen && (
