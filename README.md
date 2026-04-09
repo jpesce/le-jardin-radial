@@ -12,20 +12,25 @@
 
 ## Features
 
-- 🌸 Radial chart with 12 monthly segments showing flower lifecycles
+- 🌸 Radial chart showing when each flower blooms throughout the year
 - 🌷 24 flowers spanning all seasons with unique bloom colors
-- ✏️ Select, deselect, and drag-to-reorder flowers on the chart
-- 🏷️ Curved flower name labels on rings and hover tooltips
-- 👤 Personalized garden with your name and unique logo colors
-- ✨ Smooth animated transitions
+- ✏️ Show, hide, and reorder flowers on the chart
+- 🏷️ Flower names along each ring and details on hover
+- 🌿 Create your own flowers with custom bloom schedules
+- 📋 Choose which flowers to work with from the catalog
+- 🔗 Share your garden with a link or save it as a file
+- 👁️ Preview shared gardens before saving them
+- 🌍 Available in French and English
+- 👤 Personalize with your name — each name gets unique colors
+- ✨ Smooth animations throughout
 
 ## Getting started
 
-Prerequisites: [Node.js](https://nodejs.org/) (v18+)
+Prerequisites: [Node.js](https://nodejs.org/) (v18+) and [pnpm](https://pnpm.io/)
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ## Tech stack
@@ -35,6 +40,7 @@ npm run dev
 - **D3.js** — radial chart
 - **Framer Motion** — animations
 - **Lucide** — icons
+- **lz-string** — URL sharing via compressed state
 
 ## Credits
 
