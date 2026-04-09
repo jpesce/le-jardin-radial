@@ -1,7 +1,8 @@
 import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import { resolveColor } from '../data/colors.js';
-import { useI18n } from '../i18n/I18nContext.jsx';
+import { resolveColor } from '../data/colors';
+import { useI18n } from '../i18n/I18nContext';
+import type { EnrichedFlower, FlowerState } from '../types';
 
 const SIZE = 600;
 const CENTER = SIZE / 2;
@@ -12,14 +13,12 @@ const MONTH_SLICE = (2 * Math.PI) / 12;
 const ANGLE_OFFSET = -Math.PI / 2; // January at top
 const T_DURATION = 450;
 
-// Desired screen-pixel sizes for non-scaling elements
 const MONTH_LABEL_PX = 12;
 const EMPTY_MSG_PX = 12;
 const CELL_STROKE_PX = 1;
 const LINE_STROKE_PX = 1.5;
 const ICON_SIZE = 16;
 
-// Chart chrome colors
 const COLOR_LABEL = '#c1bcb7';
 const COLOR_DIVIDER = '#fff';
 const COLOR_LABEL_FILL = '#fff';
@@ -27,8 +26,27 @@ const COLOR_LABEL_STROKE = 'rgba(0,0,0,0.4)';
 
 const arcGen = d3.arc();
 
-function arcTween(d) {
-  const prev = this.__prev || {
+interface CellDatum {
+  key: string;
+  flower: EnrichedFlower;
+  monthIdx: number;
+  state: FlowerState;
+  innerR: number;
+  outerR: number;
+  startAngle: number;
+  endAngle: number;
+  color: string;
+}
+
+interface ArcPrev {
+  innerR: number;
+  outerR: number;
+  startAngle: number;
+  endAngle: number;
+}
+
+function arcTween(this: SVGPathElement & { __prev?: ArcPrev }, d: CellDatum) {
+  const prev: ArcPrev = this.__prev || {
     innerR: (d.innerR + d.outerR) / 2,
     outerR: (d.innerR + d.outerR) / 2,
     startAngle: d.startAngle,
@@ -37,30 +55,41 @@ function arcTween(d) {
   const iInner = d3.interpolate(prev.innerR, d.innerR);
   const iOuter = d3.interpolate(prev.outerR, d.outerR);
   this.__prev = { ...d };
-  return (t) =>
+  return (t: number) =>
     arcGen({
       innerRadius: iInner(t),
       outerRadius: iOuter(t),
       startAngle: d.startAngle,
       endAngle: d.endAngle,
-    });
+    }) ?? '';
 }
 
-function arcTweenExit(d) {
+function arcTweenExit(
+  this: SVGPathElement & { __prev?: ArcPrev },
+  d: CellDatum,
+) {
   const prev = this.__prev || d;
   const midR = (prev.innerR + prev.outerR) / 2;
   const iInner = d3.interpolate(prev.innerR, midR);
   const iOuter = d3.interpolate(prev.outerR, midR);
-  return (t) =>
+  return (t: number) =>
     arcGen({
       innerRadius: iInner(t),
       outerRadius: iOuter(t),
       startAngle: d.startAngle,
       endAngle: d.endAngle,
-    });
+    }) ?? '';
 }
 
-const SEASON_ICONS = [
+interface SeasonIcon {
+  monthIdx: number;
+  key: string;
+  paths: string[];
+  circle?: { cx: number; cy: number; r: number };
+  rotate?: number;
+}
+
+const SEASON_ICONS: SeasonIcon[] = [
   {
     monthIdx: 2,
     key: 'spring',
@@ -121,18 +150,24 @@ const SEASON_ICONS = [
   },
 ];
 
-export default function RadialChart({ flowers, showLabels = true }) {
-  const svgRef = useRef(null);
-  const tooltipRef = useRef(null);
+interface RadialChartProps {
+  flowers: EnrichedFlower[];
+  showLabels?: boolean;
+}
+
+export default function RadialChart({
+  flowers,
+  showLabels = true,
+}: RadialChartProps) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
   const [scale, setScale] = useState(1);
   const { t, lang } = useI18n();
 
-  // Keep a ref to t so D3 event handlers always read the current translation
   const tRef = useRef(t);
   tRef.current = t;
 
-  // Track the display scale: rendered pixels / viewBox units
   useEffect(() => {
     if (!svgRef.current) return;
     const observer = new ResizeObserver((entries) => {
@@ -143,10 +178,11 @@ export default function RadialChart({ flowers, showLabels = true }) {
       }
     });
     observer.observe(svgRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
-  // Inverse scale: viewBox units per screen pixel
   const inv = scale > 0 ? 1 / scale : 1;
   const invRef = useRef(inv);
   invRef.current = inv;
@@ -170,7 +206,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .attr('text-anchor', 'middle')
       .attr('dy', '0.35em');
 
-    // Month label placeholders (text set in language effect)
     for (let i = 0; i < 12; i++) {
       const angle = i * MONTH_SLICE + MONTH_SLICE / 2 + ANGLE_OFFSET;
       g.select('.month-labels')
@@ -182,7 +217,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr('fill', COLOR_LABEL);
     }
 
-    // Season markers at boundaries
     g.append('g').attr('class', 'season-markers');
     SEASON_ICONS.forEach(({ monthIdx, key, paths, circle, rotate }) => {
       const angle = monthIdx * MONTH_SLICE + ANGLE_OFFSET;
@@ -190,7 +224,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
       const rLineStart = OUTER_RADIUS;
       const rLineEnd = rIcon - LABEL_OFFSET * 0.5;
 
-      // Dotted line from chart edge to icon
       g.select('.season-markers')
         .append('line')
         .attr('x1', rLineStart * Math.cos(angle))
@@ -202,7 +235,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr('vector-effect', 'non-scaling-stroke')
         .style('pointer-events', 'none');
 
-      // Icon positioned at rIcon, centered on the 24x24 viewBox
       const x = rIcon * Math.cos(angle);
       const y = rIcon * Math.sin(angle);
       const s = ICON_SIZE / 24;
@@ -227,7 +259,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr('stroke-linejoin', 'round')
         .attr('vector-effect', 'non-scaling-stroke');
 
-      // Invisible hit area for hover
       icon
         .append('rect')
         .attr('x', 0)
@@ -246,21 +277,20 @@ export default function RadialChart({ flowers, showLabels = true }) {
           .attr('r', circle.r);
       }
 
-      // Tooltip on icon hover (reads tRef.current for live translations)
       icon
         .style('cursor', 'default')
         .style('pointer-events', 'all')
         .on('mouseenter', () => {
           const tr = tRef.current;
-          const name = tr('seasons.' + key + '.name');
-          const range = tr('seasons.' + key + '.range');
-          const svgRect = svgRef.current.getBoundingClientRect();
+          const name = tr('seasons.' + key + '.name') as string;
+          const range = tr('seasons.' + key + '.range') as string;
+          const svgRect = svgRef.current!.getBoundingClientRect();
           const svgScale = svgRect.width / SIZE;
           const tip = d3.select(tooltipRef.current);
           tip
             .style('opacity', 1)
             .html(
-              `<strong>${name[0].toUpperCase() + name.slice(1)}</strong><br/>${range}`,
+              `<strong>${(name[0] ?? '').toUpperCase() + name.slice(1)}</strong><br/>${range}`,
             )
             .style('left', `${(x + CENTER) * svgScale + 16}px`)
             .style('top', `${(y + CENTER) * svgScale - 12}px`);
@@ -270,7 +300,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
         });
     });
 
-    // Radial divider lines
     for (let i = 0; i < 12; i++) {
       const angle = i * MONTH_SLICE + ANGLE_OFFSET;
       g.select('.lines')
@@ -290,19 +319,18 @@ export default function RadialChart({ flowers, showLabels = true }) {
   // Update translatable text when language changes
   useEffect(() => {
     if (!svgRef.current || !initialized.current) return;
-    const months = t('months');
+    const months = t('months') as string[];
     const g = d3.select(svgRef.current).select('.root');
     g.select('.month-labels')
       .selectAll('text')
       .each(function () {
         const el = d3.select(this);
         const idx = parseInt(el.attr('data-month-idx'));
-        el.text(months[idx]);
+        el.text(months[idx] ?? '');
       });
-    // Update empty state message if visible
     const emptyMsg = g.select('.empty-msg');
     if (emptyMsg.text()) {
-      emptyMsg.text(t('emptyState'));
+      emptyMsg.text(t('emptyState') as string);
     }
   }, [t]);
 
@@ -311,7 +339,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
     if (!svgRef.current || !initialized.current) return;
     const g = d3.select(svgRef.current).select('.root');
 
-    // Month label font size and position (fixed 4px gap from outer ring)
     const labelR = OUTER_RADIUS + 24 * inv;
     g.select('.month-labels')
       .selectAll('text')
@@ -325,10 +352,8 @@ export default function RadialChart({ flowers, showLabels = true }) {
         );
       });
 
-    // Empty message font size
     g.select('.empty-msg').attr('font-size', `${EMPTY_MSG_PX * inv}px`);
 
-    // Season marker icon scale (non-scaling)
     g.select('.season-markers')
       .selectAll('.season-icon')
       .each(function () {
@@ -344,7 +369,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
         );
       });
 
-    // Curved label font size and stroke
     const curvedTexts = g.select('.curved-labels').selectAll('text');
     if (!curvedTexts.empty()) {
       const labelSize = MONTH_LABEL_PX * inv;
@@ -353,7 +377,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
         .attr('stroke-width', labelSize * 0.12);
     }
 
-    // Divider line stroke width
     g.select('.lines').selectAll('line').attr('stroke-width', LINE_STROKE_PX);
   }, [inv]);
 
@@ -366,16 +389,14 @@ export default function RadialChart({ flowers, showLabels = true }) {
     const tooltip = d3.select(tooltipRef.current);
     const tr = d3.transition().duration(T_DURATION).ease(d3.easeCubicInOut);
 
-    // Empty message
     g.select('.empty-msg')
       .attr('fill', flowers.length === 0 ? COLOR_LABEL : 'none')
-      .text(flowers.length === 0 ? tRef.current('emptyState') : '');
+      .text(flowers.length === 0 ? (tRef.current('emptyState') as string) : '');
 
-    // Build flat cell data
     const bandHeight =
       flowers.length > 0 ? (OUTER_RADIUS - INNER_RADIUS) / flowers.length : 0;
 
-    const cellData = [];
+    const cellData: CellDatum[] = [];
     flowers.forEach((flower, flowerIdx) => {
       const innerR = INNER_RADIUS + flowerIdx * bandHeight;
       const outerR = innerR + bandHeight;
@@ -394,16 +415,17 @@ export default function RadialChart({ flowers, showLabels = true }) {
       });
     });
 
-    // Data join
     const cells = g
       .select('.cells')
-      .selectAll('path')
+      .selectAll<SVGPathElement, CellDatum>('path')
       .data(cellData, (d) => d.key);
 
-    // Exit
-    cells.exit().transition(tr).attrTween('d', arcTweenExit).remove();
+    cells
+      .exit<CellDatum>()
+      .transition(tr as any)
+      .attrTween('d', arcTweenExit as any)
+      .remove();
 
-    // Enter
     const enter = cells
       .enter()
       .append('path')
@@ -413,7 +435,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .style('cursor', 'default')
       .each(function (d) {
         const midR = (d.innerR + d.outerR) / 2;
-        this.__prev = {
+        (this as any).__prev = {
           innerR: midR,
           outerR: midR,
           startAngle: d.startAngle,
@@ -421,31 +443,32 @@ export default function RadialChart({ flowers, showLabels = true }) {
         };
       })
       .attr('d', function (d) {
-        return arcGen({
-          innerRadius: this.__prev.innerR,
-          outerRadius: this.__prev.outerR,
-          startAngle: d.startAngle,
-          endAngle: d.endAngle,
-        });
+        return (
+          arcGen({
+            innerRadius: (this as any).__prev.innerR,
+            outerRadius: (this as any).__prev.outerR,
+            startAngle: d.startAngle,
+            endAngle: d.endAngle,
+          }) ?? ''
+        );
       });
 
-    // Enter + Update
     enter
       .merge(cells)
       .attr('stroke-width', CELL_STROKE_PX)
-      .on('mouseenter', function (event, d) {
+      .on('mouseenter', function (_event: MouseEvent, d: CellDatum) {
         const translate = tRef.current;
-        const monthLabels = translate('months');
+        const monthLabels = translate('months') as string[];
         const flowerName = d.flower.displayName;
-        const stateName = translate('states.' + d.state);
+        const stateName = translate('states.' + d.state) as string;
         tooltip
           .style('opacity', 1)
           .html(
             `<strong>${flowerName}</strong>${d.flower.scientificName ? `<br/><em>${d.flower.scientificName}</em>` : ''}<br/>${monthLabels[d.monthIdx]} · ${stateName}`,
           );
       })
-      .on('mousemove', function (event) {
-        const svgRect = svgRef.current.getBoundingClientRect();
+      .on('mousemove', function (event: MouseEvent) {
+        const svgRect = svgRef.current!.getBoundingClientRect();
         tooltip
           .style('left', `${event.clientX - svgRect.left + 12}px`)
           .style('top', `${event.clientY - svgRect.top - 28}px`);
@@ -453,11 +476,11 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .on('mouseleave', function () {
         tooltip.style('opacity', 0);
       })
-      .transition(tr)
-      .attr('fill', (d) => d.color)
-      .attrTween('d', arcTween);
+      .transition(tr as any)
+      .attr('fill', (d: CellDatum) => d.color)
+      .attrTween('d', arcTween as any);
 
-    // Curved text labels — data join for smooth transitions
+    // Curved text labels
     const defs = g.select('defs');
     const textGroup = g.select('.curved-labels');
     const labelSize = Math.min(
@@ -465,11 +488,17 @@ export default function RadialChart({ flowers, showLabels = true }) {
       bandHeight * 0.6,
     );
 
-    function arcPath(r) {
+    interface LabelDatum {
+      id: string;
+      displayName: string;
+      textR: number;
+    }
+
+    function arcPath(r: number): string {
       return `M 0,${-r} A ${r},${r} 0 1,1 -0.01,${-r}`;
     }
 
-    const labelData =
+    const labelData: LabelDatum[] =
       showLabels && flowers.length > 0
         ? flowers.map((flower, i) => ({
             id: flower.id,
@@ -478,31 +507,36 @@ export default function RadialChart({ flowers, showLabels = true }) {
           }))
         : [];
 
-    // Def paths — data join
-    const defPaths = defs.selectAll('path').data(labelData, (d) => d.id);
-    defPaths.exit().transition(tr).remove();
+    const defPaths = defs
+      .selectAll<SVGPathElement, LabelDatum>('path')
+      .data(labelData, (d) => d.id);
+    defPaths
+      .exit()
+      .transition(tr as any)
+      .remove();
     const defPathsEnter = defPaths
       .enter()
       .append('path')
       .attr('id', (d) => `text-path-${d.id}`)
       .attr('d', (d) => arcPath(d.textR))
       .each(function (d) {
-        this.__prevR = d.textR;
+        (this as any).__prevR = d.textR;
       });
     defPathsEnter
       .merge(defPaths)
-      .transition(tr)
-      .attrTween('d', function (d) {
-        const prev = this.__prevR ?? d.textR;
+      .transition(tr as any)
+      .attrTween('d', function (d: LabelDatum) {
+        const prev = (this as any).__prevR ?? d.textR;
         const interp = d3.interpolate(prev, d.textR);
-        return (v) => arcPath(interp(v));
+        return (v: number) => arcPath(interp(v));
       })
-      .on('end', function (d) {
-        this.__prevR = d.textR;
+      .on('end', function (d: LabelDatum) {
+        (this as any).__prevR = d.textR;
       });
 
-    // Text elements — data join
-    const texts = textGroup.selectAll('text').data(labelData, (d) => d.id);
+    const texts = textGroup
+      .selectAll<SVGTextElement, LabelDatum>('text')
+      .data(labelData, (d) => d.id);
 
     texts.exit().transition().duration(100).attr('opacity', 0).remove();
 
@@ -533,7 +567,6 @@ export default function RadialChart({ flowers, showLabels = true }) {
       .ease(d3.easeCubicInOut)
       .attr('opacity', 0.85);
 
-    // Update existing labels — refresh text and size
     texts.select('textPath').text((d) => d.displayName);
     texts.attr('font-size', labelSize).attr('stroke-width', labelSize * 0.12);
   }, [flowers, showLabels]);
@@ -555,7 +588,7 @@ export default function RadialChart({ flowers, showLabels = true }) {
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         className="radial-chart-svg"
         role="img"
-        aria-label={`${t('chartTitle')} — ${chartDesc}`}
+        aria-label={`${t('chartTitle') as string} — ${chartDesc as string}`}
         focusable="false"
       />
       <div ref={tooltipRef} className="chart-tooltip" />

@@ -1,7 +1,17 @@
+import type { ReactNode } from 'react';
 import { Pencil, User } from 'lucide-react';
-import { bloomRanges } from '../data/months.js';
-import { useI18n } from '../i18n/I18nContext.jsx';
-import Button from './Button.jsx';
+import { bloomRanges } from '../data/months';
+import { useI18n } from '../i18n/I18nContext';
+import Button from './Button';
+import type { EnrichedFlower } from '../types';
+
+interface FlowerRowProps {
+  flower: EnrichedFlower;
+  checked: boolean;
+  onToggle: () => void;
+  onEdit?: (() => void) | null;
+  dragHandle?: ReactNode;
+}
 
 export default function FlowerRow({
   flower,
@@ -9,9 +19,9 @@ export default function FlowerRow({
   onToggle,
   onEdit,
   dragHandle,
-}) {
+}: FlowerRowProps) {
   const { t } = useI18n();
-  const months = t('months');
+  const months = t('months') as string[];
 
   return (
     <>
@@ -25,7 +35,7 @@ export default function FlowerRow({
       <span
         className="flower-swatch"
         style={{
-          background: flower.colors?.blooming ?? 'var(--color-text)',
+          background: flower.colors.blooming,
         }}
       />
       <span className="flower-name">
@@ -51,7 +61,9 @@ export default function FlowerRow({
             e.stopPropagation();
             onEdit();
           }}
-          onPointerDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+          }}
         />
       )}
     </>

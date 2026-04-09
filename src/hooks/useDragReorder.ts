@@ -1,39 +1,52 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type RefObject } from 'react';
 
 const DRAG_THRESHOLD = 3;
 
-export function useDragReorder(listRef, selected, onReorder) {
-  const [dragFrom, setDragFrom] = useState(null);
-  const [dropTarget, setDropTarget] = useState(null);
+interface UseDragReorderReturn {
+  dragFrom: number | null;
+  dropTarget: number | null;
+  handlePointerDown: (e: React.PointerEvent, selectedIdx: number) => void;
+}
 
-  // Global grabbing cursor while dragging
+export function useDragReorder(
+  listRef: RefObject<HTMLElement | null>,
+  selected: string[],
+  onReorder: (ids: string[]) => void,
+): UseDragReorderReturn {
+  const [dragFrom, setDragFrom] = useState<number | null>(null);
+  const [dropTarget, setDropTarget] = useState<number | null>(null);
+
   useEffect(() => {
     document.body.classList.toggle('is-dragging', dragFrom !== null);
-    return () => document.body.classList.remove('is-dragging');
+    return () => {
+      document.body.classList.remove('is-dragging');
+    };
   }, [dragFrom]);
 
   const handlePointerDown = useCallback(
-    (e, selectedIdx) => {
-      if (e.target.closest('input[type="checkbox"]')) return;
+    (e: React.PointerEvent, selectedIdx: number) => {
+      if ((e.target as HTMLElement).closest('input[type="checkbox"]')) return;
       if (e.button !== 0) return;
 
       const startY = e.clientY;
       const currentIds = [...selected];
       let isDragging = false;
-      let currentTarget = null;
+      let currentTarget: number | null = null;
 
-      const getInsertIndex = (clientY) => {
+      const getInsertIndex = (clientY: number): number => {
         const items = listRef.current?.querySelectorAll('[data-selected-idx]');
         if (!items) return selectedIdx;
         for (const item of items) {
-          const idx = parseInt(item.dataset.selectedIdx);
+          const idx = parseInt(
+            (item as HTMLElement).dataset['selectedIdx'] ?? '',
+          );
           const rect = item.getBoundingClientRect();
           if (clientY < rect.top + rect.height / 2) return idx;
         }
         return currentIds.length;
       };
 
-      const onMove = (moveEvent) => {
+      const onMove = (moveEvent: PointerEvent) => {
         if (!isDragging) {
           if (Math.abs(moveEvent.clientY - startY) < DRAG_THRESHOLD) return;
           isDragging = true;
@@ -53,8 +66,8 @@ export function useDragReorder(listRef, selected, onReorder) {
           if (toIdx > selectedIdx) toIdx--;
           if (selectedIdx !== toIdx) {
             const reordered = [...currentIds];
-            const [removed] = reordered.splice(selectedIdx, 1);
-            reordered.splice(toIdx, 0, removed);
+            const removed = reordered.splice(selectedIdx, 1)[0];
+            if (removed !== undefined) reordered.splice(toIdx, 0, removed);
             onReorder(reordered);
           }
         }

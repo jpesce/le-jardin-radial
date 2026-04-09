@@ -4,14 +4,21 @@ import {
   INNER_PALETTE,
   pick,
   colorsFromName,
-} from './logo-colors.js';
+} from './logo-colors';
+
+interface LogoProps {
+  textColor?: string;
+  className?: string;
+  animate?: boolean;
+  name?: string;
+}
 
 export default function Logo({
   textColor = '#443528',
   className,
   animate = false,
   name = '',
-}) {
+}: LogoProps) {
   const staticColors = name
     ? colorsFromName(name)
     : { outer: pick(OUTER_PALETTE), inner: pick(INNER_PALETTE) };
@@ -25,7 +32,9 @@ export default function Logo({
         inner: pick(INNER_PALETTE),
       });
     }, 1000);
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+    };
   }, [animate]);
 
   const colors = animate ? animatedColors : staticColors;

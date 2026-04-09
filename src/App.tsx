@@ -1,18 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import RadialChart from './components/RadialChart.jsx';
-import FlowerList from './components/FlowerList.jsx';
-import LanguageSwitcher from './components/LanguageSwitcher.jsx';
-import Logo from './components/Logo.jsx';
-import SharedBanner from './components/SharedBanner.jsx';
-import {
-  OUTER_PALETTE,
-  INNER_PALETTE,
-  pick,
-} from './components/logo-colors.js';
-import { useGarden } from './hooks/useGarden.js';
-import { useI18n } from './i18n/I18nContext.jsx';
-import { updateMeta } from './i18n/updateMeta.js';
+import RadialChart from './components/RadialChart';
+import FlowerList from './components/FlowerList';
+import LanguageSwitcher from './components/LanguageSwitcher';
+import Logo from './components/Logo';
+import SharedBanner from './components/SharedBanner';
+import { OUTER_PALETTE, INNER_PALETTE, pick } from './components/logo-colors';
+import { useGarden } from './hooks/useGarden';
+import { useI18n } from './i18n/I18nContext';
+import { updateMeta } from './i18n/updateMeta';
 import './App.css';
 
 export default function App() {
@@ -30,7 +26,7 @@ export default function App() {
 
   useEffect(() => {
     const link =
-      document.querySelector('link[rel="icon"]') ||
+      document.querySelector<HTMLLinkElement>('link[rel="icon"]') ||
       (() => {
         const el = document.createElement('link');
         el.rel = 'icon';
@@ -47,7 +43,9 @@ export default function App() {
 
     update();
     const id = setInterval(update, 1000);
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+    };
   }, []);
 
   return (
@@ -98,8 +96,12 @@ export default function App() {
                 gardenOwner={garden.owner}
                 onGardenOwnerChange={garden.setOwner}
                 isOpen={panelOpen}
-                onTogglePanel={() => setPanelOpen((prev) => !prev)}
-                onClose={() => setPanelOpen(false)}
+                onTogglePanel={() => {
+                  setPanelOpen((prev) => !prev);
+                }}
+                onClose={() => {
+                  setPanelOpen(false);
+                }}
               />
             </motion.div>
           )}

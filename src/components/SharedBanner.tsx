@@ -1,18 +1,25 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, type CSSProperties } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, ArrowLeft } from 'lucide-react';
-import { useI18n } from '../i18n/I18nContext.jsx';
-import { useClickOutside } from '../hooks/useClickOutside.js';
-import { colorsFromName, isLight } from './logo-colors.js';
-import Button from './Button.jsx';
+import { useI18n } from '../i18n/I18nContext';
+import { useClickOutside } from '../hooks/useClickOutside';
+import { colorsFromName, isLight } from './logo-colors';
+import Button from './Button';
 import './SharedBanner.css';
+
+interface SharedBannerProps {
+  owner: string;
+  onSave: () => void;
+  onDismiss: () => void;
+  animateEntry: boolean;
+}
 
 export default function SharedBanner({
   owner,
   onSave,
   onDismiss,
   animateEntry,
-}) {
+}: SharedBannerProps) {
   const { t } = useI18n();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { outer } = colorsFromName(owner);
@@ -21,16 +28,20 @@ export default function SharedBanner({
   const btnBg = light ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)';
   const btnHoverBg = light ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.25)';
 
-  const closeConfirm = useCallback(() => setConfirmOpen(false), []);
+  const closeConfirm = useCallback(() => {
+    setConfirmOpen(false);
+  }, []);
   useClickOutside(closeConfirm, confirmOpen);
 
   return (
     <motion.div
       className="shared-banner"
       style={{ background: outer, color: textColor }}
-      initial={animateEntry ? { height: 0, overflow: 'hidden' } : false}
-      animate={{ height: 'auto', overflow: 'visible' }}
-      exit={{ height: 0, overflow: 'hidden' }}
+      initial={
+        animateEntry ? { height: 0, overflow: 'hidden' as const } : false
+      }
+      animate={{ height: 'auto', overflow: 'visible' as const }}
+      exit={{ height: 0, overflow: 'hidden' as const }}
       transition={{ height: { duration: 0.3, ease: 'easeInOut' } }}
     >
       <div className="shared-banner-content">
@@ -49,13 +60,19 @@ export default function SharedBanner({
           </span>
           <button
             className="shared-banner-btn shared-banner-save"
-            style={{
-              '--btn-bg': btnBg,
-              '--btn-hover-bg': btnHoverBg,
-              color: textColor,
+            style={
+              {
+                '--btn-bg': btnBg,
+                '--btn-hover-bg': btnHoverBg,
+                color: textColor,
+              } as CSSProperties
+            }
+            onPointerDown={(e) => {
+              e.stopPropagation();
             }}
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => setConfirmOpen((prev) => !prev)}
+            onClick={() => {
+              setConfirmOpen((prev) => !prev);
+            }}
           >
             {t('saveToMyGarden')}
           </button>
@@ -63,7 +80,9 @@ export default function SharedBanner({
             {confirmOpen && (
               <motion.div
                 className="shared-confirm"
-                onPointerDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                }}
                 initial={{ opacity: 0, y: -8, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8, scale: 0.96 }}
@@ -75,7 +94,9 @@ export default function SharedBanner({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setConfirmOpen(false)}
+                    onClick={() => {
+                      setConfirmOpen(false);
+                    }}
                   >
                     {t('replaceKeep')}
                   </Button>

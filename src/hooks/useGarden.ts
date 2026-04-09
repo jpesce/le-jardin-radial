@@ -5,29 +5,44 @@ import {
   compressToEncodedURIComponent,
   decompressFromEncodedURIComponent,
 } from 'lz-string';
-import { raw as catalogRaw } from '../data/flowers.js';
-import { parseMonths, firstBloomStart } from '../data/months.js';
-import { LANG_STORAGE_KEY, SUPPORTED, saveLang } from '../i18n/i18n-utils.js';
+import { raw as catalogRaw } from '../data/flowers';
+import { parseMonths, firstBloomStart } from '../data/months';
+import { LANG_STORAGE_KEY, SUPPORTED, saveLang } from '../i18n/i18n-utils';
+import type {
+  Lang,
+  RawFlower,
+  EnrichedFlower,
+  GardenState,
+  CustomFlowerData,
+} from '../types';
 
 const GARDEN_SIZE = 8;
 const SELECTED_SIZE = 4;
 const DEFAULT_OWNER = 'Tainah Drummond';
 const STORAGE_KEY = 'jardin-radial';
 
-function shuffle(arr) {
+function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    const ai = a[i] as T;
+    const aj = a[j] as T;
+    [a[i], a[j]] = [aj, ai];
   }
   return a;
 }
 
-function pickRaw({ id, names, scientificName, colors, months }) {
+function pickRaw({
+  id,
+  names,
+  scientificName,
+  colors,
+  months,
+}: RawFlower): RawFlower {
   return { id, names, scientificName, colors, months };
 }
 
-function freshState() {
+function freshState(): GardenState {
   const catalog = catalogRaw.map(pickRaw);
   const shuffled = shuffle(catalog);
   const garden = shuffled.slice(0, GARDEN_SIZE).map((f) => f.id);
@@ -44,20 +59,21 @@ function freshState() {
   };
 }
 
-export function isValidState(s) {
+export function isValidState(s: unknown): s is GardenState {
   return Boolean(
     s &&
-    Array.isArray(s.defaultCatalog) &&
-    Array.isArray(s.garden) &&
-    Array.isArray(s.selected) &&
-    typeof s.customFlowers === 'object' &&
-    !Array.isArray(s.customFlowers) &&
-    typeof s.owner === 'string' &&
-    typeof s.labels === 'boolean',
+    typeof s === 'object' &&
+    Array.isArray((s as GardenState).defaultCatalog) &&
+    Array.isArray((s as GardenState).garden) &&
+    Array.isArray((s as GardenState).selected) &&
+    typeof (s as GardenState).customFlowers === 'object' &&
+    !Array.isArray((s as GardenState).customFlowers) &&
+    typeof (s as GardenState).owner === 'string' &&
+    typeof (s as GardenState).labels === 'boolean',
   );
 }
 
-export function reconcile(saved) {
+export function reconcile(saved: GardenState): GardenState {
   const currentCatalog = catalogRaw.map(pickRaw);
   const currentIds = new Set(currentCatalog.map((f) => f.id));
   const gardenSet = new Set(saved.garden);
@@ -86,17 +102,35 @@ export function reconcile(saved) {
   };
 }
 
-function getSharedState() {
+type GardenAction =
+  | { type: 'SET_OWNER'; value: string }
+  | { type: 'SET_LABELS'; value: boolean }
+  | { type: 'TOGGLE_SELECTED'; id: string }
+  | { type: 'REORDER_SELECTED'; ids: string[] }
+  | { type: 'TOGGLE_GARDEN'; id: string }
+  | { type: 'EDIT_FLOWER'; id: string; payload: CustomFlowerData }
+  | { type: 'ADD_CUSTOM_FLOWER'; payload: { id: string } & CustomFlowerData }
+  | { type: 'DELETE_FLOWER'; id: string }
+  | { type: 'SAVE_SHARED' }
+  | { type: 'DISMISS_SHARED' }
+  | { type: 'IMPORT'; payload: GardenState }
+  | { type: 'RESET' };
+
+function getSharedState(): GardenState | null {
   if (typeof window === 'undefined') return null;
   const match = window.location.pathname.match(/^\/share\/(.+)/);
   if (!match) return null;
   try {
-    const decoded = JSON.parse(decompressFromEncodedURIComponent(match[1]));
+    const compressed = match[1];
+    if (!compressed) return null;
+    const decoded = JSON.parse(
+      decompressFromEncodedURIComponent(compressed),
+    ) as Record<string, unknown>;
     const { lang: sharedLang, ...gardenState } = decoded;
     if (!isValidState(gardenState)) return null;
-    if (sharedLang && SUPPORTED.includes(sharedLang)) {
+    if (sharedLang && SUPPORTED.includes(sharedLang as Lang)) {
       const stored = localStorage.getItem(LANG_STORAGE_KEY);
-      if (!stored) saveLang(sharedLang);
+      if (!stored) saveLang(sharedLang as Lang);
     }
     return reconcile(gardenState);
   } catch {
@@ -105,13 +139,15 @@ function getSharedState() {
   return null;
 }
 
-function loadFromStorage() {
+function loadFromStorage(): GardenState | null {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      const raw = JSON.parse(saved);
-      // Support both Zustand persist format ({ state: {...} }) and raw format
-      const parsed = raw.state ?? raw;
+      const raw: Record<string, unknown> = JSON.parse(saved) as Record<
+        string,
+        unknown
+      >;
+      const parsed: unknown = raw.state ?? raw;
       if (isValidState(parsed))
         return { ...reconcile(parsed), isShared: false };
     }
@@ -121,17 +157,14 @@ function loadFromStorage() {
   return null;
 }
 
-function initialState() {
+function initialState(): GardenState {
   if (typeof window === 'undefined') return freshState();
-  // Share URL takes priority
   const shared = getSharedState();
   if (shared) return { ...shared, isShared: true };
-  // Then localStorage (read synchronously to avoid flash)
   return loadFromStorage() ?? freshState();
 }
 
-// Reducer kept as a pure function for testability
-export function reducer(state, action) {
+export function reducer(state: GardenState, action: GardenAction): GardenState {
   switch (action.type) {
     case 'SET_OWNER':
       return { ...state, owner: action.value };
@@ -201,8 +234,11 @@ export function reducer(state, action) {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-          const raw = JSON.parse(saved);
-          const parsed = raw.state ?? raw;
+          const raw: Record<string, unknown> = JSON.parse(saved) as Record<
+            string,
+            unknown
+          >;
+          const parsed: unknown = raw.state ?? raw;
           if (isValidState(parsed))
             return { ...reconcile(parsed), isShared: false };
         }
@@ -212,7 +248,7 @@ export function reducer(state, action) {
       return freshState();
     }
     case 'IMPORT':
-      return { ...action.payload, isShared: action.payload.isShared ?? false };
+      return { ...action.payload, isShared: action.payload.isShared };
     case 'RESET':
       return freshState();
     default:
@@ -220,7 +256,7 @@ export function reducer(state, action) {
   }
 }
 
-function stateSlice(state) {
+function stateSlice(state: GardenStoreState): GardenState {
   return {
     owner: state.owner,
     labels: state.labels,
@@ -232,46 +268,84 @@ function stateSlice(state) {
   };
 }
 
-function dispatch(action) {
+interface ImportCallbacks {
+  onSuccess?: () => void;
+  onError?: (reason: string) => void;
+}
+
+interface GardenActions {
+  setOwner: (v: string) => void;
+  setLabels: (v: boolean) => void;
+  toggleSelected: (id: string) => void;
+  reorderSelected: (ids: string[]) => void;
+  toggleGarden: (id: string) => void;
+  editFlower: (id: string, data: CustomFlowerData) => void;
+  addCustomFlower: (data: CustomFlowerData) => void;
+  deleteFlower: (id: string) => void;
+  reset: () => void;
+  saveShared: () => void;
+  dismissShared: () => void;
+  importJson: (file: File, callbacks?: ImportCallbacks) => void;
+}
+
+type GardenStoreState = GardenState & GardenActions;
+
+function dispatch(action: GardenAction): void {
   useGardenStore.setState((state) => reducer(stateSlice(state), action));
 }
 
-export const useGardenStore = create(
+export const useGardenStore = create<GardenStoreState>()(
   persist(
     () => ({
       ...initialState(),
 
-      // Actions
-      setOwner: (v) => dispatch({ type: 'SET_OWNER', value: v }),
-      setLabels: (v) => dispatch({ type: 'SET_LABELS', value: v }),
-      toggleSelected: (id) => dispatch({ type: 'TOGGLE_SELECTED', id }),
-      reorderSelected: (ids) => dispatch({ type: 'REORDER_SELECTED', ids }),
-      toggleGarden: (id) => dispatch({ type: 'TOGGLE_GARDEN', id }),
-      editFlower: (id, data) =>
-        dispatch({ type: 'EDIT_FLOWER', id, payload: data }),
-      addCustomFlower: (data) =>
+      setOwner: (v: string) => {
+        dispatch({ type: 'SET_OWNER', value: v });
+      },
+      setLabels: (v: boolean) => {
+        dispatch({ type: 'SET_LABELS', value: v });
+      },
+      toggleSelected: (id: string) => {
+        dispatch({ type: 'TOGGLE_SELECTED', id });
+      },
+      reorderSelected: (ids: string[]) => {
+        dispatch({ type: 'REORDER_SELECTED', ids });
+      },
+      toggleGarden: (id: string) => {
+        dispatch({ type: 'TOGGLE_GARDEN', id });
+      },
+      editFlower: (id: string, data: CustomFlowerData) => {
+        dispatch({ type: 'EDIT_FLOWER', id, payload: data });
+      },
+      addCustomFlower: (data: CustomFlowerData) => {
         dispatch({
           type: 'ADD_CUSTOM_FLOWER',
           payload: { id: crypto.randomUUID(), ...data },
-        }),
-      deleteFlower: (id) => dispatch({ type: 'DELETE_FLOWER', id }),
-      reset: () => dispatch({ type: 'RESET' }),
+        });
+      },
+      deleteFlower: (id: string) => {
+        dispatch({ type: 'DELETE_FLOWER', id });
+      },
+      reset: () => {
+        dispatch({ type: 'RESET' });
+      },
 
       saveShared: () => {
         dispatch({ type: 'SAVE_SHARED' });
-        // replaceState: share URL is consumed, back button won't re-show shared view
         window.history.replaceState(null, '', '/');
       },
       dismissShared: () => {
         dispatch({ type: 'DISMISS_SHARED' });
-        // pushState (not replace): keeps share URL in history so back button works
         window.history.pushState(null, '', '/');
       },
-      importJson: (file, { onSuccess, onError } = {}) => {
+      importJson: (
+        file: File,
+        { onSuccess, onError }: ImportCallbacks = {},
+      ) => {
         const reader = new FileReader();
         reader.onload = () => {
           try {
-            const parsed = JSON.parse(reader.result);
+            const parsed: unknown = JSON.parse(reader.result as string);
             if (isValidState(parsed)) {
               dispatch({ type: 'IMPORT', payload: reconcile(parsed) });
               onSuccess?.();
@@ -287,18 +361,21 @@ export const useGardenStore = create(
     }),
     {
       name: STORAGE_KEY,
-      partialize: (state) => (state.isShared ? undefined : stateSlice(state)),
+      partialize: (state: GardenStoreState) =>
+        state.isShared ? undefined : stateSlice(state),
       merge: (persisted, current) => {
-        // Don't let persisted state override a shared garden loaded from URL
-        if (current.isShared) return current;
-        return { ...current, ...persisted };
+        const currentState = current as GardenStoreState;
+        if (currentState.isShared) return currentState;
+        return { ...currentState, ...(persisted as Partial<GardenState>) };
       },
     },
   ),
 );
 
-// Derived state: enrich flowers with month data and display names
-function enrich(flower, lang) {
+function enrich(
+  flower: RawFlower & { id: string },
+  lang: Lang,
+): EnrichedFlower {
   const monthStates = parseMonths(flower.months);
   return {
     ...flower,
@@ -308,10 +385,33 @@ function enrich(flower, lang) {
   };
 }
 
-export function useGarden(lang) {
+export interface UseGardenReturn {
+  owner: string;
+  labels: boolean;
+  selected: string[];
+  isShared: boolean;
+  gardenFlowers: EnrichedFlower[];
+  selectedFlowers: EnrichedFlower[];
+  allFlowers: EnrichedFlower[];
+  setOwner: (v: string) => void;
+  setLabels: (v: boolean) => void;
+  toggleSelected: (id: string) => void;
+  reorderSelected: (ids: string[]) => void;
+  toggleGarden: (id: string) => void;
+  editFlower: (id: string, data: CustomFlowerData) => void;
+  addCustomFlower: (data: CustomFlowerData) => void;
+  deleteFlower: (id: string) => void;
+  reset: () => void;
+  getShareUrl: () => string;
+  exportJson: () => void;
+  importJson: (file: File, callbacks?: ImportCallbacks) => void;
+  saveShared: () => void;
+  dismissShared: () => void;
+}
+
+export function useGarden(lang: Lang): UseGardenReturn {
   const store = useGardenStore();
 
-  // Re-check share URL on browser back/forward
   useEffect(() => {
     const handler = () => {
       const shared = getSharedState();
@@ -322,7 +422,9 @@ export function useGarden(lang) {
       }
     };
     window.addEventListener('popstate', handler);
-    return () => window.removeEventListener('popstate', handler);
+    return () => {
+      window.removeEventListener('popstate', handler);
+    };
   }, []);
 
   const catalogIds = useMemo(
@@ -338,8 +440,8 @@ export function useGarden(lang) {
     const custom = Object.entries(store.customFlowers)
       .filter(([id]) => !catalogIds.has(id))
       .map(([id, data]) => ({
-        ...enrich({ id, ...data }, lang),
-        isCustom: true,
+        ...enrich({ id, ...data } as RawFlower, lang),
+        isCustom: true as const,
       }));
     const sortedCatalog = fromCatalog.sort(
       (a, b) => a.firstBloom - b.firstBloom,
@@ -360,7 +462,7 @@ export function useGarden(lang) {
       [...store.selected]
         .reverse()
         .map((id) => gardenFlowers.find((f) => f.id === id))
-        .filter(Boolean),
+        .filter((f): f is EnrichedFlower => Boolean(f)),
     [store.selected, gardenFlowers],
   );
 
@@ -376,10 +478,10 @@ export function useGarden(lang) {
       const { isShared: _, defaultCatalog, ...shareable } = state;
       const shareSet = new Set(state.garden);
       const minimalCatalog = defaultCatalog.filter((f) => shareSet.has(f.id));
-      // Strip action functions
-      const data = {};
+      const data: Record<string, unknown> = {};
       for (const key of Object.keys(shareable)) {
-        if (typeof shareable[key] !== 'function') data[key] = shareable[key];
+        if (typeof (shareable as Record<string, unknown>)[key] !== 'function')
+          data[key] = (shareable as Record<string, unknown>)[key];
       }
       const payload = { ...data, defaultCatalog: minimalCatalog, lang };
       const compressed = compressToEncodedURIComponent(JSON.stringify(payload));
@@ -391,9 +493,10 @@ export function useGarden(lang) {
     return () => {
       const state = useGardenStore.getState();
       const { isShared: _, ...shareable } = state;
-      const data = {};
+      const data: Record<string, unknown> = {};
       for (const key of Object.keys(shareable)) {
-        if (typeof shareable[key] !== 'function') data[key] = shareable[key];
+        if (typeof (shareable as Record<string, unknown>)[key] !== 'function')
+          data[key] = (shareable as Record<string, unknown>)[key];
       }
       const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: 'application/json',

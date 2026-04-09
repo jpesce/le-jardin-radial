@@ -1,9 +1,29 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  type ChangeEvent,
+} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Link, Check, Download, Upload } from 'lucide-react';
-import { useI18n } from '../i18n/I18nContext.jsx';
-import { useClickOutside } from '../hooks/useClickOutside.js';
-import Button from './Button.jsx';
+import { useI18n } from '../i18n/I18nContext';
+import { useClickOutside } from '../hooks/useClickOutside';
+import Button from './Button';
+
+interface ImportCallbacks {
+  onSuccess?: () => void;
+  onError?: (reason: string) => void;
+}
+
+interface ShareButtonProps {
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onGetShareUrl: () => string;
+  onExportJson: () => void;
+  onImportJson: (file: File, callbacks?: ImportCallbacks) => void;
+}
 
 export default function ShareButton({
   isOpen,
@@ -12,15 +32,14 @@ export default function ShareButton({
   onGetShareUrl,
   onExportJson,
   onImportJson,
-}) {
+}: ShareButtonProps) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
-  const [pendingFile, setPendingFile] = useState(null);
-  const [importError, setImportError] = useState(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
   const [wasOpen, setWasOpen] = useState(false);
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset stale internal state when reopened (React "store previous props" pattern)
   if (isOpen && !wasOpen) {
     setPendingFile(null);
     setImportError(null);
@@ -39,22 +58,26 @@ export default function ShareButton({
 
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e) => {
+    const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         close();
-        document.activeElement?.blur();
+        (document.activeElement as HTMLElement | null)?.blur();
         e.preventDefault();
       }
     };
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    return () => {
+      document.removeEventListener('keydown', handler);
+    };
   }, [isOpen, close]);
 
   const handleCopyLink = async () => {
     const url = onGetShareUrl();
     await navigator.clipboard.writeText(url);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   const handleExport = () => {
@@ -62,7 +85,7 @@ export default function ShareButton({
     onClose();
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setPendingFile(file);
     e.target.value = '';
@@ -76,7 +99,9 @@ export default function ShareButton({
           setPendingFile(null);
           onClose();
         },
-        onError: (reason) => setImportError(reason),
+        onError: (reason: string) => {
+          setImportError(reason);
+        },
       });
     }
   };
@@ -94,7 +119,9 @@ export default function ShareButton({
         size="lg"
         icon={<Share2 size={14} />}
         className={isOpen ? 'btn--active' : ''}
-        onPointerDown={(e) => e.stopPropagation()}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+        }}
         onClick={onToggle}
         aria-label="Share garden"
       />
@@ -102,7 +129,9 @@ export default function ShareButton({
         {isOpen && (
           <motion.div
             className="share-dropdown"
-            onPointerDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+            }}
             initial={{ opacity: 0, y: -8, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
@@ -159,7 +188,9 @@ export default function ShareButton({
                       </motion.span>
                     </AnimatePresence>
                   }
-                  onClick={handleCopyLink}
+                  onClick={() => {
+                    void handleCopyLink();
+                  }}
                 >
                   {copied ? t('linkCopied') : t('copyLink')}
                 </Button>

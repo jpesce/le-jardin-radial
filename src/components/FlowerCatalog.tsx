@@ -1,14 +1,22 @@
 import { useState, useMemo } from 'react';
-import { useI18n } from '../i18n/I18nContext.jsx';
-import FlowerRow from './FlowerRow.jsx';
+import { useI18n } from '../i18n/I18nContext';
+import FlowerRow from './FlowerRow';
 import './FlowerCatalog.css';
+import type { EnrichedFlower } from '../types';
+
+interface FlowerCatalogProps {
+  flowers: EnrichedFlower[];
+  onToggle: (id: string) => void;
+  onBack: () => void;
+  onEditFlower?: ((id: string) => void) | null;
+}
 
 export default function FlowerCatalog({
   flowers,
   onToggle,
   onBack,
   onEditFlower,
-}) {
+}: FlowerCatalogProps) {
   const { t } = useI18n();
   const [search, setSearch] = useState('');
 
@@ -20,14 +28,22 @@ export default function FlowerCatalog({
   const customFlowers = filtered.filter((f) => f.isCustom);
   const catalogFlowers = filtered.filter((f) => !f.isCustom);
 
-  const renderFlower = (flower) => (
+  const renderFlower = (flower: EnrichedFlower) => (
     <li key={flower.id} className="flower-item">
       <label className="flower-label catalog-label">
         <FlowerRow
           flower={flower}
-          checked={flower.inGarden}
-          onToggle={() => onToggle(flower.id)}
-          onEdit={onEditFlower ? () => onEditFlower(flower.id) : null}
+          checked={!!flower.inGarden}
+          onToggle={() => {
+            onToggle(flower.id);
+          }}
+          onEdit={
+            onEditFlower
+              ? () => {
+                  onEditFlower(flower.id);
+                }
+              : null
+          }
         />
       </label>
     </li>
@@ -46,8 +62,10 @@ export default function FlowerCatalog({
         type="text"
         className="panel-input catalog-search"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder={t('searchPlaceholder')}
+        onChange={(e) => {
+          setSearch(e.target.value);
+        }}
+        placeholder={t('searchPlaceholder') as string}
         autoFocus
       />
       <ul className="flower-items catalog-list">

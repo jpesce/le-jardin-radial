@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitize } from './updateMeta.js';
+import { sanitize } from './updateMeta';
 
 describe('sanitize', () => {
   it('passes through normal text', () => {
@@ -7,7 +7,7 @@ describe('sanitize', () => {
   });
 
   it('passes through accented characters', () => {
-    expect(sanitize('José García')).toBe('José García');
+    expect(sanitize('Jos\u00e9 Garc\u00eda')).toBe('Jos\u00e9 Garc\u00eda');
   });
 
   it('strips angle brackets', () => {

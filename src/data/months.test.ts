@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { parseMonths, bloomRanges, firstBloomStart } from './months.js';
+import { parseMonths, bloomRanges, firstBloomStart } from './months';
+import type { MonthsConfig } from '../types';
 
-// Helper: create monthStates from a simple state map
-const states = (obj) => parseMonths(obj);
+const states = (obj: MonthsConfig) => parseMonths(obj);
 
 describe('bloomRanges', () => {
   it('normal range', () => {
@@ -102,11 +102,10 @@ describe('firstBloomStart', () => {
       firstBloomStart(
         states({ '1-4': 'dormant', '5-10': 'blooming', '11-12': 'dormant' }),
       ),
-    ).toBe(4); // May (index 4)
+    ).toBe(4);
   });
 
   it('wrap-around returns start of wrapped range', () => {
-    // dec–mar: bloom in Jan,Feb,Mar,Dec → first bloom starts in Dec (index 11)
     expect(
       firstBloomStart(
         states({ '1-3': 'blooming', '4-11': 'dormant', 12: 'blooming' }),

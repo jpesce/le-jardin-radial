@@ -1,17 +1,28 @@
-import { useI18n } from '../i18n/I18nContext.jsx';
-import { DEFAULT_STATE_COLORS } from '../data/colors.js';
-import { isLight } from './logo-colors.js';
+import { useI18n } from '../i18n/I18nContext';
+import { DEFAULT_STATE_COLORS } from '../data/colors';
+import { isLight } from './logo-colors';
+import type { FlowerState } from '../types';
 
-const STATES = ['dormant', 'sprouting', 'blooming', 'foliage'];
+const STATES: FlowerState[] = ['dormant', 'sprouting', 'blooming', 'foliage'];
 
-export default function MonthGrid({ value, onChange, bloomColor = '#E84393' }) {
+interface MonthGridProps {
+  value: FlowerState[];
+  onChange: (value: FlowerState[]) => void;
+  bloomColor?: string;
+}
+
+export default function MonthGrid({
+  value,
+  onChange,
+  bloomColor = '#E84393',
+}: MonthGridProps) {
   const { t } = useI18n();
-  const months = t('months');
+  const months = t('months') as string[];
 
-  const cycle = (idx) => {
+  const cycle = (idx: number) => {
     const next = [...value];
-    const current = STATES.indexOf(next[idx]);
-    next[idx] = STATES[(current + 1) % STATES.length];
+    const current = STATES.indexOf(next[idx] ?? 'dormant');
+    next[idx] = STATES[(current + 1) % STATES.length] ?? 'dormant';
     onChange(next);
   };
 
@@ -29,7 +40,9 @@ export default function MonthGrid({ value, onChange, bloomColor = '#E84393' }) {
             key={i}
             className="month-cell"
             style={{ background: bg, color: textColor }}
-            onClick={() => cycle(i)}
+            onClick={() => {
+              cycle(i);
+            }}
             title={months[i]}
             type="button"
           >

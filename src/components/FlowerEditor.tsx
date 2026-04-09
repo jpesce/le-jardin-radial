@@ -1,18 +1,26 @@
-import { useState } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 import { CircleAlert } from 'lucide-react';
-import { useI18n } from '../i18n/I18nContext.jsx';
-import Button from './Button.jsx';
-import MonthGrid from './MonthGrid.jsx';
-import { parseMonths } from '../data/months.js';
+import { useI18n } from '../i18n/I18nContext';
+import Button from './Button';
+import MonthGrid from './MonthGrid';
+import { parseMonths } from '../data/months';
 import './FlowerEditor.css';
+import type {
+  EnrichedFlower,
+  FlowerState,
+  MonthsConfig,
+  CustomFlowerData,
+} from '../types';
 
-const DEFAULT_MONTHS = new Array(12).fill('dormant');
+const DEFAULT_MONTHS: FlowerState[] = new Array<FlowerState>(12).fill(
+  'dormant',
+);
 
-function compactMonths(states) {
-  const result = {};
+function compactMonths(states: FlowerState[]): MonthsConfig {
+  const result: MonthsConfig = {};
   let i = 0;
   while (i < 12) {
-    const state = states[i];
+    const state = states[i] ?? 'dormant';
     let end = i;
     while (end + 1 < 12 && states[end + 1] === state) end++;
     const key = i === end ? `${i + 1}` : `${i + 1}-${end + 1}`;
@@ -22,18 +30,30 @@ function compactMonths(states) {
   return result;
 }
 
-export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
+interface FlowerEditorProps {
+  flower: EnrichedFlower | null | undefined;
+  onSave: (data: CustomFlowerData) => void;
+  onCancel: () => void;
+  onDelete?: () => void;
+}
+
+export default function FlowerEditor({
+  flower,
+  onSave,
+  onCancel,
+  onDelete,
+}: FlowerEditorProps) {
   const { t } = useI18n();
 
-  const [nameEn, setNameEn] = useState(flower?.names?.en ?? '');
-  const [nameFr, setNameFr] = useState(flower?.names?.fr ?? '');
+  const [nameEn, setNameEn] = useState(flower?.names.en ?? '');
+  const [nameFr, setNameFr] = useState(flower?.names.fr ?? '');
   const [scientificName, setScientificName] = useState(
     flower?.scientificName ?? '',
   );
   const [bloomColor, setBloomColor] = useState(
-    flower?.colors?.blooming ?? '#E84393',
+    flower?.colors.blooming ?? '#E84393',
   );
-  const [monthStates, setMonthStates] = useState(
+  const [monthStates, setMonthStates] = useState<FlowerState[]>(
     flower?.monthStates ??
       (flower?.months ? parseMonths(flower.months) : [...DEFAULT_MONTHS]),
   );
@@ -46,7 +66,7 @@ export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
   const isValid =
     !missingNameEn && !missingNameFr && !invalidColor && !noBlooming;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     setAttempted(true);
     if (!isValid) return;
@@ -70,7 +90,9 @@ export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
           type="text"
           className="panel-input editor-input"
           value={nameEn}
-          onChange={(e) => setNameEn(e.target.value)}
+          onChange={(e) => {
+            setNameEn(e.target.value);
+          }}
           autoFocus
         />
       </label>
@@ -81,7 +103,9 @@ export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
           type="text"
           className="panel-input editor-input"
           value={nameFr}
-          onChange={(e) => setNameFr(e.target.value)}
+          onChange={(e) => {
+            setNameFr(e.target.value);
+          }}
         />
       </label>
 
@@ -91,7 +115,9 @@ export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
           type="text"
           className="panel-input editor-input"
           value={scientificName}
-          onChange={(e) => setScientificName(e.target.value)}
+          onChange={(e) => {
+            setScientificName(e.target.value);
+          }}
         />
       </label>
 
@@ -102,13 +128,17 @@ export default function FlowerEditor({ flower, onSave, onCancel, onDelete }) {
             type="color"
             className="editor-color-picker"
             value={bloomColor}
-            onChange={(e) => setBloomColor(e.target.value)}
+            onChange={(e) => {
+              setBloomColor(e.target.value);
+            }}
           />
           <input
             type="text"
             className="panel-input editor-color-hex"
             value={bloomColor}
-            onChange={(e) => setBloomColor(e.target.value)}
+            onChange={(e) => {
+              setBloomColor(e.target.value);
+            }}
             maxLength={7}
           />
         </div>

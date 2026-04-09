@@ -1,9 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { reducer, isValidState, reconcile } from './useGarden.js';
+import { reducer, isValidState, reconcile } from './useGarden';
+import type { GardenState, RawFlower } from '../types';
 
-// --- Helpers ---
-
-const flower = (id) => ({
+const flower = (id: string): RawFlower => ({
   id,
   names: { en: id, fr: id },
   scientificName: '',
@@ -11,16 +10,15 @@ const flower = (id) => ({
   months: { '1-12': 'dormant' },
 });
 
-const baseState = () => ({
+const baseState = (): GardenState => ({
   owner: 'Test',
   labels: true,
   defaultCatalog: [flower('rose'), flower('tulip'), flower('lily')],
   garden: ['rose', 'tulip'],
   selected: ['rose'],
   customFlowers: {},
+  isShared: false,
 });
-
-// --- reducer tests ---
 
 describe('reducer', () => {
   describe('SET_OWNER', () => {
@@ -128,7 +126,7 @@ describe('reducer', () => {
     });
 
     it('adds custom flower to garden', () => {
-      const state = {
+      const state: GardenState = {
         ...baseState(),
         customFlowers: {
           'custom-1': {
@@ -157,7 +155,7 @@ describe('reducer', () => {
     });
 
     it('merges with existing override', () => {
-      const state = {
+      const state: GardenState = {
         ...baseState(),
         customFlowers: { rose: { colors: { blooming: '#ff0000' } } },
       };
@@ -195,8 +193,9 @@ describe('reducer', () => {
           months: { '6-8': 'blooming', '1-5': 'dormant', '9-12': 'dormant' },
         },
       });
-      expect(next.customFlowers['custom-1']).toBeDefined();
-      expect(next.customFlowers['custom-1'].names.en).toBe('My Flower');
+      const custom = next.customFlowers['custom-1'];
+      expect(custom).toBeDefined();
+      expect(custom?.names?.en).toBe('My Flower');
       expect(next.garden).toContain('custom-1');
       expect(next.selected).toContain('custom-1');
     });
@@ -207,13 +206,15 @@ describe('reducer', () => {
         type: 'ADD_CUSTOM_FLOWER',
         payload: { id: 'custom-1', names: { en: 'X', fr: 'X' }, months: {} },
       });
-      expect(next.customFlowers['custom-1'].id).toBeUndefined();
+      expect(
+        (next.customFlowers['custom-1'] as Record<string, unknown>).id,
+      ).toBeUndefined();
     });
   });
 
   describe('DELETE_FLOWER', () => {
     it('removes from customFlowers', () => {
-      const state = {
+      const state: GardenState = {
         ...baseState(),
         customFlowers: { 'custom-1': { names: { en: 'X', fr: 'X' } } },
         garden: ['rose', 'custom-1'],
@@ -224,7 +225,7 @@ describe('reducer', () => {
     });
 
     it('removes from garden and selected', () => {
-      const state = {
+      const state: GardenState = {
         ...baseState(),
         customFlowers: { 'custom-1': { names: { en: 'X', fr: 'X' } } },
         garden: ['rose', 'custom-1'],
@@ -236,7 +237,7 @@ describe('reducer', () => {
     });
 
     it('preserves other flowers', () => {
-      const state = {
+      const state: GardenState = {
         ...baseState(),
         customFlowers: {
           'custom-1': { names: { en: 'X', fr: 'X' } },
@@ -252,7 +253,7 @@ describe('reducer', () => {
 
   describe('RESET', () => {
     it('returns a fresh state', () => {
-      const state = {
+      const state: GardenState = {
         ...baseState(),
         owner: 'Modified',
         customFlowers: { x: {} },
@@ -306,7 +307,6 @@ describe('reducer', () => {
       state = reducer(state, { type: 'DISMISS_SHARED' });
       expect(state.isShared).toBe(false);
 
-      // Simulates popstate navigating back to the share URL
       state = reducer(state, {
         type: 'IMPORT',
         payload: { ...shared, isShared: true },
@@ -323,7 +323,6 @@ describe('reducer', () => {
       expect(state.isShared).toBe(false);
       expect(state.owner).toBe('Shared');
 
-      // If somehow navigated back to share URL
       state = reducer(state, {
         type: 'IMPORT',
         payload: { ...shared, isShared: true },
@@ -335,7 +334,7 @@ describe('reducer', () => {
   describe('IMPORT', () => {
     it('replaces state with payload', () => {
       const state = baseState();
-      const imported = {
+      const imported: GardenState = {
         ...baseState(),
         owner: 'Imported',
         garden: ['lily'],
@@ -348,14 +347,14 @@ describe('reducer', () => {
 
     it('defaults isShared to false when not in payload', () => {
       const state = baseState();
-      const imported = { ...baseState(), owner: 'Imported' };
+      const imported: GardenState = { ...baseState(), owner: 'Imported' };
       const next = reducer(state, { type: 'IMPORT', payload: imported });
       expect(next.isShared).toBe(false);
     });
 
     it('preserves isShared when set in payload', () => {
       const state = baseState();
-      const imported = { ...baseState(), isShared: true };
+      const imported: GardenState = { ...baseState(), isShared: true };
       const next = reducer(state, { type: 'IMPORT', payload: imported });
       expect(next.isShared).toBe(true);
     });
@@ -364,13 +363,11 @@ describe('reducer', () => {
   describe('unknown action', () => {
     it('returns state unchanged', () => {
       const state = baseState();
-      const next = reducer(state, { type: 'UNKNOWN' });
+      const next = reducer(state, { type: 'UNKNOWN' } as never);
       expect(next).toBe(state);
     });
   });
 });
-
-// --- isValidState tests ---
 
 describe('isValidState', () => {
   it('accepts valid state', () => {
@@ -386,7 +383,7 @@ describe('isValidState', () => {
   });
 
   it('rejects missing defaultCatalog', () => {
-    const s = baseState();
+    const s = baseState() as unknown as Record<string, unknown>;
     delete s.defaultCatalog;
     expect(isValidState(s)).toBe(false);
   });
@@ -412,11 +409,9 @@ describe('isValidState', () => {
   });
 });
 
-// --- reconcile tests ---
-
 describe('reconcile', () => {
   it('preserves saved state when catalog unchanged', () => {
-    const saved = {
+    const saved: GardenState = {
       ...baseState(),
       owner: 'Custom Owner',
       garden: ['rose'],
@@ -429,32 +424,29 @@ describe('reconcile', () => {
   });
 
   it('adds new catalog flowers to defaultCatalog', () => {
-    // saved has fewer flowers than current catalog
-    const saved = {
+    const saved: GardenState = {
       ...baseState(),
       defaultCatalog: [flower('rose')],
     };
     const result = reconcile(saved);
-    // Should have all current catalog flowers
     expect(result.defaultCatalog.length).toBeGreaterThan(1);
   });
 
   it('removes unused catalog flowers that were deleted from catalog', () => {
-    const saved = {
+    const saved: GardenState = {
       ...baseState(),
       defaultCatalog: [flower('rose'), flower('tulip'), flower('old-flower')],
       garden: ['rose'],
       selected: ['rose'],
     };
     const result = reconcile(saved);
-    // old-flower not in garden and not in customFlowers → removed
     expect(
       result.defaultCatalog.find((f) => f.id === 'old-flower'),
     ).toBeFalsy();
   });
 
   it('keeps removed catalog flower if in garden', () => {
-    const saved = {
+    const saved: GardenState = {
       ...baseState(),
       defaultCatalog: [flower('rose'), flower('old-flower')],
       garden: ['rose', 'old-flower'],
@@ -468,7 +460,7 @@ describe('reconcile', () => {
   });
 
   it('keeps removed catalog flower if in customFlowers', () => {
-    const saved = {
+    const saved: GardenState = {
       ...baseState(),
       defaultCatalog: [flower('rose'), flower('old-flower')],
       garden: ['rose'],
@@ -481,7 +473,7 @@ describe('reconcile', () => {
   });
 
   it('cleans garden IDs that no longer exist', () => {
-    const saved = {
+    const saved: GardenState = {
       ...baseState(),
       garden: ['rose', 'phantom-id'],
       selected: ['rose', 'phantom-id'],
@@ -492,7 +484,7 @@ describe('reconcile', () => {
   });
 
   it('preserves custom flower IDs in garden', () => {
-    const saved = {
+    const saved: GardenState = {
       ...baseState(),
       garden: ['rose', 'custom-uuid'],
       selected: ['rose'],

@@ -5,11 +5,10 @@ import {
   interpolate,
   SUPPORTED,
   DEFAULT_LANG,
-} from './i18n-utils.js';
+} from './i18n-utils';
 
 describe('resolveLangFromPath', () => {
   it('returns browser lang for root path with no stored lang', () => {
-    // Falls back to browser language detection
     const result = resolveLangFromPath('/', null);
     expect(SUPPORTED).toContain(result);
   });
@@ -60,11 +59,11 @@ describe('resolveLangFromPath', () => {
 });
 
 describe('get', () => {
-  const obj = {
+  const obj: Record<string, unknown> = {
     simple: 'hello',
     nested: { deep: { value: 'found' } },
     array: [1, 2, 3],
-    seasons: { spring: { name: 'printemps', range: 'mar – mai' } },
+    seasons: { spring: { name: 'printemps', range: 'mar \u2013 mai' } },
   };
 
   it('retrieves a top-level key', () => {
@@ -78,7 +77,7 @@ describe('get', () => {
   it('retrieves nested objects', () => {
     expect(get(obj, 'seasons.spring')).toEqual({
       name: 'printemps',
-      range: 'mar – mai',
+      range: 'mar \u2013 mai',
     });
   });
 

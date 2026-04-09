@@ -1,6 +1,7 @@
-import { parseMonths, firstBloomStart } from './months.js';
+import { parseMonths, firstBloomStart } from './months';
+import type { RawFlower, EnrichedFlower, MonthsConfig } from '../types';
 
-export const raw = [
+export const raw: RawFlower[] = [
   {
     id: 'snowdrop',
     names: { en: 'Snowdrop', fr: 'Perce-neige' },
@@ -11,7 +12,7 @@ export const raw = [
       3: 'foliage',
       4: 'dormant',
       '5-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'crocus',
@@ -23,7 +24,7 @@ export const raw = [
       '2-3': 'blooming',
       4: 'foliage',
       '5-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'daffodil',
@@ -36,7 +37,7 @@ export const raw = [
       '3-4': 'blooming',
       5: 'foliage',
       '6-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'hyacinth',
@@ -49,7 +50,7 @@ export const raw = [
       '3-4': 'blooming',
       5: 'foliage',
       '6-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'tulip',
@@ -62,7 +63,7 @@ export const raw = [
       '4-5': 'blooming',
       6: 'foliage',
       '7-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'pansy',
@@ -75,7 +76,7 @@ export const raw = [
       '6-8': 'foliage',
       '9-11': 'blooming',
       12: 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'iris',
@@ -89,7 +90,7 @@ export const raw = [
       '5-6': 'blooming',
       '7-10': 'foliage',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'peony',
@@ -103,7 +104,7 @@ export const raw = [
       '5-6': 'blooming',
       '7-9': 'foliage',
       '10-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'rose',
@@ -117,7 +118,7 @@ export const raw = [
       '5-10': 'blooming',
       11: 'foliage',
       12: 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'lavender',
@@ -131,7 +132,7 @@ export const raw = [
       '6-8': 'blooming',
       '9-10': 'foliage',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'lily',
@@ -145,7 +146,7 @@ export const raw = [
       '6-8': 'blooming',
       '9-10': 'foliage',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'marigold',
@@ -158,7 +159,7 @@ export const raw = [
       5: 'foliage',
       '6-10': 'blooming',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'cosmos',
@@ -171,7 +172,7 @@ export const raw = [
       5: 'foliage',
       '6-10': 'blooming',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'zinnia',
@@ -185,7 +186,7 @@ export const raw = [
       '6-9': 'blooming',
       10: 'foliage',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'sunflower',
@@ -199,7 +200,7 @@ export const raw = [
       '7-9': 'blooming',
       10: 'foliage',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'black-eyed-susan',
@@ -213,7 +214,7 @@ export const raw = [
       '6-9': 'blooming',
       10: 'foliage',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'dahlia',
@@ -226,7 +227,7 @@ export const raw = [
       '5-6': 'foliage',
       '7-10': 'blooming',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'aster',
@@ -239,7 +240,7 @@ export const raw = [
       '5-7': 'foliage',
       '8-10': 'blooming',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'chrysanthemum',
@@ -252,7 +253,7 @@ export const raw = [
       '5-8': 'foliage',
       '9-11': 'blooming',
       12: 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'hellebore',
@@ -265,7 +266,7 @@ export const raw = [
       '6-10': 'dormant',
       11: 'sprouting',
       12: 'blooming',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'camellia',
@@ -278,7 +279,7 @@ export const raw = [
       '7-10': 'dormant',
       11: 'sprouting',
       12: 'blooming',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'wisteria',
@@ -291,7 +292,7 @@ export const raw = [
       '4-5': 'blooming',
       '6-10': 'foliage',
       '11-12': 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'jasmine',
@@ -305,7 +306,7 @@ export const raw = [
       '5-9': 'blooming',
       '10-11': 'foliage',
       12: 'dormant',
-    },
+    } as MonthsConfig,
   },
   {
     id: 'hibiscus',
@@ -319,11 +320,11 @@ export const raw = [
       '6-10': 'blooming',
       11: 'foliage',
       12: 'dormant',
-    },
+    } as MonthsConfig,
   },
 ];
 
-export const flowers = raw
+export const flowers: Omit<EnrichedFlower, 'displayName'>[] = raw
   .map((f) => {
     const monthStates = parseMonths(f.months);
     return { ...f, monthStates, firstBloom: firstBloomStart(monthStates) };

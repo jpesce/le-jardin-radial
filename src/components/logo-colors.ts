@@ -1,4 +1,4 @@
-export const OUTER_PALETTE = [
+export const OUTER_PALETTE: string[] = [
   '#ff6700',
   '#e85138',
   '#ea47b4',
@@ -11,7 +11,7 @@ export const OUTER_PALETTE = [
   '#0c00ff',
 ];
 
-export const INNER_PALETTE = [
+export const INNER_PALETTE: string[] = [
   '#d8ca73',
   '#f9d748',
   '#edf467',
@@ -24,9 +24,10 @@ export const INNER_PALETTE = [
   '#cfffca',
 ];
 
-export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+export const pick = (arr: string[]): string =>
+  arr[Math.floor(Math.random() * arr.length)] ?? '';
 
-export function isLight(hex) {
+export function isLight(hex: string): boolean {
   const c = hex.replace('#', '');
   const r = parseInt(c.substring(0, 2), 16);
   const g = parseInt(c.substring(2, 4), 16);
@@ -34,7 +35,7 @@ export function isLight(hex) {
   return (r * 299 + g * 587 + b * 114) / 1000 > 150;
 }
 
-function hashString(str) {
+function hashString(str: string): number {
   let hash = 5381;
   for (let i = 0; i < str.length; i++) {
     hash = ((hash << 5) + hash + str.charCodeAt(i)) >>> 0;
@@ -42,10 +43,10 @@ function hashString(str) {
   return hash;
 }
 
-export function colorsFromName(name) {
+export function colorsFromName(name: string): { outer: string; inner: string } {
   const h = hashString(name.toUpperCase().trim());
   return {
-    outer: OUTER_PALETTE[h % OUTER_PALETTE.length],
-    inner: INNER_PALETTE[(h >>> 8) % INNER_PALETTE.length],
+    outer: OUTER_PALETTE[h % OUTER_PALETTE.length] ?? '',
+    inner: INNER_PALETTE[(h >>> 8) % INNER_PALETTE.length] ?? '',
   };
 }
