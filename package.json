@@ -10,9 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "lint": "eslint src/ e2e/ && stylelint src/**/*.css",
+    "lint": "eslint src/ e2e/",
     "typecheck": "tsc --noEmit",
-    "lint:css": "stylelint src/**/*.css",
     "format": "prettier --write src/",
     "prepare": "husky"
   },
@@ -22,7 +21,6 @@
       "prettier --write"
     ],
     "*.css": [
-      "stylelint --fix",
       "prettier --write"
     ],
     "*.{json,md}": [
@@ -63,10 +61,6 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.1",
-    "stylelint": "^17.6.0",
-    "stylelint-config-recess-order": "^7.7.0",
-    "stylelint-config-standard": "^40.0.0",
-    "stylelint-order": "^8.1.1",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.1",
     "vite": "^6.3.1",

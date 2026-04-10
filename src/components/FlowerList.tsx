@@ -13,7 +13,11 @@ import FlowerEditor from './FlowerEditor';
 import FlowerRow from './FlowerRow';
 import ResetConfirmation from './ResetConfirmation';
 import ShareButton from './ShareButton';
-import type { EnrichedFlower, CustomFlowerData } from '../types';
+import type {
+  EnrichedFlower,
+  CustomFlowerData,
+  ImportCallbacks,
+} from '../types';
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: 'easeInOut' as const };
 const CATALOG_IDS = new Set(catalogRaw.map((f) => f.id));
@@ -25,11 +29,6 @@ type ViewState =
   | { edit: string; from: ViewStringState };
 
 type ViewStringState = 'garden' | 'manage' | 'create';
-
-interface ImportCallbacks {
-  onSuccess?: () => void;
-  onError?: (reason: string) => void;
-}
 
 interface FlowerListProps {
   gardenFlowers: EnrichedFlower[];

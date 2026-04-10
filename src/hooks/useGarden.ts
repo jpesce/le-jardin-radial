@@ -14,6 +14,7 @@ import type {
   EnrichedFlower,
   GardenState,
   CustomFlowerData,
+  ImportCallbacks,
 } from '../types';
 
 const GARDEN_SIZE = 8;
@@ -266,11 +267,6 @@ function stateSlice(state: GardenStoreState): GardenState {
     customFlowers: state.customFlowers,
     isShared: state.isShared,
   };
-}
-
-interface ImportCallbacks {
-  onSuccess?: () => void;
-  onError?: (reason: string) => void;
 }
 
 interface GardenActions {

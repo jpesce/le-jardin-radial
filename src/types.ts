@@ -38,3 +38,8 @@ export interface BloomRange {
   start: number;
   end: number;
 }
+
+export interface ImportCallbacks {
+  onSuccess?: () => void;
+  onError?: (reason: string) => void;
+}

@@ -3,6 +3,7 @@ import { CircleAlert } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import Button from './Button';
 import MonthGrid from './MonthGrid';
+import { DEFAULT_BLOOM_COLOR } from '../data/colors';
 import { parseMonths } from '../data/months';
 import type {
   EnrichedFlower,
@@ -50,7 +51,7 @@ export default function FlowerEditor({
     flower?.scientificName ?? '',
   );
   const [bloomColor, setBloomColor] = useState(
-    flower?.colors.blooming ?? '#E84393',
+    flower?.colors.blooming ?? DEFAULT_BLOOM_COLOR,
   );
   const [monthStates, setMonthStates] = useState<FlowerState[]>(
     flower?.monthStates ??

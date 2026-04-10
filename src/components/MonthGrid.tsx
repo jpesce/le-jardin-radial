@@ -1,5 +1,5 @@
 import { useI18n } from '../i18n/I18nContext';
-import { DEFAULT_STATE_COLORS } from '../data/colors';
+import { DEFAULT_BLOOM_COLOR, DEFAULT_STATE_COLORS } from '../data/colors';
 import { isLight } from './logo-colors';
 import type { FlowerState } from '../types';
 
@@ -14,7 +14,7 @@ interface MonthGridProps {
 export default function MonthGrid({
   value,
   onChange,
-  bloomColor = '#E84393',
+  bloomColor = DEFAULT_BLOOM_COLOR,
 }: MonthGridProps) {
   const { t } = useI18n();
   const months = t('months') as string[];

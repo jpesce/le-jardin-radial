@@ -11,11 +11,7 @@ import { useI18n } from '../i18n/I18nContext';
 import { useClickOutside } from '../hooks/useClickOutside';
 import Button from './Button';
 import { cn } from '../utils/cn';
-
-interface ImportCallbacks {
-  onSuccess?: () => void;
-  onError?: (reason: string) => void;
-}
+import type { ImportCallbacks } from '../types';
 
 interface ShareButtonProps {
   isOpen: boolean;
