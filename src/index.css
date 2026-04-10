@@ -37,13 +37,6 @@
   --text-sm--line-height: initial;
 }
 
-/* Global drag cursor — requires !important on * selector */
-body.is-dragging,
-body.is-dragging * {
-  cursor: grabbing !important;
-  user-select: none !important;
-}
-
 /* Chart tooltip — created imperatively by D3 */
 .chart-tooltip {
   position: absolute;
@@ -62,30 +55,4 @@ body.is-dragging * {
 
 .chart-tooltip strong {
   font-weight: 800;
-}
-
-/* Flower item hover gated on body:not(.is-dragging) — can't express parent body condition in Tailwind */
-.flower-item--hovered .flower-name,
-body:not(.is-dragging) .flower-item:hover .flower-name {
-  color: var(--color-text);
-}
-
-.flower-item--hovered .flower-bloom-range,
-body:not(.is-dragging) .flower-item:hover .flower-bloom-range {
-  color: var(--color-subtle);
-}
-
-.flower-item--hovered input[type='checkbox'],
-body:not(.is-dragging) .flower-item:hover input[type='checkbox'] {
-  border-color: var(--color-text);
-}
-
-.flower-item--hovered .drag-handle,
-body:not(.is-dragging) .flower-item:hover .drag-handle {
-  opacity: 1;
-}
-
-.flower-item--hovered .edit-btn,
-body:not(.is-dragging) .flower-item:hover .edit-btn {
-  opacity: 1;
 }

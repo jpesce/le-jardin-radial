@@ -27,18 +27,22 @@ export default function FlowerRow({
   return (
     <>
       {dragHandle}
-      <Checkbox checked={checked} onChange={onToggle} />
+      <Checkbox
+        checked={checked}
+        onChange={onToggle}
+        className="group-hover:border-text group-data-[hovered]:border-text"
+      />
       <span
         className="shrink-0 w-2.5 h-2.5 border border-[color-mix(in_srgb,var(--color-text)_8%,transparent)] rounded-full"
         style={{
           background: flower.colors.blooming,
         }}
       />
-      <span className="flower-name flex flex-1 gap-1 items-center overflow-hidden text-ellipsis whitespace-nowrap select-none">
+      <span className="flex flex-1 gap-1 items-center overflow-hidden text-ellipsis whitespace-nowrap select-none group-hover:text-text group-data-[hovered]:text-text">
         {flower.displayName}
         {flower.isCustom && <User size={10} className="shrink-0" />}
       </span>
-      <span className="flower-bloom-range shrink-0 text-2xs text-faint text-right">
+      <span className="shrink-0 text-2xs text-faint text-right group-hover:text-subtle group-data-[hovered]:text-subtle">
         {bloomRanges(flower.monthStates)
           .map(({ start, end }) =>
             start === end ? months[start] : `${months[start]}–${months[end]}`,
@@ -50,7 +54,7 @@ export default function FlowerRow({
           variant="ghost"
           size="xs"
           icon={<Pencil size={11} />}
-          className="edit-btn absolute top-1/2 right-[calc(-20px-4.5px)] opacity-0 -translate-y-1/2 transition-opacity duration-100"
+          className="absolute top-1/2 right-[calc(-20px-4.5px)] opacity-0 -translate-y-1/2 transition-opacity duration-100 group-hover:opacity-100 group-data-[hovered]:opacity-100"
           aria-label="Edit flower"
           onClick={(e) => {
             e.preventDefault();

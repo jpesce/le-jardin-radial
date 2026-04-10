@@ -298,7 +298,13 @@ export default function FlowerList({
                     />
                   </div>
 
-                  <ul ref={listRef} className="flex flex-col list-none">
+                  <ul
+                    ref={listRef}
+                    className={cn(
+                      'flex flex-col list-none',
+                      dragFrom !== null && 'pointer-events-none',
+                    )}
+                  >
                     <AnimatePresence initial={false}>
                       {sortedFlowers.flatMap((flower) => {
                         const isSelected = selectedSet.has(flower.id);
@@ -332,13 +338,13 @@ export default function FlowerList({
                             animate={{ opacity: isDraggedItem ? 0.4 : 1 }}
                             exit={{ opacity: 0 }}
                             className={cn(
-                              'flower-item relative',
-                              isHovered && 'flower-item--hovered',
+                              'group relative',
                               showIndicatorAbove &&
                                 'before:content-[""] before:absolute before:inset-x-0 before:h-px before:bg-border-hover before:top-0',
                               showIndicatorBelow &&
                                 'after:content-[""] after:absolute after:inset-x-0 after:h-px after:bg-border-hover after:bottom-0',
                             )}
+                            data-hovered={isHovered || undefined}
                             data-selected-idx={
                               isSelected ? selectedIdx : undefined
                             }
@@ -370,7 +376,7 @@ export default function FlowerList({
                                 dragHandle={
                                   isSelected ? (
                                     <span
-                                      className="drag-handle absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-drag-handle cursor-grab select-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing"
+                                      className="absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-drag-handle cursor-grab select-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing group-hover:opacity-100 group-data-[hovered]:opacity-100"
                                       role="img"
                                       aria-label="reorder"
                                     >

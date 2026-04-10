@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type RefObject } from 'react';
+import { useState, useCallback, type RefObject } from 'react';
 
 const DRAG_THRESHOLD = 3;
 
@@ -16,18 +16,12 @@ export function useDragReorder(
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [dropTarget, setDropTarget] = useState<number | null>(null);
 
-  useEffect(() => {
-    document.body.classList.toggle('is-dragging', dragFrom !== null);
-    return () => {
-      document.body.classList.remove('is-dragging');
-    };
-  }, [dragFrom]);
-
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, selectedIdx: number) => {
       if ((e.target as HTMLElement).closest('input[type="checkbox"]')) return;
       if (e.button !== 0) return;
 
+      const handle = e.currentTarget as HTMLElement;
       const startY = e.clientY;
       const currentIds = [...selected];
       let isDragging = false;
@@ -50,6 +44,9 @@ export function useDragReorder(
         if (!isDragging) {
           if (Math.abs(moveEvent.clientY - startY) < DRAG_THRESHOLD) return;
           isDragging = true;
+          handle.setPointerCapture(e.pointerId);
+          handle.style.cursor = 'grabbing';
+          document.body.style.setProperty('user-select', 'none');
           setDragFrom(selectedIdx);
         }
         moveEvent.preventDefault();
@@ -60,6 +57,12 @@ export function useDragReorder(
       const onUp = () => {
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
+
+        if (isDragging) {
+          handle.releasePointerCapture(e.pointerId);
+          handle.style.cursor = '';
+          document.body.style.removeProperty('user-select');
+        }
 
         if (isDragging && currentTarget !== null) {
           let toIdx = currentTarget;
