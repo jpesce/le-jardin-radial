@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
+  outputDir: './e2e/results',
   timeout: 30000,
   snapshotPathTemplate: '{testDir}/snapshots/{arg}{ext}',
   expect: {
