@@ -117,32 +117,3 @@ body:not(.is-dragging) .flower-item:hover .drag-handle {
 body:not(.is-dragging) .flower-item:hover .edit-btn {
   opacity: 1;
 }
-
-/* Color picker — base + vendor pseudo-elements */
-.editor-color-picker {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  overflow: hidden;
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-  background: none;
-  border: none;
-  border-radius: 6px;
-}
-
-.editor-color-picker::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.editor-color-picker::-webkit-color-swatch {
-  border: none;
-  border-radius: 50%;
-}
-
-.editor-color-picker::-moz-color-swatch {
-  border: none;
-  border-radius: 50%;
-}

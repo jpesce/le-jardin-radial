@@ -129,7 +129,7 @@ export default function FlowerEditor({
         <div className="flex gap-2 items-center">
           <input
             type="color"
-            className="editor-color-picker"
+            className="shrink-0 w-8 h-8 p-0 overflow-hidden appearance-none cursor-pointer bg-transparent border-none rounded-md [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-full [&::-moz-color-swatch]:border-none [&::-moz-color-swatch]:rounded-full"
             value={bloomColor}
             onChange={(e) => {
               setBloomColor(e.target.value);
