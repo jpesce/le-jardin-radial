@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { copyFileSync } from 'fs';
+import { copyFileSync, mkdirSync } from 'fs';
 import { resolve } from 'path';
 
 export default defineConfig({
@@ -11,7 +11,12 @@ export default defineConfig({
     {
       name: 'spa-fallback-404',
       closeBundle() {
-        copyFileSync(resolve('dist/index.html'), resolve('dist/404.html'));
+        const src = resolve('dist/index.html');
+        copyFileSync(src, resolve('dist/404.html'));
+        for (const lang of ['en', 'fr']) {
+          mkdirSync(resolve(`dist/${lang}`), { recursive: true });
+          copyFileSync(src, resolve(`dist/${lang}/index.html`));
+        }
       },
     },
   ],
