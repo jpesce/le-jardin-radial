@@ -591,7 +591,10 @@ export default function RadialChart({
         aria-label={`${t('chartTitle') as string} — ${chartDesc as string}`}
         focusable="false"
       />
-      <div ref={tooltipRef} className="chart-tooltip" />
+      <div
+        ref={tooltipRef}
+        className="absolute py-1.5 px-2.5 font-[inherit] text-2xs leading-[1.5] text-surface whitespace-nowrap pointer-events-none bg-fg rounded-lg opacity-0 transition-opacity duration-[0.12s] [&_strong]:font-extrabold"
+      />
     </div>
   );
 }

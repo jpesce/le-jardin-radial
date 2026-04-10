@@ -61,7 +61,7 @@ export default function App() {
       <main className="relative flex flex-1 flex-col items-center w-full p-8 max-[480px]:p-4">
         <div className="absolute top-8 left-8 z-50 w-[max(120px,20vw)]">
           <Logo className="block w-full h-auto" name={garden.owner} />
-          <span className="block mt-[1.2vw] text-[0.95vw] font-normal text-text uppercase tracking-[0.15em]">
+          <span className="block mt-[1.2vw] text-[0.95vw] font-normal text-fg uppercase tracking-[0.15em]">
             de {garden.owner}
           </span>
         </div>
@@ -106,12 +106,12 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
-        <p className="absolute right-8 bottom-8 z-50 w-[360px] text-xs font-normal leading-[1.6] text-text text-left">
+        <p className="absolute right-8 bottom-8 z-50 w-[360px] text-xs font-normal leading-[1.6] text-fg text-left">
           {t('credits')}
         </p>
         <div className="absolute bottom-8 left-8 z-50 w-[max(200px,20vw)]">
           <LanguageSwitcher />
-          <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-normal leading-[1.6] text-text">
+          <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-normal leading-[1.6] text-fg">
             <strong className="font-bold">{t('descriptionBrand')}</strong>{' '}
             {t('descriptionBody')}
           </p>

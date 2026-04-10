@@ -21,10 +21,10 @@ const BASE =
 
 const VARIANT: Record<string, string> = {
   outline:
-    'text-subtle bg-transparent border border-solid border-border-input hover:text-text hover:border-muted',
-  solid: 'text-bg bg-text border-none hover:opacity-85',
+    'text-subtle bg-transparent border border-solid border-border-input hover:text-fg hover:border-muted',
+  solid: 'text-surface bg-fg border-none hover:opacity-85',
   ghost:
-    'text-subtle bg-transparent border-none hover:text-text hover:bg-divider',
+    'text-subtle bg-transparent border-none hover:text-fg hover:bg-divider',
 };
 
 const SIZE_BTN: Record<string, string> = {

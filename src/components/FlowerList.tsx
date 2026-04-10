@@ -199,7 +199,7 @@ export default function FlowerList({
           round
           size="lg"
           icon={<Sprout size={14} />}
-          className="text-text"
+          className="text-fg"
           animated
           onClick={handleTogglePanel}
         >
@@ -210,7 +210,7 @@ export default function FlowerList({
         {isOpen && (
           <motion.aside
             ref={panelRef}
-            className="relative flex flex-col w-[300px] max-h-[calc(100dvh-6rem)] mt-[0.5rem] overflow-hidden bg-bg border border-border rounded-xl shadow-[0_4px_24px_color-mix(in_srgb,var(--color-text)_8%,transparent)] max-[480px]:w-[calc(100vw-1.5rem)]"
+            className="relative flex flex-col w-[300px] max-h-[calc(100dvh-6rem)] mt-[0.5rem] overflow-hidden bg-surface border border-border rounded-xl shadow-[0_4px_24px_color-mix(in_srgb,var(--color-fg)_8%,transparent)] max-[480px]:w-[calc(100vw-1.5rem)]"
             initial={{ opacity: 0, y: -8, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
@@ -266,7 +266,7 @@ export default function FlowerList({
                     </label>
                     <input
                       type="text"
-                      className="px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-text outline-none bg-bg-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-bg focus:border-border-hover"
+                      className="px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
                       value={gardenOwner}
                       onChange={(e) => {
                         onGardenOwnerChange(e.target.value);
@@ -416,7 +416,7 @@ export default function FlowerList({
             </div>
             {view === 'manage' && (
               <button
-                className="relative z-[1] flex shrink-0 items-center justify-center w-full py-3 px-[1.875rem] font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-bg border-0 border-t border-solid border-t-border transition-colors duration-150 hover:text-text"
+                className="relative z-[1] flex shrink-0 items-center justify-center w-full py-3 px-[1.875rem] font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-surface border-0 border-t border-solid border-t-border transition-colors duration-150 hover:text-fg"
                 onClick={() => {
                   setView('create');
                 }}

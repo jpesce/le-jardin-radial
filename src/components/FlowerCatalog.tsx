@@ -28,7 +28,7 @@ export default function FlowerCatalog({
   const catalogFlowers = filtered.filter((f) => !f.isCustom);
 
   const renderFlower = (flower: EnrichedFlower) => (
-    <li key={flower.id} className="flower-item relative">
+    <li key={flower.id} className="group relative">
       <label className="flex flex-1 gap-[0.5rem] items-center py-[0.25rem] text-xs text-subtle cursor-pointer pl-0">
         <FlowerRow
           flower={flower}
@@ -51,7 +51,7 @@ export default function FlowerCatalog({
   return (
     <>
       <button
-        className="self-start p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-text"
+        className="self-start p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg"
         onClick={onBack}
       >
         ← {t('backButton')}
@@ -66,7 +66,7 @@ export default function FlowerCatalog({
       </div>
       <input
         type="text"
-        className="w-full mt-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-text outline-none bg-bg-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-bg focus:border-border-hover"
+        className="w-full mt-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);

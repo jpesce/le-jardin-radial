@@ -50,7 +50,7 @@ export default function ResetConfirmation({
         round
         size="lg"
         icon={<RotateCcw size={14} />}
-        className={cn('text-text', isOpen && 'border-muted')}
+        className={cn('text-fg', isOpen && 'border-muted')}
         onPointerDown={(e) => {
           e.stopPropagation();
         }}
@@ -60,7 +60,7 @@ export default function ResetConfirmation({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="absolute top-full right-0 z-[101] flex flex-col gap-2 w-64 py-3 px-4 mt-[0.35rem] bg-bg border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-text)_8%,transparent)]"
+            className="absolute top-full right-0 z-[101] flex flex-col gap-2 w-64 py-3 px-4 mt-[0.35rem] bg-surface border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-fg)_8%,transparent)]"
             onPointerDown={(e) => {
               e.stopPropagation();
             }}
@@ -69,7 +69,7 @@ export default function ResetConfirmation({
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
-            <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-text lowercase">
+            <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-fg lowercase">
               {t('resetTitle')}
             </p>
             <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">

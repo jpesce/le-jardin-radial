@@ -81,7 +81,7 @@ export default function SharedBanner({
           <AnimatePresence>
             {confirmOpen && (
               <motion.div
-                className="absolute top-full right-0 z-[200] flex flex-col gap-2 w-64 py-3 px-4 mt-2 text-text bg-bg border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-text)_8%,transparent)]"
+                className="absolute top-full right-0 z-[200] flex flex-col gap-2 w-64 py-3 px-4 mt-2 text-fg bg-surface border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-fg)_8%,transparent)]"
                 onPointerDown={(e) => {
                   e.stopPropagation();
                 }}
@@ -90,7 +90,7 @@ export default function SharedBanner({
                 exit={{ opacity: 0, y: -8, scale: 0.96 }}
                 transition={{ duration: 0.18, ease: 'easeOut' }}
               >
-                <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-text lowercase">
+                <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-fg lowercase">
                   {t('replaceTitle')}
                 </p>
                 <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">

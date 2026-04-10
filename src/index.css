@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Earth palette */
+  /* Primitive palette */
   --color-earth-900: #443528;
   --color-earth-500: #9b938c;
   --color-earth-400: #b4aea9;
@@ -14,19 +14,19 @@
   --color-earth-0: #fff;
 
   /* Semantic colors */
-  --color-text: #443528;
-  --color-subtle: #9b938c;
-  --color-muted: #b4aea9;
-  --color-faint: #c1bcb7;
-  --color-border: #eeedec;
-  --color-border-hover: #dad7d4;
-  --color-border-input: #e8e6e5;
-  --color-bg: #fff;
-  --color-bg-input: #fbfbfb;
-  --color-divider: #f3f2f1;
-  --color-drag-handle: #dad7d4;
-  --color-warning: #c49b2a;
-  --color-danger: #c0392b;
+  --color-fg: var(--color-earth-900);
+  --color-subtle: var(--color-earth-500);
+  --color-muted: var(--color-earth-400);
+  --color-faint: var(--color-earth-300);
+  --color-border: var(--color-earth-100);
+  --color-border-hover: var(--color-earth-200);
+  --color-border-input: var(--color-earth-150);
+  --color-surface: var(--color-earth-0);
+  --color-surface-input: var(--color-earth-25);
+  --color-divider: var(--color-earth-50);
+  --color-drag-handle: var(--color-earth-200);
+  --color-warning: var(--color-amber-600);
+  --color-danger: var(--color-red-700);
 
   /* Custom font sizes */
   --text-2xs: 11px;
@@ -35,24 +35,4 @@
   --text-xs--line-height: initial;
   --text-sm: 13px;
   --text-sm--line-height: initial;
-}
-
-/* Chart tooltip — created imperatively by D3 */
-.chart-tooltip {
-  position: absolute;
-  padding: 6px 10px;
-  font-family: inherit;
-  font-size: 11px;
-  line-height: 1.5;
-  color: var(--color-bg);
-  white-space: nowrap;
-  pointer-events: none;
-  background: var(--color-text);
-  border-radius: 8px;
-  opacity: 0;
-  transition: opacity 0.12s;
-}
-
-.chart-tooltip strong {
-  font-weight: 800;
 }

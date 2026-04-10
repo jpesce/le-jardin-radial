@@ -119,7 +119,7 @@ export default function ShareButton({
         round
         size="lg"
         icon={<Share2 size={14} />}
-        className={cn('text-text', isOpen && 'border-muted')}
+        className={cn('text-fg', isOpen && 'border-muted')}
         onPointerDown={(e) => {
           e.stopPropagation();
         }}
@@ -129,7 +129,7 @@ export default function ShareButton({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="absolute top-full right-0 z-[101] flex flex-col w-max max-w-64 p-[0.35rem] mt-[0.35rem] bg-bg border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-text)_8%,transparent)] [&>button]:justify-start"
+            className="absolute top-full right-0 z-[101] flex flex-col w-max max-w-64 p-[0.35rem] mt-[0.35rem] bg-surface border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-fg)_8%,transparent)] [&>button]:justify-start"
             onPointerDown={(e) => {
               e.stopPropagation();
             }}

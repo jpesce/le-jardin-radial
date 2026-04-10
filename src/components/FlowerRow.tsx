@@ -30,15 +30,15 @@ export default function FlowerRow({
       <Checkbox
         checked={checked}
         onChange={onToggle}
-        className="group-hover:border-text group-data-[hovered]:border-text"
+        className="group-hover:border-fg group-data-[hovered]:border-fg"
       />
       <span
-        className="shrink-0 w-2.5 h-2.5 border border-[color-mix(in_srgb,var(--color-text)_8%,transparent)] rounded-full"
+        className="shrink-0 w-2.5 h-2.5 border border-[color-mix(in_srgb,var(--color-fg)_8%,transparent)] rounded-full"
         style={{
           background: flower.colors.blooming,
         }}
       />
-      <span className="flex flex-1 gap-1 items-center overflow-hidden text-ellipsis whitespace-nowrap select-none group-hover:text-text group-data-[hovered]:text-text">
+      <span className="flex flex-1 gap-1 items-center overflow-hidden text-ellipsis whitespace-nowrap select-none group-hover:text-fg group-data-[hovered]:text-fg">
         {flower.displayName}
         {flower.isCustom && <User size={10} className="shrink-0" />}
       </span>
