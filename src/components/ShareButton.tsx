@@ -131,7 +131,7 @@ export default function ShareButton({
         variant="outline"
         round
         size="lg"
-        icon={<Share2 size={14} />}
+        icon={<Share2 size={14} className="-translate-x-px" />}
         className={cn('text-fg', isOpen && 'border-muted')}
         onPointerDown={(e) => {
           e.stopPropagation();
