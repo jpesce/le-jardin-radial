@@ -20,7 +20,7 @@ import type {
 const GARDEN_SIZE = 8;
 const SELECTED_SIZE = 4;
 const DEFAULT_OWNER = 'Tainah Drummond';
-const STORAGE_KEY = 'jardin-radial';
+export const STORAGE_KEY = 'jardin-radial';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];

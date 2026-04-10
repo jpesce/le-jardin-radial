@@ -109,4 +109,40 @@ test.describe('visual regression', () => {
       fullPage: true,
     });
   });
+
+  test('error boundary fallback', async ({ page }) => {
+    await page.evaluate(() => {
+      localStorage.setItem('jardin-radial-lang', 'en');
+      localStorage.setItem(
+        'jardin-radial',
+        JSON.stringify({
+          state: {
+            owner: null,
+            labels: 'bad',
+            defaultCatalog: 'bad',
+            garden: null,
+            selected: null,
+            customFlowers: null,
+          },
+          version: 0,
+        }),
+      );
+    });
+    await page.reload();
+    await expect(page.getByText('well, that didn\u2019t bloom')).toBeVisible();
+    // Pause SVG animations for deterministic screenshot
+    await page.addStyleTag({
+      content:
+        'svg animate, svg animateTransform { animation-play-state: paused !important; }',
+    });
+    // SMIL animations need to be paused via SVG API
+    await page.evaluate(() => {
+      document.querySelectorAll('svg').forEach((svg) => {
+        svg.pauseAnimations?.();
+      });
+    });
+    await expect(page).toHaveScreenshot('error-boundary.png', {
+      fullPage: true,
+    });
+  });
 });

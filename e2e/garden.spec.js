@@ -417,3 +417,70 @@ test.describe('flower editor validation', () => {
     await expect(page.getByText('names are required')).toBeVisible();
   });
 });
+
+test.describe('error boundary', () => {
+  test('shows fallback when app crashes', async ({ page }) => {
+    // Inject corrupted garden state and set English language
+    await page.evaluate(() => {
+      localStorage.setItem('jardin-radial-lang', 'en');
+      localStorage.setItem(
+        'jardin-radial',
+        JSON.stringify({
+          state: {
+            owner: null,
+            labels: 'not-a-boolean',
+            defaultCatalog: 'not-an-array',
+            garden: null,
+            selected: null,
+            customFlowers: null,
+          },
+          version: 0,
+        }),
+      );
+    });
+    await page.reload();
+
+    // The error boundary should catch the crash and show fallback
+    await expect(page.getByText('well, that didn’t bloom')).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByRole('button', { name: 'refresh page' }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'start fresh' }),
+    ).toBeVisible();
+  });
+
+  test('reset garden clears storage and recovers', async ({ page }) => {
+    // Inject corrupted state with English language
+    await page.evaluate(() => {
+      localStorage.setItem('jardin-radial-lang', 'en');
+      localStorage.setItem(
+        'jardin-radial',
+        JSON.stringify({
+          state: {
+            owner: null,
+            labels: 'not-a-boolean',
+            defaultCatalog: 'not-an-array',
+            garden: null,
+            selected: null,
+            customFlowers: null,
+          },
+          version: 0,
+        }),
+      );
+    });
+    await page.reload();
+
+    await expect(page.getByText('well, that didn’t bloom')).toBeVisible({
+      timeout: 10000,
+    });
+
+    // Click reset garden — should clear storage and recover
+    await page.getByRole('button', { name: 'start fresh' }).click();
+
+    // Should load fresh garden
+    await expect(page.getByText('plan garden')).toBeVisible({ timeout: 10000 });
+  });
+});

@@ -90,6 +90,9 @@ export default [
   {
     ...playwright.configs['flat/recommended'],
     files: ['e2e/**/*.{js,ts}'],
+    languageOptions: {
+      globals: { ...globals.browser },
+    },
   },
   { ignores: ['dist/'] },
   prettier, // must be last to override formatting rules
