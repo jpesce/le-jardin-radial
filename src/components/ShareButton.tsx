@@ -10,6 +10,7 @@ import { Share2, Link, Check, Download, Upload } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { useClickOutside } from '../hooks/useClickOutside';
 import Button from './Button';
+import { cn } from '../utils/cn';
 
 interface ImportCallbacks {
   onSuccess?: () => void;
@@ -112,13 +113,13 @@ export default function ShareButton({
   };
 
   return (
-    <div className="popover-anchor">
+    <div className="relative">
       <Button
         variant="outline"
         round
         size="lg"
         icon={<Share2 size={14} />}
-        className={isOpen ? 'btn--active' : ''}
+        className={cn('text-text', isOpen && 'border-muted')}
         onPointerDown={(e) => {
           e.stopPropagation();
         }}
@@ -128,7 +129,7 @@ export default function ShareButton({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="share-dropdown"
+            className="absolute top-full right-0 z-[101] flex flex-col w-max max-w-64 p-[0.35rem] mt-[0.35rem] bg-bg border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-text)_8%,transparent)] [&>button]:justify-start"
             onPointerDown={(e) => {
               e.stopPropagation();
             }}
@@ -138,13 +139,19 @@ export default function ShareButton({
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
             {pendingFile ? (
-              <div className="share-confirm">
-                <p className="share-confirm-title">{t('importConfirmTitle')}</p>
-                <p className="share-confirm-text">{t('importConfirmText')}</p>
+              <div className="flex flex-col gap-2 px-[0.65rem] py-[0.4rem]">
+                <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold lowercase">
+                  {t('importConfirmTitle')}
+                </p>
+                <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
+                  {t('importConfirmText')}
+                </p>
                 {importError && (
-                  <p className="share-confirm-error">{t('importError')}</p>
+                  <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-danger">
+                    {t('importError')}
+                  </p>
                 )}
-                <div className="share-confirm-actions">
+                <div className="flex gap-[0.4rem] [&>*]:flex-1">
                   <Button variant="outline" size="sm" onClick={cancelImport}>
                     {t('cancel')}
                   </Button>

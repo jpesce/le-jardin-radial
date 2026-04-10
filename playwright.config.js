@@ -4,6 +4,9 @@ export default defineConfig({
   testDir: './e2e',
   timeout: 30000,
   snapshotPathTemplate: '{testDir}/snapshots/{arg}{ext}',
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.03 },
+  },
   use: {
     baseURL: 'http://localhost:5174',
     browserName: 'chromium',

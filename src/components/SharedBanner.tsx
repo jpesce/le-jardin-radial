@@ -5,7 +5,6 @@ import { useI18n } from '../i18n/I18nContext';
 import { useClickOutside } from '../hooks/useClickOutside';
 import { colorsFromName, isLight } from './logo-colors';
 import Button from './Button';
-import './SharedBanner.css';
 
 interface SharedBannerProps {
   owner: string;
@@ -35,7 +34,7 @@ export default function SharedBanner({
 
   return (
     <motion.div
-      className="shared-banner"
+      className="w-full text-xs leading-normal"
       style={{ background: outer, color: textColor }}
       initial={
         animateEntry ? { height: 0, overflow: 'hidden' as const } : false
@@ -44,22 +43,25 @@ export default function SharedBanner({
       exit={{ height: 0, overflow: 'hidden' as const }}
       transition={{ height: { duration: 0.3, ease: 'easeInOut' } }}
     >
-      <div className="shared-banner-content">
+      <div className="flex gap-4 items-center justify-between px-8 py-[0.4rem]">
         <button
-          className="shared-banner-back"
+          className="group/back flex gap-[0.35rem] items-center p-0 font-[inherit] text-xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer bg-transparent border-none opacity-80 transition-opacity duration-150 hover:opacity-100"
           style={{ color: textColor }}
           onClick={onDismiss}
         >
-          <ArrowLeft className="shared-banner-arrow" size={11} />{' '}
+          <ArrowLeft
+            className="shrink-0 transition-transform duration-150 ease-out group-hover/back:-translate-x-[3px]"
+            size={11}
+          />{' '}
           {t('dismissShared')}
         </button>
-        <div className="shared-banner-actions">
-          <span className="shared-banner-text">
+        <div className="relative flex gap-3 items-center">
+          <span className="flex gap-[0.4rem] items-center tracking-[0.03em] opacity-80">
             <Eye size={14} />
             {t('sharedBanner')}
           </span>
           <button
-            className="shared-banner-btn shared-banner-save"
+            className="py-[0.3rem] px-3 font-[inherit] text-2xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer border-none rounded bg-[var(--btn-bg)] transition-[background] duration-150 hover:bg-[var(--btn-hover-bg)]"
             style={
               {
                 '--btn-bg': btnBg,
@@ -79,7 +81,7 @@ export default function SharedBanner({
           <AnimatePresence>
             {confirmOpen && (
               <motion.div
-                className="shared-confirm"
+                className="absolute top-full right-0 z-[200] flex flex-col gap-2 w-64 py-3 px-4 mt-2 text-text bg-bg border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-text)_8%,transparent)]"
                 onPointerDown={(e) => {
                   e.stopPropagation();
                 }}
@@ -88,9 +90,13 @@ export default function SharedBanner({
                 exit={{ opacity: 0, y: -8, scale: 0.96 }}
                 transition={{ duration: 0.18, ease: 'easeOut' }}
               >
-                <p className="shared-confirm-title">{t('replaceTitle')}</p>
-                <p className="shared-confirm-text">{t('replaceConfirm')}</p>
-                <div className="shared-confirm-actions">
+                <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-text lowercase">
+                  {t('replaceTitle')}
+                </p>
+                <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
+                  {t('replaceConfirm')}
+                </p>
+                <div className="flex gap-[0.4rem] [&>*]:flex-1">
                   <Button
                     variant="outline"
                     size="sm"

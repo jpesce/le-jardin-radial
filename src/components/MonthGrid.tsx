@@ -27,7 +27,7 @@ export default function MonthGrid({
   };
 
   return (
-    <div className="month-grid">
+    <div className="month-grid relative grid grid-cols-3 mt-1 overflow-hidden rounded-md">
       {value.map((state, i) => {
         const bg =
           state === 'blooming' ? bloomColor : DEFAULT_STATE_COLORS[state];
@@ -38,7 +38,7 @@ export default function MonthGrid({
         return (
           <button
             key={i}
-            className="month-cell"
+            className="month-cell flex flex-col gap-0.5 items-center justify-center py-[0.4rem] cursor-pointer border-0 border-r border-b border-solid border-r-[rgb(0_0_0/10%)] border-b-[rgb(0_0_0/10%)] rounded-none transition-opacity duration-150 hover:opacity-80"
             style={{ background: bg, color: textColor }}
             onClick={() => {
               cycle(i);
@@ -46,8 +46,12 @@ export default function MonthGrid({
             title={months[i]}
             type="button"
           >
-            <span className="month-cell-label">{months[i]}</span>
-            <span className="month-cell-state">{t('states.' + state)}</span>
+            <span className="font-[inherit] text-2xs font-bold lowercase tracking-[0.05em] pointer-events-none opacity-90">
+              {months[i]}
+            </span>
+            <span className="font-[inherit] text-[9.5px] lowercase tracking-[0.03em] pointer-events-none opacity-55">
+              {t('states.' + state)}
+            </span>
           </button>
         );
       })}

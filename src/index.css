@@ -1,63 +1,70 @@
-:root {
-  /* Palette */
-  --earth-900: #443528;
-  --earth-500: #9b938c;
-  --earth-400: #b4aea9;
-  --earth-300: #c1bcb7;
-  --earth-200: #dad7d4;
-  --earth-150: #e8e6e5;
-  --earth-100: #eeedec;
-  --earth-50: #f3f2f1;
-  --earth-25: #fbfbfb;
-  --earth-0: #fff;
+@import 'tailwindcss';
 
-  /* Semantic */
-  --color-text: var(--earth-900);
-  --color-subtle: var(--earth-500);
-  --color-muted: var(--earth-400);
-  --color-faint: var(--earth-300);
-  --color-border: var(--earth-100);
-  --color-border-hover: var(--earth-200);
-  --color-border-input: var(--earth-150);
-  --color-bg: var(--earth-0);
-  --color-bg-input: var(--earth-25);
-  --color-divider: var(--earth-50);
-  --color-drag-handle: var(--earth-200);
+@theme {
+  /* Earth palette */
+  --color-earth-900: #443528;
+  --color-earth-500: #9b938c;
+  --color-earth-400: #b4aea9;
+  --color-earth-300: #c1bcb7;
+  --color-earth-200: #dad7d4;
+  --color-earth-150: #e8e6e5;
+  --color-earth-100: #eeedec;
+  --color-earth-50: #f3f2f1;
+  --color-earth-25: #fbfbfb;
+  --color-earth-0: #fff;
+
+  /* Semantic colors */
+  --color-text: #443528;
+  --color-subtle: #9b938c;
+  --color-muted: #b4aea9;
+  --color-faint: #c1bcb7;
+  --color-border: #eeedec;
+  --color-border-hover: #dad7d4;
+  --color-border-input: #e8e6e5;
+  --color-bg: #fff;
+  --color-bg-input: #fbfbfb;
+  --color-divider: #f3f2f1;
+  --color-drag-handle: #dad7d4;
   --color-warning: #c49b2a;
   --color-danger: #c0392b;
+
+  /* Custom font sizes */
+  --text-2xs: 11px;
+  --text-2xs--line-height: initial;
+  --text-xs: 12px;
+  --text-xs--line-height: initial;
+  --text-sm: 13px;
+  --text-sm--line-height: initial;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-::selection {
-  color: var(--color-bg);
-  background: var(--color-text);
-}
-
-body {
-  font-family: 'JetBrains Mono Variable', monospace;
-  font-size: 13px;
-  color: var(--color-text);
-  background: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-}
-
-#root {
-  min-height: 100dvh;
-}
-
+/* Global drag cursor — requires !important on * selector */
 body.is-dragging,
 body.is-dragging * {
   cursor: grabbing !important;
   user-select: none !important;
 }
 
+/* Chart tooltip — created imperatively by D3 */
+.chart-tooltip {
+  position: absolute;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-bg);
+  white-space: nowrap;
+  pointer-events: none;
+  background: var(--color-text);
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.chart-tooltip strong {
+  font-weight: 800;
+}
+
+/* Custom checkbox — needs ::before pseudo-element and is a CSS hook for hover rules */
 .checkbox {
   display: grid;
   place-content: center;
@@ -85,21 +92,75 @@ body.is-dragging * {
   transform: scale(1);
 }
 
-.chart-tooltip {
-  position: absolute;
-  padding: 6px 10px;
-  font-family: inherit;
-  font-size: 11px;
-  line-height: 1.5;
-  color: var(--color-bg);
-  white-space: nowrap;
-  pointer-events: none;
-  background: var(--color-text);
-  border-radius: 8px;
-  opacity: 0;
-  transition: opacity 0.12s;
+/* Flower item hover gated on body:not(.is-dragging) — can't express parent body condition in Tailwind */
+.flower-item--hovered .flower-name,
+body:not(.is-dragging) .flower-item:hover .flower-name {
+  color: var(--color-text);
 }
 
-.chart-tooltip strong {
-  font-weight: 800;
+.flower-item--hovered .flower-bloom-range,
+body:not(.is-dragging) .flower-item:hover .flower-bloom-range {
+  color: var(--color-subtle);
+}
+
+.flower-item--hovered .checkbox,
+body:not(.is-dragging) .flower-item:hover .checkbox {
+  border-color: var(--color-text);
+}
+
+.flower-item--hovered .drag-handle,
+body:not(.is-dragging) .flower-item:hover .drag-handle {
+  opacity: 1;
+}
+
+.flower-item--hovered .edit-btn,
+body:not(.is-dragging) .flower-item:hover .edit-btn {
+  opacity: 1;
+}
+
+/* Month grid — ::after overlay and nth-child rules */
+.month-grid::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: '';
+  border: 1px solid rgb(0 0 0 / 10%);
+  border-radius: 6px;
+}
+
+.month-cell:nth-child(3n) {
+  border-right: none;
+}
+
+.month-cell:nth-last-child(-n + 3) {
+  border-bottom: none;
+}
+
+/* Color picker — base + vendor pseudo-elements */
+.editor-color-picker {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-radius: 6px;
+}
+
+.editor-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.editor-color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.editor-color-picker::-moz-color-swatch {
+  border: none;
+  border-radius: 50%;
 }

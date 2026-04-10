@@ -6,12 +6,12 @@ import { raw as catalogRaw } from '../data/flowers';
 import { useClickOutside } from '../hooks/useClickOutside';
 import { useDragReorder } from '../hooks/useDragReorder';
 import Button from './Button';
+import { cn } from '../utils/cn';
 import FlowerCatalog from './FlowerCatalog';
 import FlowerEditor from './FlowerEditor';
 import FlowerRow from './FlowerRow';
 import ResetConfirmation from './ResetConfirmation';
 import ShareButton from './ShareButton';
-import './FlowerList.css';
 import type { EnrichedFlower, CustomFlowerData } from '../types';
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: 'easeInOut' as const };
@@ -172,8 +172,8 @@ export default function FlowerList({
   }, [isOpen, view, closePanel]);
 
   return (
-    <div className="panel-wrapper">
-      <div className="panel-actions">
+    <div className="absolute top-6 right-8 z-[100] flex flex-col items-end max-[480px]:top-3 max-[480px]:right-3">
+      <div className="panel-actions flex gap-[0.4rem] items-center">
         <ResetConfirmation
           isOpen={activePopover === 'reset'}
           onToggle={() => {
@@ -198,6 +198,7 @@ export default function FlowerList({
           round
           size="lg"
           icon={<Sprout size={14} />}
+          className="text-text"
           animated
           onClick={handleTogglePanel}
         >
@@ -208,13 +209,13 @@ export default function FlowerList({
         {isOpen && (
           <motion.aside
             ref={panelRef}
-            className="flower-panel"
+            className="relative flex flex-col w-[300px] max-h-[calc(100dvh-6rem)] mt-[0.5rem] overflow-hidden bg-bg border border-border rounded-xl shadow-[0_4px_24px_color-mix(in_srgb,var(--color-text)_8%,transparent)] max-[480px]:w-[calc(100vw-1.5rem)]"
             initial={{ opacity: 0, y: -8, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
-            <div className="flower-panel-inner">
+            <div className="flex flex-1 flex-col gap-[0.25rem] min-h-0 px-[1.875rem] pt-6 overflow-y-auto">
               {view === 'manage' ? (
                 <FlowerCatalog
                   flowers={allFlowers}
@@ -258,17 +259,19 @@ export default function FlowerList({
                 />
               ) : (
                 <>
-                  <div className="panel-section">
-                    <label className="toggle-label">{t('gardenerLabel')}</label>
+                  <div className="flex flex-col gap-[0.35rem]">
+                    <label className="flex gap-[0.4rem] items-center text-xs text-muted lowercase tracking-[0.03em] cursor-pointer select-none">
+                      {t('gardenerLabel')}
+                    </label>
                     <input
                       type="text"
-                      className="panel-input"
+                      className="px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-text outline-none bg-bg-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-bg focus:border-border-hover"
                       value={gardenOwner}
                       onChange={(e) => {
                         onGardenOwnerChange(e.target.value);
                       }}
                     />
-                    <label className="toggle-label">
+                    <label className="flex gap-[0.4rem] items-center text-xs text-muted lowercase tracking-[0.03em] cursor-pointer select-none mt-[0.6rem]">
                       <input
                         type="checkbox"
                         className="checkbox"
@@ -280,13 +283,15 @@ export default function FlowerList({
                       {t('showFlowerNames')}
                     </label>
                   </div>
-                  <div className="panel-title-row">
-                    <h3 className="panel-title">{t('pickFlowers')}</h3>
+                  <div className="flex items-center pt-5">
+                    <h3 className="text-xs font-bold text-muted uppercase tracking-[0.05em]">
+                      {t('pickFlowers')}
+                    </h3>
                     <Button
                       variant="ghost"
                       size="xs"
                       icon={<Pencil size={10} />}
-                      className="panel-edit-link"
+                      className="ml-1"
                       aria-label="Manage flowers"
                       onClick={() => {
                         setView('manage');
@@ -294,7 +299,7 @@ export default function FlowerList({
                     />
                   </div>
 
-                  <ul ref={listRef} className="flower-items">
+                  <ul ref={listRef} className="flex flex-col list-none">
                     <AnimatePresence initial={false}>
                       {sortedFlowers.flatMap((flower) => {
                         const isSelected = selectedSet.has(flower.id);
@@ -327,16 +332,14 @@ export default function FlowerList({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: isDraggedItem ? 0.4 : 1 }}
                             exit={{ opacity: 0 }}
-                            className={
-                              'flower-item' +
-                              (isHovered ? ' flower-item--hovered' : '') +
-                              (showIndicatorAbove
-                                ? ' drop-indicator-above'
-                                : '') +
-                              (showIndicatorBelow
-                                ? ' drop-indicator-below'
-                                : '')
-                            }
+                            className={cn(
+                              'flower-item relative',
+                              isHovered && 'flower-item--hovered',
+                              showIndicatorAbove &&
+                                'before:content-[""] before:absolute before:inset-x-0 before:h-px before:bg-border-hover before:top-0',
+                              showIndicatorBelow &&
+                                'after:content-[""] after:absolute after:inset-x-0 after:h-px after:bg-border-hover after:bottom-0',
+                            )}
                             data-selected-idx={
                               isSelected ? selectedIdx : undefined
                             }
@@ -355,7 +358,7 @@ export default function FlowerList({
                                 : undefined
                             }
                           >
-                            <label className="flower-label">
+                            <label className="flex flex-1 gap-[0.5rem] items-center py-[0.25rem] text-xs text-subtle cursor-pointer">
                               <FlowerRow
                                 flower={flower}
                                 checked={isSelected}
@@ -368,7 +371,7 @@ export default function FlowerList({
                                 dragHandle={
                                   isSelected ? (
                                     <span
-                                      className="drag-handle"
+                                      className="drag-handle absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-drag-handle cursor-grab select-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing"
                                       role="img"
                                       aria-label="reorder"
                                     >
@@ -392,7 +395,7 @@ export default function FlowerList({
                               key="__divider"
                               layout
                               transition={{ layout: LAYOUT_TRANSITION }}
-                              className="flower-divider-inline"
+                              className="h-px my-[0.4rem] bg-divider"
                               aria-hidden
                             />,
                           );
@@ -404,11 +407,11 @@ export default function FlowerList({
                   </ul>
                 </>
               )}
-              <div className="panel-fade" />
+              <div className="sticky bottom-0 shrink-0 h-6 pointer-events-none bg-linear-to-b from-transparent to-bg" />
             </div>
             {view === 'manage' && (
               <button
-                className="catalog-create"
+                className="relative z-[1] flex shrink-0 items-center justify-center w-full py-3 px-[1.875rem] font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-bg border-0 border-t border-solid border-t-border transition-colors duration-150 hover:text-text"
                 onClick={() => {
                   setView('create');
                 }}

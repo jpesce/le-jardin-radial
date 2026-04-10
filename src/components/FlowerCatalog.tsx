@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import FlowerRow from './FlowerRow';
-import './FlowerCatalog.css';
 import type { EnrichedFlower } from '../types';
 
 interface FlowerCatalogProps {
@@ -29,8 +28,8 @@ export default function FlowerCatalog({
   const catalogFlowers = filtered.filter((f) => !f.isCustom);
 
   const renderFlower = (flower: EnrichedFlower) => (
-    <li key={flower.id} className="flower-item">
-      <label className="flower-label catalog-label">
+    <li key={flower.id} className="flower-item relative">
+      <label className="flex flex-1 gap-[0.5rem] items-center py-[0.25rem] text-xs text-subtle cursor-pointer pl-0">
         <FlowerRow
           flower={flower}
           checked={!!flower.inGarden}
@@ -51,16 +50,23 @@ export default function FlowerCatalog({
 
   return (
     <>
-      <button className="catalog-back" onClick={onBack}>
+      <button
+        className="self-start p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-text"
+        onClick={onBack}
+      >
         ← {t('backButton')}
       </button>
-      <div className="catalog-header">
-        <h3 className="panel-title">{t('catalogTitle')}</h3>
-        <p className="catalog-hint">{t('catalogHint')}</p>
+      <div className="flex flex-col pb-[0.4rem]">
+        <h3 className="pt-2 text-xs font-bold text-muted uppercase tracking-[0.05em]">
+          {t('catalogTitle')}
+        </h3>
+        <p className="mt-[0.15rem] text-2xs text-faint lowercase tracking-[0.03em]">
+          {t('catalogHint')}
+        </p>
       </div>
       <input
         type="text"
-        className="panel-input catalog-search"
+        className="w-full mt-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-text outline-none bg-bg-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-bg focus:border-border-hover"
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
@@ -68,10 +74,14 @@ export default function FlowerCatalog({
         placeholder={t('searchPlaceholder') as string}
         autoFocus
       />
-      <ul className="flower-items catalog-list">
+      <ul className="flex flex-col mt-3 list-none">
         {customFlowers.map(renderFlower)}
         {customFlowers.length > 0 && catalogFlowers.length > 0 && (
-          <li key="__divider" className="flower-divider-inline" aria-hidden />
+          <li
+            key="__divider"
+            className="h-px my-[0.4rem] bg-divider"
+            aria-hidden
+          />
         )}
         {catalogFlowers.map(renderFlower)}
       </ul>

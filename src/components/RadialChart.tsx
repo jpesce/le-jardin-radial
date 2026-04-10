@@ -582,11 +582,11 @@ export default function RadialChart({
       : t('emptyState');
 
   return (
-    <div className="radial-chart-wrapper">
+    <div className="relative w-full max-w-[min(100%,calc(100dvh-6rem))] aspect-square mx-auto">
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SIZE} ${SIZE}`}
-        className="radial-chart-svg"
+        className="radial-chart-svg block w-full h-full"
         role="img"
         aria-label={`${t('chartTitle') as string} — ${chartDesc as string}`}
         focusable="false"

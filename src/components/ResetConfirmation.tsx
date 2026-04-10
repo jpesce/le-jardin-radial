@@ -4,6 +4,7 @@ import { RotateCcw } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { useClickOutside } from '../hooks/useClickOutside';
 import Button from './Button';
+import { cn } from '../utils/cn';
 
 interface ResetConfirmationProps {
   isOpen: boolean;
@@ -43,13 +44,13 @@ export default function ResetConfirmation({
   };
 
   return (
-    <div className="popover-anchor">
+    <div className="relative">
       <Button
         variant="outline"
         round
         size="lg"
         icon={<RotateCcw size={14} />}
-        className={isOpen ? 'btn--active' : ''}
+        className={cn('text-text', isOpen && 'border-muted')}
         onPointerDown={(e) => {
           e.stopPropagation();
         }}
@@ -59,7 +60,7 @@ export default function ResetConfirmation({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="reset-confirm"
+            className="absolute top-full right-0 z-[101] flex flex-col gap-2 w-64 py-3 px-4 mt-[0.35rem] bg-bg border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-text)_8%,transparent)]"
             onPointerDown={(e) => {
               e.stopPropagation();
             }}
@@ -68,9 +69,13 @@ export default function ResetConfirmation({
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
-            <p className="reset-confirm-title">{t('resetTitle')}</p>
-            <p className="reset-confirm-text">{t('resetConfirm')}</p>
-            <div className="reset-confirm-actions">
+            <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-text lowercase">
+              {t('resetTitle')}
+            </p>
+            <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
+              {t('resetConfirm')}
+            </p>
+            <div className="flex gap-[0.4rem] [&>*]:flex-1">
               <Button variant="outline" size="sm" onClick={onClose}>
                 {t('resetNo')}
               </Button>

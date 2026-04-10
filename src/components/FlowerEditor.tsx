@@ -4,7 +4,6 @@ import { useI18n } from '../i18n/I18nContext';
 import Button from './Button';
 import MonthGrid from './MonthGrid';
 import { parseMonths } from '../data/months';
-import './FlowerEditor.css';
 import type {
   EnrichedFlower,
   FlowerState,
@@ -79,16 +78,20 @@ export default function FlowerEditor({
   };
 
   return (
-    <form className="flower-editor" onSubmit={handleSubmit}>
-      <button className="catalog-back" onClick={onCancel} type="button">
+    <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+      <button
+        className="self-start p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-text"
+        onClick={onCancel}
+        type="button"
+      >
         ← {t('cancel')}
       </button>
 
-      <label className="editor-label">
+      <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
         {t('flowerNameEn')}
         <input
           type="text"
-          className="panel-input editor-input"
+          className="w-full m-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-text outline-none bg-bg-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-bg focus:border-border-hover"
           value={nameEn}
           onChange={(e) => {
             setNameEn(e.target.value);
@@ -97,11 +100,11 @@ export default function FlowerEditor({
         />
       </label>
 
-      <label className="editor-label">
+      <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
         {t('flowerNameFr')}
         <input
           type="text"
-          className="panel-input editor-input"
+          className="w-full m-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-text outline-none bg-bg-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-bg focus:border-border-hover"
           value={nameFr}
           onChange={(e) => {
             setNameFr(e.target.value);
@@ -109,11 +112,11 @@ export default function FlowerEditor({
         />
       </label>
 
-      <label className="editor-label">
+      <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
         {t('scientificName')}
         <input
           type="text"
-          className="panel-input editor-input"
+          className="w-full m-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-text outline-none bg-bg-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-bg focus:border-border-hover"
           value={scientificName}
           onChange={(e) => {
             setScientificName(e.target.value);
@@ -121,9 +124,9 @@ export default function FlowerEditor({
         />
       </label>
 
-      <label className="editor-label">
+      <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
         {t('bloomColor')}
-        <div className="editor-color-row">
+        <div className="flex gap-2 items-center">
           <input
             type="color"
             className="editor-color-picker"
@@ -134,7 +137,7 @@ export default function FlowerEditor({
           />
           <input
             type="text"
-            className="panel-input editor-color-hex"
+            className="flex-1 m-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-text outline-none bg-bg-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-bg focus:border-border-hover"
             value={bloomColor}
             onChange={(e) => {
               setBloomColor(e.target.value);
@@ -144,7 +147,7 @@ export default function FlowerEditor({
         </div>
       </label>
 
-      <div className="editor-label">
+      <div className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
         {t('monthSchedule')}
         <MonthGrid
           value={monthStates}
@@ -153,7 +156,7 @@ export default function FlowerEditor({
         />
       </div>
 
-      <div className="editor-actions">
+      <div className="flex gap-2 pt-2 [&>*]:flex-1">
         <Button variant="outline" size="md" onClick={onCancel} type="button">
           {t('cancel')}
         </Button>
@@ -162,7 +165,7 @@ export default function FlowerEditor({
         </Button>
       </div>
       {attempted && !isValid && (
-        <p className="editor-hint">
+        <p className="flex gap-[0.3rem] items-center justify-center text-2xs text-warning">
           <CircleAlert size={12} />
           {missingNameEn || missingNameFr
             ? t('validationName')
@@ -178,7 +181,7 @@ export default function FlowerEditor({
           variant="ghost"
           size="sm"
           color="danger"
-          className="editor-delete-btn"
+          className="self-center pt-2"
           onClick={onDelete}
           type="button"
         >

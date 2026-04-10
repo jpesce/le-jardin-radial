@@ -9,8 +9,6 @@ import { OUTER_PALETTE, INNER_PALETTE, pick } from './components/logo-colors';
 import { useGarden } from './hooks/useGarden';
 import { useI18n } from './i18n/I18nContext';
 import { updateMeta } from './i18n/updateMeta';
-import './App.css';
-
 export default function App() {
   const { lang, t } = useI18n();
   const garden = useGarden(lang);
@@ -49,7 +47,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className={'app' + (garden.isShared ? ' app--shared' : '')}>
+    <div className="flex flex-col min-h-dvh">
       <AnimatePresence>
         {garden.isShared && (
           <SharedBanner
@@ -60,10 +58,12 @@ export default function App() {
           />
         )}
       </AnimatePresence>
-      <main className="chart-area">
-        <div className="app-logo-wrapper">
-          <Logo className="app-logo" name={garden.owner} />
-          <span className="app-logo-subtitle">de {garden.owner}</span>
+      <main className="relative flex flex-1 flex-col items-center w-full p-8 max-[480px]:p-4">
+        <div className="absolute top-8 left-8 z-50 w-[max(120px,20vw)]">
+          <Logo className="block w-full h-auto" name={garden.owner} />
+          <span className="block mt-[1.2vw] text-[0.95vw] font-normal text-text uppercase tracking-[0.15em]">
+            de {garden.owner}
+          </span>
         </div>
         <RadialChart
           flowers={garden.selectedFlowers}
@@ -106,11 +106,14 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
-        <p className="app-credits">{t('credits')}</p>
-        <div className="app-bottom-left">
+        <p className="absolute right-8 bottom-8 z-50 w-[360px] text-xs font-normal leading-[1.6] text-text text-left">
+          {t('credits')}
+        </p>
+        <div className="absolute bottom-8 left-8 z-50 w-[max(200px,20vw)]">
           <LanguageSwitcher />
-          <p className="app-description">
-            <strong>{t('descriptionBrand')}</strong> {t('descriptionBody')}
+          <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-normal leading-[1.6] text-text">
+            <strong className="font-bold">{t('descriptionBrand')}</strong>{' '}
+            {t('descriptionBody')}
           </p>
         </div>
       </main>
