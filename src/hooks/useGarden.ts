@@ -117,27 +117,31 @@ type GardenAction =
   | { type: 'IMPORT'; payload: GardenState }
   | { type: 'RESET' };
 
-function getSharedState(): GardenState | null {
-  if (typeof window === 'undefined') return null;
+export type ShareResult =
+  | { status: 'none' }
+  | { status: 'valid'; state: GardenState }
+  | { status: 'invalid' };
+
+export function getSharedState(): ShareResult {
+  if (typeof window === 'undefined') return { status: 'none' };
   const match = window.location.pathname.match(/^\/share\/(.+)/);
-  if (!match) return null;
+  if (!match) return { status: 'none' };
   try {
     const compressed = match[1];
-    if (!compressed) return null;
+    if (!compressed) return { status: 'invalid' };
     const decoded = JSON.parse(
       decompressFromEncodedURIComponent(compressed),
     ) as Record<string, unknown>;
     const { lang: sharedLang, ...gardenState } = decoded;
-    if (!isValidState(gardenState)) return null;
+    if (!isValidState(gardenState)) return { status: 'invalid' };
     if (sharedLang && SUPPORTED.includes(sharedLang as Lang)) {
       const stored = localStorage.getItem(LANG_STORAGE_KEY);
       if (!stored) saveLang(sharedLang as Lang);
     }
-    return reconcile(gardenState);
+    return { status: 'valid', state: reconcile(gardenState) };
   } catch {
-    console.warn('Invalid share URL');
+    return { status: 'invalid' };
   }
-  return null;
 }
 
 function loadFromStorage(): GardenState | null {
@@ -161,7 +165,7 @@ function loadFromStorage(): GardenState | null {
 function initialState(): GardenState {
   if (typeof window === 'undefined') return freshState();
   const shared = getSharedState();
-  if (shared) return { ...shared, isShared: true };
+  if (shared.status === 'valid') return { ...shared.state, isShared: true };
   return loadFromStorage() ?? freshState();
 }
 
@@ -411,8 +415,11 @@ export function useGarden(lang: Lang): UseGardenReturn {
   useEffect(() => {
     const handler = () => {
       const shared = getSharedState();
-      if (shared) {
-        dispatch({ type: 'IMPORT', payload: { ...shared, isShared: true } });
+      if (shared.status === 'valid') {
+        dispatch({
+          type: 'IMPORT',
+          payload: { ...shared.state, isShared: true },
+        });
       } else if (useGardenStore.getState().isShared) {
         dispatch({ type: 'DISMISS_SHARED' });
       }

@@ -18,7 +18,7 @@ test.describe('initial load', () => {
     await expect(
       page.getByRole('button', { name: 'Share garden' }),
     ).toBeVisible();
-    await expect(page.getByText('plan garden')).toBeVisible();
+    await expect(page.getByText('Plan garden')).toBeVisible();
   });
 
   test('shows default owner name', async ({ page }) => {
@@ -28,16 +28,16 @@ test.describe('initial load', () => {
 
 test.describe('panel', () => {
   test('opens and closes with button toggle', async ({ page }) => {
-    await page.getByText('plan garden').click();
-    await expect(page.getByText('done')).toBeVisible();
-    await expect(page.getByText('gardener')).toBeVisible();
+    await page.getByText('Plan garden').click();
+    await expect(page.getByText('Done')).toBeVisible();
+    await expect(page.getByText('Gardener')).toBeVisible();
 
-    await page.getByText('done').click();
-    await expect(page.getByText('plan garden')).toBeVisible();
+    await page.getByText('Done').click();
+    await expect(page.getByText('Plan garden')).toBeVisible();
   });
 
   test('updates owner name', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     const input = page.locator('input[type="text"]').first();
     await input.clear();
     await input.fill('Alice');
@@ -45,11 +45,11 @@ test.describe('panel', () => {
   });
 
   test('persists owner name after reload', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     const input = page.locator('input[type="text"]').first();
     await input.clear();
     await input.fill('Alice');
-    await page.getByText('done').click();
+    await page.getByText('Done').click();
 
     // Wait for persist middleware to save
     await expect
@@ -60,7 +60,7 @@ test.describe('panel', () => {
   });
 
   test('toggles flower visibility on chart', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     const firstCheckbox = page.getByRole('checkbox').first();
     await firstCheckbox.click();
     await expect(firstCheckbox).not.toBeChecked();
@@ -70,9 +70,9 @@ test.describe('panel', () => {
 test.describe('share', () => {
   test('opens share dropdown', async ({ page }) => {
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await expect(page.getByText('copy link')).toBeVisible();
-    await expect(page.getByText('save file')).toBeVisible();
-    await expect(page.getByText('open file')).toBeVisible();
+    await expect(page.getByText('Copy link')).toBeVisible();
+    await expect(page.getByText('Save file')).toBeVisible();
+    await expect(page.getByText('Open file')).toBeVisible();
   });
 
   test('copy link changes to copied', async ({ page }) => {
@@ -80,51 +80,51 @@ test.describe('share', () => {
     await page
       .context()
       .grantPermissions(['clipboard-read', 'clipboard-write']);
-    await page.getByText('copy link').click();
-    await expect(page.getByText('copied!')).toBeVisible();
+    await page.getByText('Copy link').click();
+    await expect(page.getByText('Copied!')).toBeVisible();
   });
 
   test('closes when clicking outside', async ({ page }) => {
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await expect(page.getByText('copy link')).toBeVisible();
+    await expect(page.getByText('Copy link')).toBeVisible();
 
     await page.getByRole('img', { name: /radial garden/i }).click();
-    await expect(page.getByText('copy link')).toBeHidden();
+    await expect(page.getByText('Copy link')).toBeHidden();
   });
 
   test('share and reset are mutually exclusive', async ({ page }) => {
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await expect(page.getByText('copy link')).toBeVisible();
+    await expect(page.getByText('Copy link')).toBeVisible();
 
     await page.getByRole('button', { name: 'Reset garden' }).click();
-    await expect(page.getByText('copy link')).toBeHidden();
-    await expect(page.getByText('reset garden?')).toBeVisible();
+    await expect(page.getByText('Copy link')).toBeHidden();
+    await expect(page.getByText('Reset garden?')).toBeVisible();
   });
 });
 
 test.describe('reset', () => {
   test('shows confirmation dialog', async ({ page }) => {
     await page.getByRole('button', { name: 'Reset garden' }).click();
-    await expect(page.getByText('reset garden?')).toBeVisible();
-    await expect(page.getByText('erase all')).toBeVisible();
-    await expect(page.getByText('keep')).toBeVisible();
+    await expect(page.getByText('Reset garden?')).toBeVisible();
+    await expect(page.getByText('Erase all')).toBeVisible();
+    await expect(page.getByText('Keep')).toBeVisible();
   });
 
   test('cancel closes dialog', async ({ page }) => {
     await page.getByRole('button', { name: 'Reset garden' }).click();
-    await page.getByText('keep').click();
-    await expect(page.getByText('reset garden?')).toBeHidden();
+    await page.getByText('Keep').click();
+    await expect(page.getByText('Reset garden?')).toBeHidden();
   });
 
   test('confirm resets garden', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     const input = page.locator('input[type="text"]').first();
     await input.clear();
     await input.fill('Alice');
-    await page.getByText('done').click();
+    await page.getByText('Done').click();
 
     await page.getByRole('button', { name: 'Reset garden' }).click();
-    await page.getByText('erase all').click();
+    await page.getByText('Erase all').click();
 
     await expect(page.locator('text=DE TAINAH DRUMMOND')).toBeVisible();
   });
@@ -133,19 +133,19 @@ test.describe('reset', () => {
 test.describe('language', () => {
   test('switches to English', async ({ page }) => {
     await page.getByRole('button', { name: 'en', exact: true }).click();
-    await expect(page.getByText('plan garden')).toBeVisible();
+    await expect(page.getByText('Plan garden')).toBeVisible();
   });
 
   test('switches to French', async ({ page }) => {
     await page.getByRole('button', { name: 'en', exact: true }).click();
     await page.getByRole('button', { name: 'fr', exact: true }).click();
-    await expect(page.getByText('planifier jardin')).toBeVisible();
+    await expect(page.getByText('Planifier jardin')).toBeVisible();
   });
 
   test('persists language after reload', async ({ page }) => {
     await page.getByRole('button', { name: 'en', exact: true }).click();
     await page.reload();
-    await expect(page.getByText('plan garden')).toBeVisible();
+    await expect(page.getByText('Plan garden')).toBeVisible();
   });
 });
 
@@ -155,13 +155,13 @@ test.describe('shared garden', () => {
       .context()
       .grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await page.getByText('copy link').click();
+    await page.getByText('Copy link').click();
 
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
-    await expect(page.getByText('view only')).toBeVisible();
-    await expect(page.getByText('back to my garden')).toBeVisible();
-    await expect(page.getByText('save to my garden')).toBeVisible();
+    await expect(page.getByText('View only')).toBeVisible();
+    await expect(page.getByText('Back to my garden')).toBeVisible();
+    await expect(page.getByText('Save to my garden')).toBeVisible();
   });
 
   test('dismiss returns to own garden', async ({ page }) => {
@@ -170,29 +170,29 @@ test.describe('shared garden', () => {
       .grantPermissions(['clipboard-read', 'clipboard-write']);
 
     // Change owner and wait for persist
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     const input = page.locator('input[type="text"]').first();
     await input.clear();
     await input.fill('Alice');
-    await page.getByText('done').click();
+    await page.getByText('Done').click();
     await expect
       .poll(() => page.evaluate(() => localStorage.getItem('jardin-radial')))
       .toBeTruthy();
 
     // Get share URL and navigate
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await page.getByText('copy link').click();
+    await page.getByText('Copy link').click();
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
 
     // Verify shared banner is visible
-    await expect(page.getByText('save to my garden')).toBeVisible({
+    await expect(page.getByText('Save to my garden')).toBeVisible({
       timeout: 10000,
     });
 
     // Dismiss
-    await page.getByText('back to my garden').click();
-    await expect(page.getByText('view only')).toBeHidden();
+    await page.getByText('Back to my garden').click();
+    await expect(page.getByText('View only')).toBeHidden();
     await expect(page.locator('text=DE ALICE')).toBeVisible();
   });
 
@@ -201,15 +201,15 @@ test.describe('shared garden', () => {
       .context()
       .grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await page.getByText('copy link').click();
+    await page.getByText('Copy link').click();
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
 
-    await page.getByText('back to my garden').click();
-    await expect(page.getByText('view only')).toBeHidden();
+    await page.getByText('Back to my garden').click();
+    await expect(page.getByText('View only')).toBeHidden();
 
     await page.goBack();
-    await expect(page.getByText('view only')).toBeVisible();
+    await expect(page.getByText('View only')).toBeVisible();
   });
 
   test('hides panel buttons when shared', async ({ page }) => {
@@ -217,11 +217,11 @@ test.describe('shared garden', () => {
       .context()
       .grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await page.getByText('copy link').click();
+    await page.getByText('Copy link').click();
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
 
-    await expect(page.getByText('plan garden')).toBeHidden();
+    await expect(page.getByText('Plan garden')).toBeHidden();
     await expect(
       page.getByRole('button', { name: 'Reset garden' }),
     ).toBeHidden();
@@ -235,31 +235,31 @@ test.describe('shared garden', () => {
       .context()
       .grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await page.getByText('copy link').click();
+    await page.getByText('Copy link').click();
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
 
-    await page.getByText('save to my garden').click();
-    await expect(page.getByText('replace your garden?')).toBeVisible();
-    await page.getByRole('button', { name: 'replace' }).click();
+    await page.getByText('Save to my garden').click();
+    await expect(page.getByText('Replace your garden?')).toBeVisible();
+    await page.getByRole('button', { name: 'Replace' }).click();
 
-    await expect(page.getByText('view only')).toBeHidden();
-    await expect(page.getByText('plan garden')).toBeVisible();
+    await expect(page.getByText('View only')).toBeHidden();
+    await expect(page.getByText('Plan garden')).toBeVisible();
   });
 });
 
 test.describe('manage view', () => {
   test('opens catalog from garden view', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
-    await expect(page.getByText('available flowers')).toBeVisible();
+    await expect(page.getByText('Available flowers')).toBeVisible();
     await expect(
-      page.getByText('choose which flowers to work with'),
+      page.getByText('Choose which flowers to work with'),
     ).toBeVisible();
   });
 
   test('toggles flower in/out of garden', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
 
     // Find first unchecked flower by name for a stable locator
@@ -282,20 +282,20 @@ test.describe('manage view', () => {
   });
 
   test('back button returns to garden view', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
-    await expect(page.getByText('available flowers')).toBeVisible();
+    await expect(page.getByText('Available flowers')).toBeVisible();
 
-    await page.getByText('back').click();
-    await expect(page.getByText('visible flowers')).toBeVisible();
+    await page.getByText('Back').click();
+    await expect(page.getByText('Visible flowers')).toBeVisible();
   });
 
   test('search filters flowers', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
 
     const allItems = await page.getByRole('listitem').count();
-    await page.getByPlaceholder('search...').fill('rose');
+    await page.getByPlaceholder('Search...').fill('rose');
     const filteredItems = await page.getByRole('listitem').count();
     expect(filteredItems).toBeLessThan(allItems);
   });
@@ -303,9 +303,9 @@ test.describe('manage view', () => {
 
 test.describe('flower editor', () => {
   test('creates a custom flower', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
-    await page.getByText('create flower').click();
+    await page.getByText('Create flower').click();
 
     await page.locator('input').nth(0).fill('Test Flower');
     await page.locator('input').nth(1).fill('Fleur Test');
@@ -315,10 +315,10 @@ test.describe('flower editor', () => {
     await cell.click();
     await cell.click();
 
-    await page.getByRole('button', { name: 'save' }).click();
+    await page.getByRole('button', { name: 'Save' }).click();
 
     // Should return to manage view with the new flower
-    await expect(page.getByText('available flowers')).toBeVisible();
+    await expect(page.getByText('Available flowers')).toBeVisible();
     await expect(
       page.getByRole('listitem').filter({ hasText: 'Test Flower' }),
     ).toBeVisible();
@@ -326,16 +326,16 @@ test.describe('flower editor', () => {
 
   test('deletes a custom flower', async ({ page }) => {
     // First create a flower
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
-    await page.getByText('create flower').click();
+    await page.getByText('Create flower').click();
 
     await page.locator('input').nth(0).fill('To Delete');
     await page.locator('input').nth(1).fill('A Supprimer');
     const cell = page.getByTitle('jan');
     await cell.click();
     await cell.click();
-    await page.getByRole('button', { name: 'save' }).click();
+    await page.getByRole('button', { name: 'Save' }).click();
 
     // Now edit and delete it
     const flowerItem = page
@@ -345,26 +345,26 @@ test.describe('flower editor', () => {
     await flowerItem.hover();
     await flowerItem.getByRole('button', { name: 'Edit flower' }).click();
 
-    await page.getByRole('button', { name: 'delete' }).click();
+    await page.getByRole('button', { name: 'Delete' }).click();
 
     // Should return to manage view without the flower
-    await expect(page.getByText('available flowers')).toBeVisible();
+    await expect(page.getByText('Available flowers')).toBeVisible();
     await expect(
       page.getByRole('listitem').filter({ hasText: 'To Delete' }),
     ).toBeHidden();
   });
 
   test('cancel returns without saving', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
-    await page.getByText('create flower').click();
+    await page.getByText('Create flower').click();
 
     await page.locator('input').nth(0).fill('Should Not Save');
     await page.locator('input').nth(1).fill('Ne Pas Sauvegarder');
 
-    await page.getByRole('button', { name: 'cancel', exact: true }).click();
+    await page.getByRole('button', { name: 'Cancel', exact: true }).click();
 
-    await expect(page.getByText('available flowers')).toBeVisible();
+    await expect(page.getByText('Available flowers')).toBeVisible();
     await expect(
       page.getByRole('listitem').filter({ hasText: 'Should Not Save' }),
     ).toBeHidden();
@@ -373,7 +373,7 @@ test.describe('flower editor', () => {
 
 test.describe('drag reorder', () => {
   test('reorders flowers by dragging', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
 
     // Get the initial order of selected flowers
     const checkedItems = page.getByRole('listitem').filter({
@@ -408,13 +408,13 @@ test.describe('drag reorder', () => {
 
 test.describe('flower editor validation', () => {
   test('shows validation error when fields are missing', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
-    await page.getByText('create flower').click();
+    await page.getByText('Create flower').click();
 
-    await page.getByRole('button', { name: 'save' }).click();
+    await page.getByRole('button', { name: 'Save' }).click();
 
-    await expect(page.getByText('names are required')).toBeVisible();
+    await expect(page.getByText('Names are required')).toBeVisible();
   });
 });
 
@@ -441,14 +441,14 @@ test.describe('error boundary', () => {
     await page.reload();
 
     // The error boundary should catch the crash and show fallback
-    await expect(page.getByText('well, that didn’t bloom')).toBeVisible({
+    await expect(page.getByText('Well, that didn’t bloom')).toBeVisible({
       timeout: 10000,
     });
     await expect(
-      page.getByRole('button', { name: 'refresh page' }),
+      page.getByRole('button', { name: 'Refresh page' }),
     ).toBeVisible();
     await expect(
-      page.getByRole('button', { name: 'start fresh' }),
+      page.getByRole('button', { name: 'Start fresh' }),
     ).toBeVisible();
   });
 
@@ -473,14 +473,65 @@ test.describe('error boundary', () => {
     });
     await page.reload();
 
-    await expect(page.getByText('well, that didn’t bloom')).toBeVisible({
+    await expect(page.getByText('Well, that didn’t bloom')).toBeVisible({
       timeout: 10000,
     });
 
     // Click reset garden — should clear storage and recover
-    await page.getByRole('button', { name: 'start fresh' }).click();
+    await page.getByRole('button', { name: 'Start fresh' }).click();
 
     // Should load fresh garden
-    await expect(page.getByText('plan garden')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Plan garden')).toBeVisible({ timeout: 10000 });
+  });
+});
+
+test.describe('not found', () => {
+  test('shows fallback for unknown URL', async ({ page }) => {
+    await page.goto('/some/random/path');
+    await expect(page.getByText('Nothing planted here')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Go to garden' }),
+    ).toBeVisible();
+  });
+
+  test('navigates back to garden', async ({ page }) => {
+    await page.goto('/unknown');
+    await expect(page.getByText('Nothing planted here')).toBeVisible();
+    await page.getByRole('button', { name: 'Go to garden' }).click();
+    await expect(page.getByText('Plan garden')).toBeVisible({ timeout: 10000 });
+  });
+});
+
+test.describe('invalid share', () => {
+  test('shows fallback for corrupted share URL', async ({ page }) => {
+    await page.goto('/share/not-valid-data');
+    await expect(page.getByText('This bouquet wilted')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Go to garden' }),
+    ).toBeVisible();
+  });
+
+  test('navigates back to garden', async ({ page }) => {
+    await page.goto('/share/broken');
+    await expect(page.getByText('This bouquet wilted')).toBeVisible();
+    await page.getByRole('button', { name: 'Go to garden' }).click();
+    await expect(page.getByText('Plan garden')).toBeVisible({ timeout: 10000 });
+  });
+});
+
+test.describe('URL normalization', () => {
+  test('double slashes redirect to clean URL', async ({ page, baseURL }) => {
+    await page.goto(`${baseURL}//fr`);
+    await page.waitForURL('**/fr');
+    await expect(page.getByText('Planifier jardin')).toBeVisible();
+  });
+
+  test('double slashes on unknown path show not-found after redirect', async ({
+    page,
+    baseURL,
+  }) => {
+    await page.goto(`${baseURL}//unknown`);
+    await page.waitForURL('**/unknown');
+    await expect(page.getByText('Nothing planted here')).toBeVisible();
   });
 });

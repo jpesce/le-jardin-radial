@@ -377,7 +377,7 @@ export default function FlowerList({
                                     <span
                                       className="absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-drag-handle cursor-grab select-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing group-hover:opacity-100 group-data-[hovered]:opacity-100"
                                       role="img"
-                                      aria-label="reorder"
+                                      aria-label="Reorder"
                                     >
                                       <GripVertical size={11} />
                                     </span>

@@ -24,23 +24,23 @@ test.describe('visual regression', () => {
   });
 
   test('panel — garden view', async ({ page }) => {
-    await page.getByText('plan garden').click();
-    await expect(page.getByText('gardener')).toBeVisible();
+    await page.getByText('Plan garden').click();
+    await expect(page.getByText('Gardener')).toBeVisible();
     await expect(page).toHaveScreenshot('panel-garden.png', { fullPage: true });
   });
 
   test('panel — manage view', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
-    await expect(page.getByText('available flowers')).toBeVisible();
+    await expect(page.getByText('Available flowers')).toBeVisible();
     await expect(page).toHaveScreenshot('panel-manage.png', { fullPage: true });
   });
 
   test('panel — flower editor (create)', async ({ page }) => {
-    await page.getByText('plan garden').click();
+    await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
-    await page.getByText('create flower').click();
-    await expect(page.getByText('bloom color')).toBeVisible();
+    await page.getByText('Create flower').click();
+    await expect(page.getByText('Bloom color')).toBeVisible();
     await expect(page).toHaveScreenshot('panel-editor-create.png', {
       fullPage: true,
     });
@@ -48,7 +48,7 @@ test.describe('visual regression', () => {
 
   test('share dropdown', async ({ page }) => {
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await expect(page.getByText('copy link')).toBeVisible();
+    await expect(page.getByText('Copy link')).toBeVisible();
     await expect(page).toHaveScreenshot('share-dropdown.png', {
       fullPage: true,
     });
@@ -56,7 +56,7 @@ test.describe('visual regression', () => {
 
   test('reset confirmation', async ({ page }) => {
     await page.getByRole('button', { name: 'Reset garden' }).click();
-    await expect(page.getByText('reset garden?')).toBeVisible();
+    await expect(page.getByText('Reset garden?')).toBeVisible();
     await expect(page).toHaveScreenshot('reset-confirm.png', {
       fullPage: true,
     });
@@ -67,10 +67,10 @@ test.describe('visual regression', () => {
       .context()
       .grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await page.getByText('copy link').click();
+    await page.getByText('Copy link').click();
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
-    await expect(page.getByText('view only')).toBeVisible();
+    await expect(page.getByText('View only')).toBeVisible();
     // Wait for D3 label animations to complete (opacity transitions to 1)
     await expect(page.locator('textPath').first()).toBeVisible();
     await expect
@@ -91,7 +91,7 @@ test.describe('visual regression', () => {
       .context()
       .grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.getByRole('button', { name: 'Share garden' }).click();
-    await page.getByText('copy link').click();
+    await page.getByText('Copy link').click();
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
     await expect(page.locator('textPath').first()).toBeVisible();
@@ -103,8 +103,8 @@ test.describe('visual regression', () => {
           .evaluate((el) => el.getAttribute('opacity')),
       )
       .toBe('0.85');
-    await page.getByText('save to my garden').click();
-    await expect(page.getByText('replace your garden?')).toBeVisible();
+    await page.getByText('Save to my garden').click();
+    await expect(page.getByText('Replace your garden?')).toBeVisible();
     await expect(page).toHaveScreenshot('shared-save-confirm.png', {
       fullPage: true,
     });
@@ -129,7 +129,7 @@ test.describe('visual regression', () => {
       );
     });
     await page.reload();
-    await expect(page.getByText('well, that didn\u2019t bloom')).toBeVisible();
+    await expect(page.getByText('Well, that didn\u2019t bloom')).toBeVisible();
     // Pause SVG animations for deterministic screenshot
     await page.addStyleTag({
       content:

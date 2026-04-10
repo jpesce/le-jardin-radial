@@ -1,16 +1,77 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RadialChart from './components/RadialChart';
 import FlowerList from './components/FlowerList';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import Logo from './components/Logo';
 import SharedBanner from './components/SharedBanner';
+import FallbackPage from './components/FallbackPage';
+import Button from './components/Button';
 import { OUTER_PALETTE, INNER_PALETTE, pick } from './components/logo-colors';
-import { useGarden } from './hooks/useGarden';
+import { useGarden, getSharedState } from './hooks/useGarden';
 import { useI18n } from './i18n/I18nContext';
 import { updateMeta } from './i18n/updateMeta';
+import type { Lang } from './types';
+
+type RouteError = 'not-found' | 'invalid-share' | null;
+
+function detectRouteError(): RouteError {
+  if (typeof window === 'undefined') return null;
+  const path = window.location.pathname;
+  const clean = path.replace(/\/\/+/g, '/');
+  if (clean !== path) {
+    window.location.replace(
+      clean + window.location.search + window.location.hash,
+    );
+    return null;
+  }
+  const seg = path.split('/')[1] ?? '';
+  if (!seg) return null;
+  if (seg === 'en' || seg === 'fr') return null;
+  if (seg === 'share') {
+    const result = getSharedState();
+    return result.status === 'invalid' ? 'invalid-share' : null;
+  }
+  return 'not-found';
+}
+
+const fallbackStrings: Record<
+  NonNullable<RouteError>,
+  Record<Lang, { title: string; description: string; cta: string }>
+> = {
+  'not-found': {
+    en: {
+      title: 'Nothing planted here',
+      description:
+        'This path doesn\u2019t lead anywhere in the garden. Head back to see what\u2019s blooming.',
+      cta: 'Go to garden',
+    },
+    fr: {
+      title: 'Rien n\u2019est plant\u00e9 ici',
+      description:
+        'Ce chemin ne m\u00e8ne nulle part dans le jardin. Revenez voir ce qui fleurit.',
+      cta: 'Aller au jardin',
+    },
+  },
+  'invalid-share': {
+    en: {
+      title: 'This bouquet wilted',
+      description:
+        'The share link seems to be invalid or incomplete. Ask for a fresh one, or head to your garden.',
+      cta: 'Go to garden',
+    },
+    fr: {
+      title: 'Ce bouquet a fan\u00e9',
+      description:
+        'Le lien de partage semble invalide ou incomplet. Demandez-en un nouveau, ou retournez \u00e0 votre jardin.',
+      cta: 'Aller au jardin',
+    },
+  },
+};
+
 export default function App() {
   const { lang, t } = useI18n();
+  const routeError = useMemo(() => detectRouteError(), []);
   const garden = useGarden(lang);
   const [panelOpen, setPanelOpen] = useState(false);
   const [hasBeenLocal, setHasBeenLocal] = useState(!garden.isShared);
@@ -19,8 +80,9 @@ export default function App() {
   }
 
   useEffect(() => {
+    if (routeError) return;
     updateMeta(lang, garden.owner);
-  }, [lang, garden.owner]);
+  }, [lang, garden.owner, routeError]);
 
   useEffect(() => {
     const link =
@@ -45,6 +107,27 @@ export default function App() {
       clearInterval(id);
     };
   }, []);
+
+  if (routeError) {
+    const s = fallbackStrings[routeError][lang];
+    return (
+      <FallbackPage
+        title={s.title}
+        description={s.description}
+        actions={
+          <Button
+            variant="solid"
+            size="md"
+            onClick={() => {
+              window.location.replace('/');
+            }}
+          >
+            {s.cta}
+          </Button>
+        }
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-dvh">
