@@ -43,6 +43,8 @@ interface FlowerListProps {
   onReset: () => void;
   onGetShareUrl: () => string;
   onExportJson: () => void;
+  onExportSvg: () => void;
+  onExportPng: () => void;
   onImportJson: (file: File, callbacks?: ImportCallbacks) => void;
   showLabels: boolean;
   onShowLabelsChange: (value: boolean) => void;
@@ -66,6 +68,8 @@ export default function FlowerList({
   onReset,
   onGetShareUrl,
   onExportJson,
+  onExportSvg,
+  onExportPng,
   onImportJson,
   showLabels,
   onShowLabelsChange,
@@ -190,6 +194,8 @@ export default function FlowerList({
           onClose={closePopover}
           onGetShareUrl={onGetShareUrl}
           onExportJson={onExportJson}
+          onExportSvg={onExportSvg}
+          onExportPng={onExportPng}
           onImportJson={onImportJson}
         />
         <Button

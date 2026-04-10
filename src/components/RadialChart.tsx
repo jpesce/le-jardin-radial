@@ -153,15 +153,19 @@ const SEASON_ICONS: SeasonIcon[] = [
 interface RadialChartProps {
   flowers: EnrichedFlower[];
   showLabels?: boolean;
+  svgRef?: React.RefObject<SVGSVGElement | null>;
 }
 
 export default function RadialChart({
   flowers,
   showLabels = true,
+  svgRef: externalSvgRef,
 }: RadialChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
+  const measured = useRef(false);
+  const initialLoad = useRef(true);
   const [scale, setScale] = useState(1);
   const { t, lang } = useI18n();
 
@@ -174,6 +178,7 @@ export default function RadialChart({
       const entry = entries[0];
       if (entry) {
         const displayWidth = entry.contentRect.width;
+        measured.current = true;
         setScale(displayWidth / SIZE);
       }
     });
@@ -204,7 +209,8 @@ export default function RadialChart({
     g.append('text')
       .attr('class', 'empty-msg')
       .attr('text-anchor', 'middle')
-      .attr('dy', '0.35em');
+      .attr('dy', '0.35em')
+      .style('opacity', 0);
 
     for (let i = 0; i < 12; i++) {
       const angle = i * MONTH_SLICE + MONTH_SLICE / 2 + ANGLE_OFFSET;
@@ -214,7 +220,8 @@ export default function RadialChart({
         .attr('data-angle', angle)
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'central')
-        .attr('fill', COLOR_LABEL);
+        .attr('fill', COLOR_LABEL)
+        .style('opacity', 0);
     }
 
     g.append('g').attr('class', 'season-markers');
@@ -257,7 +264,8 @@ export default function RadialChart({
         .attr('stroke-width', 1.5)
         .attr('stroke-linecap', 'round')
         .attr('stroke-linejoin', 'round')
-        .attr('vector-effect', 'non-scaling-stroke');
+        .attr('vector-effect', 'non-scaling-stroke')
+        .style('opacity', 0);
 
       icon
         .append('rect')
@@ -336,13 +344,14 @@ export default function RadialChart({
 
   // Update non-scaling sizes when scale changes
   useEffect(() => {
-    if (!svgRef.current || !initialized.current) return;
+    if (!svgRef.current || !initialized.current || !measured.current) return;
     const g = d3.select(svgRef.current).select('.root');
 
     const labelR = OUTER_RADIUS + 24 * inv;
     g.select('.month-labels')
       .selectAll('text')
       .attr('font-size', `${MONTH_LABEL_PX * inv}px`)
+      .style('opacity', 1)
       .each(function () {
         const el = d3.select(this);
         const angle = parseFloat(el.attr('data-angle'));
@@ -352,7 +361,9 @@ export default function RadialChart({
         );
       });
 
-    g.select('.empty-msg').attr('font-size', `${EMPTY_MSG_PX * inv}px`);
+    g.select('.empty-msg')
+      .attr('font-size', `${EMPTY_MSG_PX * inv}px`)
+      .style('opacity', 1);
 
     g.select('.season-markers')
       .selectAll('.season-icon')
@@ -366,7 +377,7 @@ export default function RadialChart({
         el.attr(
           'transform',
           `translate(${x},${y}) scale(${s}) translate(-12,-12) ${rot}`,
-        );
+        ).style('opacity', 1);
       });
 
     const curvedTexts = g.select('.curved-labels').selectAll('text');
@@ -375,6 +386,10 @@ export default function RadialChart({
       curvedTexts
         .attr('font-size', labelSize)
         .attr('stroke-width', labelSize * 0.12);
+      if (initialLoad.current) {
+        curvedTexts.attr('opacity', 0.85);
+        initialLoad.current = false;
+      }
     }
 
     g.select('.lines').selectAll('line').attr('stroke-width', LINE_STROKE_PX);
@@ -560,12 +575,14 @@ export default function RadialChart({
       .attr('startOffset', 5)
       .text((d) => d.displayName);
 
-    textsEnter
-      .transition()
-      .delay(T_DURATION * 0.5)
-      .duration(T_DURATION * 0.6)
-      .ease(d3.easeCubicInOut)
-      .attr('opacity', 0.85);
+    if (!initialLoad.current) {
+      textsEnter
+        .transition()
+        .delay(T_DURATION * 0.5)
+        .duration(T_DURATION * 0.6)
+        .ease(d3.easeCubicInOut)
+        .attr('opacity', 0.85);
+    }
 
     texts.select('textPath').text((d) => d.displayName);
     texts.attr('font-size', labelSize).attr('stroke-width', labelSize * 0.12);
@@ -584,7 +601,12 @@ export default function RadialChart({
   return (
     <div className="relative w-full max-w-[min(100%,calc(100dvh-6rem))] aspect-square mx-auto">
       <svg
-        ref={svgRef}
+        ref={(el) => {
+          svgRef.current = el;
+          if (externalSvgRef) {
+            externalSvgRef.current = el;
+          }
+        }}
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         className="radial-chart-svg block w-full h-full"
         role="img"

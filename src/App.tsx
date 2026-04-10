@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RadialChart from './components/RadialChart';
 import FlowerList from './components/FlowerList';
@@ -11,6 +11,7 @@ import { OUTER_PALETTE, INNER_PALETTE, pick } from './components/logo-colors';
 import { useGarden, getSharedState } from './hooks/useGarden';
 import { useI18n } from './i18n/I18nContext';
 import { updateMeta } from './i18n/updateMeta';
+import { exportSvg, exportPng } from './utils/exportSvg';
 import type { Lang } from './types';
 
 type RouteError = 'not-found' | 'invalid-share' | null;
@@ -73,6 +74,7 @@ export default function App() {
   const { lang, t } = useI18n();
   const routeError = useMemo(() => detectRouteError(), []);
   const garden = useGarden(lang);
+  const chartSvgRef = useRef<SVGSVGElement | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [hasBeenLocal, setHasBeenLocal] = useState(!garden.isShared);
   if (!garden.isShared && !hasBeenLocal) {
@@ -107,6 +109,18 @@ export default function App() {
       clearInterval(id);
     };
   }, []);
+
+  const handleExportSvg = useCallback(() => {
+    if (chartSvgRef.current) {
+      void exportSvg(chartSvgRef.current, garden.owner);
+    }
+  }, [garden.owner]);
+
+  const handleExportPng = useCallback(() => {
+    if (chartSvgRef.current) {
+      void exportPng(chartSvgRef.current, garden.owner);
+    }
+  }, [garden.owner]);
 
   if (routeError) {
     const s = fallbackStrings[routeError][lang];
@@ -151,6 +165,7 @@ export default function App() {
         <RadialChart
           flowers={garden.selectedFlowers}
           showLabels={garden.labels}
+          svgRef={chartSvgRef}
         />
         <AnimatePresence>
           {!garden.isShared && (
@@ -173,6 +188,8 @@ export default function App() {
                 onReset={garden.reset}
                 onGetShareUrl={garden.getShareUrl}
                 onExportJson={garden.exportJson}
+                onExportSvg={handleExportSvg}
+                onExportPng={handleExportPng}
                 onImportJson={garden.importJson}
                 showLabels={garden.labels}
                 onShowLabelsChange={garden.setLabels}

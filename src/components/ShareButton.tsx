@@ -6,7 +6,7 @@ import {
   type ChangeEvent,
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Link, Check, Download, Upload } from 'lucide-react';
+import { Share2, Link, Check, Download, Upload, Image } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { useClickOutside } from '../hooks/useClickOutside';
 import Button from './Button';
@@ -19,6 +19,8 @@ interface ShareButtonProps {
   onClose: () => void;
   onGetShareUrl: () => string;
   onExportJson: () => void;
+  onExportSvg: () => void;
+  onExportPng: () => void;
   onImportJson: (file: File, callbacks?: ImportCallbacks) => void;
 }
 
@@ -28,18 +30,22 @@ export default function ShareButton({
   onClose,
   onGetShareUrl,
   onExportJson,
+  onExportSvg,
+  onExportPng,
   onImportJson,
 }: ShareButtonProps) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [showExportOptions, setShowExportOptions] = useState(false);
   const [wasOpen, setWasOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (isOpen && !wasOpen) {
     setPendingFile(null);
     setImportError(null);
+    setShowExportOptions(false);
   }
   if (isOpen !== wasOpen) {
     setWasOpen(isOpen);
@@ -49,6 +55,7 @@ export default function ShareButton({
     onClose();
     setPendingFile(null);
     setImportError(null);
+    setShowExportOptions(false);
   }, [onClose]);
 
   useClickOutside(close, isOpen);
@@ -77,9 +84,19 @@ export default function ShareButton({
     }, 2000);
   };
 
-  const handleExport = () => {
+  const handleExportJson = () => {
     onExportJson();
     onClose();
+  };
+
+  const handleExportSvg = () => {
+    onExportSvg();
+    close();
+  };
+
+  const handleExportPng = () => {
+    onExportPng();
+    close();
   };
 
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
@@ -161,6 +178,31 @@ export default function ShareButton({
                   </Button>
                 </div>
               </div>
+            ) : showExportOptions ? (
+              <div className="flex flex-col gap-[0.35rem] px-[0.65rem] py-[0.4rem]">
+                <button
+                  className="self-start p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg"
+                  onClick={() => {
+                    setShowExportOptions(false);
+                  }}
+                >
+                  ← {t('backButton')}
+                </button>
+                <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold lowercase">
+                  {t('exportImageTitle')}
+                </p>
+                <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
+                  {t('exportImageHint')}
+                </p>
+                <div className="flex gap-[0.4rem] [&>*]:flex-1">
+                  <Button variant="outline" size="sm" onClick={handleExportSvg}>
+                    SVG
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleExportPng}>
+                    PNG
+                  </Button>
+                </div>
+              </div>
             ) : (
               <>
                 <Button
@@ -201,7 +243,7 @@ export default function ShareButton({
                   variant="ghost"
                   size="md"
                   icon={<Download size={13} />}
-                  onClick={handleExport}
+                  onClick={handleExportJson}
                 >
                   {t('exportJson')}
                 </Button>
@@ -212,6 +254,16 @@ export default function ShareButton({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {t('importJson')}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  icon={<Image size={13} />}
+                  onClick={() => {
+                    setShowExportOptions(true);
+                  }}
+                >
+                  {t('exportImage')}
                 </Button>
               </>
             )}

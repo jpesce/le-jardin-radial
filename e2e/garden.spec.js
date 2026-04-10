@@ -71,8 +71,8 @@ test.describe('share', () => {
   test('opens share dropdown', async ({ page }) => {
     await page.getByRole('button', { name: 'Share garden' }).click();
     await expect(page.getByText('Copy link')).toBeVisible();
-    await expect(page.getByText('Save file')).toBeVisible();
-    await expect(page.getByText('Open file')).toBeVisible();
+    await expect(page.getByText('Save garden')).toBeVisible();
+    await expect(page.getByText('Load garden')).toBeVisible();
   });
 
   test('copy link changes to copied', async ({ page }) => {
