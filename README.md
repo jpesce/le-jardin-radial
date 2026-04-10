@@ -12,18 +12,13 @@
 
 ## Features
 
-- 🌸 Radial chart showing when each flower blooms throughout the year
-- 🌷 24 flowers spanning all seasons with unique bloom colors
-- ✏️ Show, hide, and reorder flowers on the chart
-- 🏷️ Flower names along each ring and details on hover
-- 🌿 Create your own flowers with custom bloom schedules
-- 📋 Choose which flowers to work with from the catalog
-- 🖼️ Download your garden as SVG or high-res PNG
-- 🔗 Share your garden with a link or save it as a file
-- 👁️ Preview shared gardens before saving them
+- 🌸 Radial chart visualizing blooming cycles and color patterns across the year
+- 🌿 Create custom flowers or choose from the built-in catalog
+- ✏️ Toggle and rearrange flowers to compose your garden
+- 🖼️ Export your garden as SVG or high-res PNG
+- 🔗 Share gardens via link or save as a file
 - 🌍 Available in French and English
-- 👤 Personalize with your name — each name gets unique colors
-- ✨ Smooth animations throughout
+- 👤 Personalized colors derived from your name
 
 ## Getting started
 
