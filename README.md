@@ -18,6 +18,7 @@
 - 🏷️ Flower names along each ring and details on hover
 - 🌿 Create your own flowers with custom bloom schedules
 - 📋 Choose which flowers to work with from the catalog
+- 🖼️ Download your garden as SVG or high-res PNG
 - 🔗 Share your garden with a link or save it as a file
 - 👁️ Preview shared gardens before saving them
 - 🌍 Available in French and English
@@ -26,7 +27,7 @@
 
 ## Getting started
 
-Prerequisites: [Node.js](https://nodejs.org/) (v18+) and [pnpm](https://pnpm.io/)
+Prerequisites: [Node.js](https://nodejs.org/) (v22+) and [pnpm](https://pnpm.io/)
 
 ```bash
 pnpm install
@@ -35,9 +36,11 @@ pnpm dev
 
 ## Tech stack
 
-- **Vite** — dev server and build
-- **React** — UI
+- **TypeScript** — strict mode with strictTypeChecked ESLint
+- **React** + **Vite** — UI and build
 - **D3.js** — radial chart
+- **Tailwind CSS v4** — styling with design tokens
+- **Zustand** — state management with persistence
 - **Framer Motion** — animations
 - **Lucide** — icons
 - **lz-string** — URL sharing via compressed state
