@@ -3,6 +3,7 @@ import { Pencil, User } from 'lucide-react';
 import { bloomRanges } from '../data/months';
 import { useI18n } from '../i18n/I18nContext';
 import Button from './Button';
+import Checkbox from './Checkbox';
 import type { EnrichedFlower } from '../types';
 
 interface FlowerRowProps {
@@ -26,12 +27,7 @@ export default function FlowerRow({
   return (
     <>
       {dragHandle}
-      <input
-        type="checkbox"
-        className="checkbox"
-        checked={checked}
-        onChange={onToggle}
-      />
+      <Checkbox checked={checked} onChange={onToggle} />
       <span
         className="shrink-0 w-2.5 h-2.5 border border-[color-mix(in_srgb,var(--color-text)_8%,transparent)] rounded-full"
         style={{

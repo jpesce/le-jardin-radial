@@ -6,6 +6,7 @@ import { raw as catalogRaw } from '../data/flowers';
 import { useClickOutside } from '../hooks/useClickOutside';
 import { useDragReorder } from '../hooks/useDragReorder';
 import Button from './Button';
+import Checkbox from './Checkbox';
 import { cn } from '../utils/cn';
 import FlowerCatalog from './FlowerCatalog';
 import FlowerEditor from './FlowerEditor';
@@ -272,9 +273,7 @@ export default function FlowerList({
                       }}
                     />
                     <label className="flex gap-[0.4rem] items-center text-xs text-muted lowercase tracking-[0.03em] cursor-pointer select-none mt-[0.6rem]">
-                      <input
-                        type="checkbox"
-                        className="checkbox"
+                      <Checkbox
                         checked={showLabels}
                         onChange={(e) => {
                           onShowLabelsChange(e.target.checked);

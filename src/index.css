@@ -64,34 +64,6 @@ body.is-dragging * {
   font-weight: 800;
 }
 
-/* Custom checkbox — needs ::before pseudo-element and is a CSS hook for hover rules */
-.checkbox {
-  display: grid;
-  place-content: center;
-  width: 14px;
-  height: 14px;
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-  background: var(--color-bg);
-  border: 1px solid var(--color-subtle);
-  border-radius: 4px;
-}
-
-.checkbox::before {
-  width: 8px;
-  height: 8px;
-  content: '';
-  background: var(--color-subtle);
-  border-radius: 2px;
-  transform: scale(0);
-  transition: transform 0.1s;
-}
-
-.checkbox:checked::before {
-  transform: scale(1);
-}
-
 /* Flower item hover gated on body:not(.is-dragging) — can't express parent body condition in Tailwind */
 .flower-item--hovered .flower-name,
 body:not(.is-dragging) .flower-item:hover .flower-name {
@@ -103,8 +75,8 @@ body:not(.is-dragging) .flower-item:hover .flower-bloom-range {
   color: var(--color-subtle);
 }
 
-.flower-item--hovered .checkbox,
-body:not(.is-dragging) .flower-item:hover .checkbox {
+.flower-item--hovered input[type='checkbox'],
+body:not(.is-dragging) .flower-item:hover input[type='checkbox'] {
   border-color: var(--color-text);
 }
 
