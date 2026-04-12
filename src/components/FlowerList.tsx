@@ -90,11 +90,45 @@ export default function FlowerList({
   const listRef = useRef<HTMLUListElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const liveRegionRef = useRef<HTMLDivElement>(null);
 
   const { dragFrom, dropTarget, handlePointerDown } = useDragReorder(
     listRef,
     selected,
     onReorder,
+  );
+
+  const handleKeyboardReorder = useCallback(
+    (e: React.KeyboardEvent, flowerId: string, selectedIdx: number) => {
+      const dir = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0;
+      if (!dir) return;
+      e.preventDefault();
+
+      const toIdx = selectedIdx + dir;
+      if (toIdx < 0 || toIdx >= selected.length) return;
+
+      const reordered = [...selected];
+      const removed = reordered.splice(selectedIdx, 1)[0];
+      if (removed !== undefined) reordered.splice(toIdx, 0, removed);
+      onReorder(reordered);
+
+      // Restore focus after React re-render
+      requestAnimationFrame(() => {
+        const handle = listRef.current?.querySelector<HTMLElement>(
+          `[data-reorder-id="${flowerId}"]`,
+        );
+        handle?.focus();
+      });
+
+      // Announce to screen readers
+      if (liveRegionRef.current) {
+        const flower = gardenFlowers.find((f) => f.id === flowerId);
+        if (flower) {
+          liveRegionRef.current.textContent = `${flower.displayName}, ${toIdx + 1} of ${selected.length}`;
+        }
+      }
+    },
+    [selected, onReorder, gardenFlowers],
   );
 
   const closePanel = useCallback(() => {
@@ -381,9 +415,22 @@ export default function FlowerList({
                                 dragHandle={
                                   isSelected ? (
                                     <span
-                                      className="absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-drag-handle cursor-grab select-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing group-hover:opacity-100 group-data-[hovered]:opacity-100"
-                                      role="img"
-                                      aria-label="Reorder"
+                                      className="absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-drag-handle cursor-grab select-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing group-hover:opacity-100 group-data-[hovered]:opacity-100 focus-visible:opacity-100 focus-visible:bg-divider focus-visible:outline-none"
+                                      role="button"
+                                      tabIndex={0}
+                                      aria-label={`Reorder ${flower.displayName}`}
+                                      aria-roledescription="sortable"
+                                      data-reorder-id={flower.id}
+                                      onKeyDown={(e) => {
+                                        handleKeyboardReorder(
+                                          e,
+                                          flower.id,
+                                          selectedIdx,
+                                        );
+                                      }}
+                                      onPointerDown={(e) => {
+                                        e.stopPropagation();
+                                      }}
                                     >
                                       <GripVertical size={11} />
                                     </span>
@@ -432,6 +479,12 @@ export default function FlowerList({
           </motion.aside>
         )}
       </AnimatePresence>
+      <div
+        ref={liveRegionRef}
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      />
     </div>
   );
 }

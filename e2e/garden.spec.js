@@ -407,6 +407,32 @@ test.describe('drag reorder', () => {
     expect(after[0].trim()).toBe(before[1].trim());
     expect(after[1].trim()).toBe(before[0].trim());
   });
+
+  test('reorders flowers with keyboard', async ({ page }) => {
+    await page.getByText('Plan garden').click();
+
+    const checkedItems = page.getByRole('listitem').filter({
+      has: page.getByRole('checkbox', { checked: true }),
+    });
+    const before = await checkedItems.allTextContents();
+    expect(before.length).toBeGreaterThanOrEqual(2);
+
+    // Focus the first drag handle and press ArrowDown
+    const firstHandle = page.getByRole('button', { name: /^Reorder / }).first();
+    await firstHandle.focus();
+    await page.keyboard.press('ArrowDown');
+
+    const after = await checkedItems.allTextContents();
+    expect(after[0].trim()).toBe(before[1].trim());
+    expect(after[1].trim()).toBe(before[0].trim());
+
+    // Press ArrowUp to move it back
+    await page.keyboard.press('ArrowUp');
+
+    const restored = await checkedItems.allTextContents();
+    expect(restored[0].trim()).toBe(before[0].trim());
+    expect(restored[1].trim()).toBe(before[1].trim());
+  });
 });
 
 test.describe('flower editor validation', () => {
