@@ -7,7 +7,7 @@ React + D3.js + TypeScript garden visualization. Deployed at jardin.pesce.cc via
 ## Commands
 
 - `pnpm dev` — development server
-- `pnpm build` — production build (also generates `dist/404.html` for SPA routing)
+- `pnpm build` — production build (generates `dist/404.html`, `dist/en/index.html`, `dist/fr/index.html` for SPA routing with proper 200 status)
 - `pnpm test` — unit tests (vitest)
 - `pnpm test:e2e` — E2E + visual regression tests (playwright)
 - `pnpm lint` — ESLint (strictTypeChecked)
@@ -21,39 +21,60 @@ React + D3.js + TypeScript garden visualization. Deployed at jardin.pesce.cc via
 - **Zustand** — state management with persist middleware
 - **Tailwind CSS v4** — utility-first styling, design tokens via `@theme`
 - **Framer Motion** — animations (panel, banner, popovers)
-- **Playwright** — 30 E2E + 9 visual regression tests
+- **Playwright** — E2E + visual regression tests
 - **Vitest** — unit tests
 - **ESLint** (strictTypeChecked) + **Prettier** + **commitlint** + **Husky**
 - **tailwind-merge** + **clsx** — `cn()` helper for class composition
 
 ## Architecture
 
-### State — Zustand store (`src/hooks/useGarden.ts`)
+### State — Zustand store (4 modules in `src/hooks/`)
 
-Garden state managed by a Zustand store with persist middleware for localStorage.
+Garden state split into focused modules with acyclic dependencies:
 
-- **State model**: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowers{}, isShared }` — fully serializable via `GardenState` type in `src/types.ts`.
-- **Reducer**: pure function (`reducer()`) handles 13 action types via discriminated union `GardenAction`. Kept separate for testability.
-- **Persistence**: Zustand `persist` middleware with custom `partialize` (excludes functions and shared state) and `merge` (preserves shared state from URL).
+```
+useGarden.ts → gardenStore.ts → gardenReducer.ts → gardenReconciliation.ts
+```
+
+- **`gardenReconciliation.ts`** — Pure data: validation (`isValidState`), reconciliation (`reconcile`), share URL decoding (`getSharedState`), state factories (`freshState`, `initialState`), localStorage loading. Leaf dependency.
+- **`gardenReducer.ts`** — Pure state transitions: `GardenAction` discriminated union (12 action types) and `reducer()` function.
+- **`gardenStore.ts`** — Zustand `create()` with `persist` middleware, `dispatch()` bridge, all action methods.
+- **`useGarden.ts`** — React hook with computed properties (`availableFlowers`, `gardenFlowers`, `selectedFlowers`, `allFlowers`), popstate listener, `getShareUrl()`, `exportJson()`. Re-exports from other modules for backward-compatible imports.
+
+State model: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowers{}, isShared }` — fully serializable via `GardenState` type in `src/types.ts`.
+
 - **Share URLs**: `/share/<lz-string-compressed-state>` with embedded language. Only garden flowers included in URL (not full catalog).
-- **Available flowers** = `defaultCatalog` merged with `customFlowers` overrides + pure custom entries. Computed via `useMemo`, not stored.
 - **IDs**: catalog flowers have stable slugs (`"rose"`, `"snowdrop"`). Custom flowers use `crypto.randomUUID()`.
 - `panelOpen` stays in `App.tsx` — UI state, not garden state.
 
 ### Components
 
-- **Button** (`src/components/Button.tsx`): Reusable button with `variant` (outline/solid/ghost), `round` shape, `size` (xs-lg), `color` (default/danger), `animated` prop for width transitions via `react-use-measure`. Uses `cn()` for class composition with `tailwind-merge`.
-- **Checkbox** (`src/components/Checkbox.tsx`): Custom styled checkbox using Tailwind `before:` pseudo-element variants.
-- **FlowerList**: Panel orchestrator — view state (garden/manage/create/edit), popover coordination (reset/share mutual exclusivity via `activePopover`), keyboard navigation.
-- **FlowerRow**: Flower list item fragment — requires parent `group` class for hover styles (`group-hover:`, `group-data-[hovered]:`).
-- **RadialChart**: D3 imperative chart with 4 `useEffect` hooks (init, language, scale, data). ESLint strict rules exempted for D3 type casts.
-- **SharedBanner**: Read-only mode banner with height animation, owner-derived colors.
+**Reusable primitives:**
 
-### Three panel views
+- **Button** (`Button.tsx`): `variant` (outline/solid/ghost), `round`, `size` (xs-lg), `color` (default/danger), `animated` prop for width transitions via `react-use-measure`. Uses `cn()` for class composition.
+- **BackButton** (`BackButton.tsx`): Shared back navigation button with ArrowLeft icon and hover animation. Suppresses transition on mount to prevent flicker when switching views.
+- **Checkbox** (`Checkbox.tsx`): Custom styled checkbox using Tailwind `before:` pseudo-element variants.
+- **Popover** (`Popover.tsx`): Reusable popover with optional `trigger` prop (injects `aria-expanded`, `aria-haspopup`, `stopPropagation` via `cloneElement`), click-outside, Escape key, `role="dialog"`, `aria-label`. Shared animation constants.
 
-- **Garden view** (default): checkboxes toggle chart visibility. Drag to reorder via `setPointerCapture()`. Edit icon per custom flower.
-- **Manage view**: all available flowers. Checkboxes toggle garden membership. Search filter.
-- **Editor view**: create or edit a flower. Name (en/fr), scientific name, bloom color, month grid.
+**Panel components:**
+
+- **FlowerList** (`FlowerList.tsx`): Panel orchestrator — view state (garden/manage/create/edit), popover coordination (reset/share mutual exclusivity via `activePopover`), keyboard navigation (Escape to go back, Enter to submit).
+- **FlowerGardenView** (`FlowerGardenView.tsx`): Garden view — owner input, labels toggle, sortable flower list with drag reorder (`setPointerCapture`), keyboard reorder (ArrowUp/ArrowDown with `aria-live` announcements), hover state management (JS-controlled via `data-hovered` to support suppression during drag and animation).
+- **FlowerCatalog** (`FlowerCatalog.tsx`): Manage view — searchable list, garden membership toggles.
+- **FlowerEditor** (`FlowerEditor.tsx`): Create/edit view — name (en/fr), scientific name, bloom color, month grid.
+- **FlowerRow** (`FlowerRow.tsx`): Flower list item fragment — requires parent `group` class for hover styles.
+
+**Action controls:**
+
+- **Reset** (`Reset.tsx`): Reset button + confirmation popover using `Popover`.
+- **Share** (`Share.tsx`): Share button + menu popover with copy link, save/load garden, image export sub-view (SVG/PNG).
+
+**Other:**
+
+- **RadialChart** (`RadialChart.tsx`): D3 imperative chart with `svgRef` prop for image export. Non-scaling elements hidden until ResizeObserver provides measurement. Flower labels appear immediately on load, fade only on user toggle.
+- **SharedBanner** (`SharedBanner.tsx`): Read-only mode banner with save confirmation popover, owner-derived colors.
+- **ErrorBoundary** (`ErrorBoundary.tsx`): Class component with animated SadFlower fallback, bilingual error messages, reload/reset actions.
+- **FallbackPage** (`FallbackPage.tsx`): Composable layout for not-found and invalid-share pages.
 
 ### i18n — no library
 
@@ -77,12 +98,18 @@ Two-tier system in `src/index.css`:
 
 The radial chart uses D3 direct DOM manipulation inside `useEffect` hooks.
 
-- **Init effect** (`[]`): creates SVG structure once
-- **Language effect** (`[t]`): updates month label text
-- **Scale effect** (`[inv]`): updates non-scaling elements on resize
-- **Data effect** (`[flowers, showLabels]`): data joins for cells AND curved labels, transitions, tooltips
-- **`tRef` pattern**: a ref to the current `t()` function so D3 event handlers always read the latest translations
+- **Init effect** (`[]`): creates SVG structure once. Non-scaling elements start with `opacity: 0`.
+- **Language effect** (`[t]`): updates month label text.
+- **Scale effect** (`[inv]`): updates non-scaling elements on resize. Guarded by `measured` ref — skips until ResizeObserver provides actual scale, preventing flash of oversized text. Reveals elements with `opacity: 1`. On first measurement, reveals flower labels immediately (no fade).
+- **Data effect** (`[flowers, showLabels]`): data joins for cells AND curved labels, transitions, tooltips. Flower label enter transition only runs after initial load (`initialLoad` ref).
+- **`tRef` pattern**: a ref to the current `t()` function so D3 event handlers always read the latest translations.
 - RadialChart.tsx is exempted from `@typescript-eslint/no-explicit-any` and related rules — D3's transition reuse pattern requires type casts.
+
+### Utilities
+
+- `src/utils/cn.ts`: `cn()` — tailwind-merge + clsx wrapper.
+- `src/utils/exportImage.ts`: `exportSvg()` and `exportPng()` — standalone SVG/PNG export with embedded base64 woff2 font, `text, tspan { font-family }` rule for reliable rendering. PNG uses data URI + canvas at 3x scale (1800×1800).
+- `src/utils/logoColors.ts`: color palettes, `colorsFromName()`, `isLight()`, `pick()` — used by Logo, SharedBanner, MonthGrid.
 
 ### Data
 
@@ -94,9 +121,9 @@ The radial chart uses D3 direct DOM manipulation inside `useEffect` hooks.
 ### Testing
 
 - **Unit tests** (vitest): reducer actions, state validation, reconciliation, i18n utils, month parsing. Files colocated in `src/`.
-- **E2E tests** (playwright, `e2e/`): functional tests for all user flows + visual regression screenshots with seeded deterministic state. Semantic ARIA selectors preferred over CSS classes.
+- **E2E tests** (playwright, `e2e/`): functional tests for all user flows (panel, share, reset, language, shared garden, manage, editor, drag reorder, keyboard reorder, error boundary, not-found, invalid-share, URL normalization) + visual regression screenshots with seeded deterministic state. Semantic ARIA selectors preferred over CSS classes.
 - **Visual baselines**: `e2e/snapshots/`. Update with `pnpm exec playwright test e2e/visual.spec.js --update-snapshots`.
 
 ## Deployment
 
-GitHub Pages. `vite.config.js` copies `index.html` → `404.html` at build time so direct navigation to `/en` or `/share/...` works. The `og:url` meta tag has a hardcoded production domain — intentional for social card correctness.
+GitHub Pages. `vite.config.js` generates `404.html`, `en/index.html`, and `fr/index.html` at build time. Known routes (`/`, `/en`, `/fr`) return 200; unknown routes and `/share/...` fall to `404.html` which loads the SPA. The `og:url` meta tag has a hardcoded production domain — intentional for social card correctness.
