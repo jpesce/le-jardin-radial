@@ -1,6 +1,7 @@
 import { useState, type SyntheticEvent } from 'react';
-import { CircleAlert, ArrowLeft } from 'lucide-react';
+import { CircleAlert } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
+import BackButton from './BackButton';
 import Button from './Button';
 import MonthGrid from './MonthGrid';
 import { DEFAULT_BLOOM_COLOR } from '../data/colors';
@@ -80,17 +81,7 @@ export default function FlowerEditor({
 
   return (
     <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-      <button
-        className="group/back self-start flex gap-[0.35rem] items-center p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg"
-        onClick={onCancel}
-        type="button"
-      >
-        <ArrowLeft
-          className="shrink-0 transition-transform duration-150 ease-out group-hover/back:-translate-x-[3px]"
-          size={11}
-        />
-        {t('backButton')}
-      </button>
+      <BackButton onClick={onCancel}>{t('backButton')}</BackButton>
 
       <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
         {t('flowerNameEn')}
