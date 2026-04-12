@@ -11,7 +11,7 @@ import { OUTER_PALETTE, INNER_PALETTE, pick } from './components/logo-colors';
 import { useGarden, getSharedState } from './hooks/useGarden';
 import { useI18n } from './i18n/I18nContext';
 import { updateMeta } from './i18n/updateMeta';
-import { exportSvg, exportPng } from './utils/exportSvg';
+import { exportSvg, exportPng } from './utils/exportImage';
 import type { Lang } from './types';
 
 type RouteError = 'not-found' | 'invalid-share' | null;
