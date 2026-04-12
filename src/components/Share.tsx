@@ -123,14 +123,14 @@ export default function Share({
     >
       {pendingFile ? (
         <div className="flex flex-col gap-2 px-[0.65rem] py-[0.4rem]">
-          <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold lowercase">
+          <p className="text-xs font-bold lowercase">
             {t('importConfirmTitle')}
           </p>
-          <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
+          <p className="text-2xs leading-[1.5] text-subtle">
             {t('importConfirmText')}
           </p>
           {importError && (
-            <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-danger">
+            <p className="text-2xs leading-[1.5] text-danger">
               {t('importError')}
             </p>
           )}
@@ -157,10 +157,8 @@ export default function Share({
           >
             {t('backButton')}
           </BackButton>
-          <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold lowercase">
-            {t('exportImageTitle')}
-          </p>
-          <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
+          <p className="text-xs font-bold lowercase">{t('exportImageTitle')}</p>
+          <p className="text-2xs leading-[1.5] text-subtle">
             {t('exportImageHint')}
           </p>
           <div className="flex gap-[0.4rem] [&>*]:flex-1">

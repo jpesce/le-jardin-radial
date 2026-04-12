@@ -11,7 +11,7 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked.map((config) => ({
     ...config,
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', '.storybook/**/*.{ts,tsx}'],
   })),
   {
     files: ['**/*.{ts,tsx}'],
@@ -75,6 +75,8 @@ export default [
       'no-unused-vars': 'off',
     },
   },
+  // D3's transition types don't compose across selections — `as any` casts are
+  // the standard approach in D3 + TypeScript projects (no typed alternative exists)
   {
     files: ['**/RadialChart.tsx'],
     rules: {
@@ -95,5 +97,6 @@ export default [
     },
   },
   { ignores: ['dist/'] },
-  prettier, // must be last to override formatting rules
+  // must be last to override formatting rules
+  prettier,
 ];

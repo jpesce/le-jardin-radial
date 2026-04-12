@@ -22,7 +22,7 @@ export default function BackButton({
   return (
     <button
       className={cn(
-        'group/back self-start flex gap-[0.35rem] items-center p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg',
+        'group/back self-start flex gap-[0.35rem] items-center p-0 text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg',
         className,
       )}
       type="button"

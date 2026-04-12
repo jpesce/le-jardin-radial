@@ -258,7 +258,7 @@ export default function FlowerList({
             </div>
             {view === 'manage' && (
               <button
-                className="relative z-[1] flex shrink-0 items-center justify-center w-full py-3 px-[1.875rem] font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-surface border-0 border-t border-solid border-t-border transition-colors duration-150 hover:text-fg"
+                className="relative z-[1] flex shrink-0 items-center justify-center w-full py-3 px-[1.875rem] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-surface border-0 border-t border-solid border-t-border transition-colors duration-150 hover:text-fg"
                 onClick={() => {
                   setView('create');
                 }}

@@ -2,7 +2,7 @@ import { useI18n } from '../i18n/I18nContext';
 import { cn } from '../utils/cn';
 
 const BTN_BASE =
-  'p-0 font-[inherit] text-muted tracking-[0.05em] cursor-pointer bg-transparent border-none transition-colors duration-150 hover:text-fg';
+  'p-0 text-muted tracking-[0.05em] cursor-pointer bg-transparent border-none transition-colors duration-150 hover:text-fg';
 
 export default function LanguageSwitcher() {
   const { lang, setLang } = useI18n();

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   OUTER_PALETTE,
   INNER_PALETTE,
@@ -7,37 +6,14 @@ import {
 } from '../utils/logoColors';
 
 interface LogoProps {
-  textColor?: string;
   className?: string;
-  animate?: boolean;
   name?: string;
 }
 
-export default function Logo({
-  textColor = '#443528',
-  className,
-  animate = false,
-  name = '',
-}: LogoProps) {
-  const staticColors = name
+export default function Logo({ className, name = '' }: LogoProps) {
+  const colors = name
     ? colorsFromName(name)
     : { outer: pick(OUTER_PALETTE), inner: pick(INNER_PALETTE) };
-  const [animatedColors, setAnimatedColors] = useState(staticColors);
-
-  useEffect(() => {
-    if (!animate) return;
-    const id = setInterval(() => {
-      setAnimatedColors({
-        outer: pick(OUTER_PALETTE),
-        inner: pick(INNER_PALETTE),
-      });
-    }, 1000);
-    return () => {
-      clearInterval(id);
-    };
-  }, [animate]);
-
-  const colors = animate ? animatedColors : staticColors;
 
   return (
     <svg
@@ -45,7 +21,7 @@ export default function Logo({
       viewBox="0 0 486.78 178.56"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g fill={textColor}>
+      <g fill="#443528">
         <path d="M2.12,74.2c-.94,0-1.41-.47-1.41-1.3V1.65C.71.71,1.06.24,1.88.24h12.13c.94,0,1.3.47,1.3,1.41v57.6c0,.35.2.59.55.59h9.7c.71,0,1.41.59,1.41,1.3v11.78c0,.82-.47,1.3-1.41,1.3H2.12Z" />
         <path d="M41.22,74.2c-.82,0-1.3-.47-1.3-1.3V1.53c0-.82.47-1.3,1.3-1.3h22.5c.82,0,1.3.59,1.3,1.41v11.54c0,1.14-.67,1.65-1.53,1.65h-6.12c-1.92,0-2.83,1.1-2.83,2.98v8.44c0,1.18.47,2.71,3.3,2.71h3.3c.71,0,1.3.59,1.3,1.3v13.78c0,.71-.59,1.3-1.3,1.3h-3.3c-2.83,0-3.3,1.53-3.3,2.71v8.25c0,1.53.47,3.3,2.83,3.3h6.36c.82,0,1.3.47,1.3,1.3v12.01c0,.71-.47,1.3-1.3,1.3h-22.5Z" />
         <path d="M136.25,55.24c0-.71.39-1.06,1.18-1.06h12.13c.47,0,1.06.24,1.06,1.06,0,3.18,2.59,5.06,4.95,5.06,2.59,0,5.06-2.36,5.06-5.06V1.18c0-.71.47-.94,1.06-.94h12.37c.71,0,1.18.27,1.18.98l-.12,54.14c-.04,10.48-9.07,19.08-19.55,19.08s-19.32-8.83-19.32-19.2Z" />

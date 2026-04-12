@@ -44,7 +44,7 @@ export default function SharedBanner({
     >
       <div className="flex gap-4 items-center justify-between px-8 py-[0.4rem]">
         <button
-          className="group/back flex gap-[0.35rem] items-center p-0 font-[inherit] text-xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer bg-transparent border-none opacity-80 transition-opacity duration-150 hover:opacity-100"
+          className="group/back flex gap-[0.35rem] items-center p-0 text-xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer bg-transparent border-none opacity-80 transition-opacity duration-150 hover:opacity-100"
           style={{ color: textColor }}
           onClick={onDismiss}
         >
@@ -64,7 +64,7 @@ export default function SharedBanner({
             onClose={closeConfirm}
             trigger={
               <button
-                className="py-[0.3rem] px-3 font-[inherit] text-2xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer border-none rounded bg-[var(--btn-bg)] transition-[background] duration-150 hover:bg-[var(--btn-hover-bg)]"
+                className="py-[0.3rem] px-3 text-2xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer border-none rounded bg-[var(--btn-bg)] transition-[background] duration-150 hover:bg-[var(--btn-hover-bg)]"
                 style={
                   {
                     '--btn-bg': btnBg,
@@ -82,10 +82,10 @@ export default function SharedBanner({
             ariaLabel={t('replaceTitle') as string}
             className="z-[200] gap-2 w-64 py-3 px-4 mt-2 text-fg"
           >
-            <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-fg lowercase">
+            <p className="text-xs font-bold text-fg lowercase">
               {t('replaceTitle')}
             </p>
-            <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
+            <p className="text-2xs leading-[1.5] text-subtle">
               {t('replaceConfirm')}
             </p>
             <div className="flex gap-[0.4rem] [&>*]:flex-1">

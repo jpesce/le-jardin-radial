@@ -29,10 +29,11 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 
 interface I18nProviderProps {
   children: ReactNode;
+  initialLang?: Lang;
 }
 
-export function I18nProvider({ children }: I18nProviderProps) {
-  const [lang, setLangState] = useState<Lang>(resolveLang);
+export function I18nProvider({ children, initialLang }: I18nProviderProps) {
+  const [lang, setLangState] = useState<Lang>(initialLang ?? resolveLang);
 
   const setLang = useCallback(
     (newLang: Lang) => {

@@ -97,7 +97,7 @@ export default function FlowerGardenView({
         </label>
         <input
           type="text"
-          className="px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+          className="px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
           value={gardenOwner}
           onChange={(e) => {
             onGardenOwnerChange(e.target.value);

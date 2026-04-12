@@ -42,12 +42,8 @@ export default function Reset({
       ariaLabel={t('resetTitle') as string}
       className="gap-2 w-64 py-3 px-4"
     >
-      <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-fg lowercase">
-        {t('resetTitle')}
-      </p>
-      <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
-        {t('resetConfirm')}
-      </p>
+      <p className="text-xs font-bold text-fg lowercase">{t('resetTitle')}</p>
+      <p className="text-2xs leading-[1.5] text-subtle">{t('resetConfirm')}</p>
       <div className="flex gap-[0.4rem] [&>*]:flex-1">
         <Button variant="outline" size="sm" onClick={onClose}>
           {t('resetNo')}

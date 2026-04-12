@@ -68,7 +68,7 @@ export default function FlowerEditor({
         {t('flowerNameEn')}
         <input
           type="text"
-          className="w-full m-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+          className="w-full m-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
           value={nameEn}
           onChange={(e) => {
             setNameEn(e.target.value);
@@ -81,7 +81,7 @@ export default function FlowerEditor({
         {t('flowerNameFr')}
         <input
           type="text"
-          className="w-full m-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+          className="w-full m-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
           value={nameFr}
           onChange={(e) => {
             setNameFr(e.target.value);
@@ -93,7 +93,7 @@ export default function FlowerEditor({
         {t('scientificName')}
         <input
           type="text"
-          className="w-full m-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+          className="w-full m-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
           value={scientificName}
           onChange={(e) => {
             setScientificName(e.target.value);
@@ -114,7 +114,7 @@ export default function FlowerEditor({
           />
           <input
             type="text"
-            className="flex-1 m-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+            className="flex-1 m-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
             value={bloomColor}
             onChange={(e) => {
               setBloomColor(e.target.value);

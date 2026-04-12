@@ -62,7 +62,7 @@ export default function FlowerCatalog({
       </div>
       <input
         type="text"
-        className="w-full mt-0 px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+        className="w-full mt-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);

@@ -7,7 +7,7 @@ interface ButtonClassParams {
 }
 
 const BASE =
-  'flex items-center justify-center overflow-hidden font-[inherit] lowercase tracking-[0.03em] cursor-pointer transition-all duration-200 ease-out';
+  'flex items-center justify-center overflow-hidden lowercase tracking-[0.03em] cursor-pointer transition-all duration-200 ease-out';
 
 const VARIANT: Record<string, string> = {
   outline:
@@ -18,7 +18,7 @@ const VARIANT: Record<string, string> = {
 };
 
 const SIZE_BTN: Record<string, string> = {
-  xs: '',
+  xs: 'text-2xs',
   sm: 'text-2xs',
   md: 'text-xs',
   lg: 'text-sm',

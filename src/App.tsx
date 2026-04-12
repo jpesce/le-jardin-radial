@@ -12,7 +12,6 @@ import { useGarden, getSharedState } from './hooks/useGarden';
 import { useI18n } from './i18n/I18nContext';
 import { updateMeta } from './i18n/updateMeta';
 import { exportSvg, exportPng } from './utils/exportImage';
-import type { Lang } from './types';
 
 type RouteError = 'not-found' | 'invalid-share' | null;
 
@@ -35,40 +34,6 @@ function detectRouteError(): RouteError {
   }
   return 'not-found';
 }
-
-const fallbackStrings: Record<
-  NonNullable<RouteError>,
-  Record<Lang, { title: string; description: string; cta: string }>
-> = {
-  'not-found': {
-    en: {
-      title: 'Nothing planted here',
-      description:
-        'This path doesn\u2019t lead anywhere in the garden. Head back to see what\u2019s blooming.',
-      cta: 'Go to garden',
-    },
-    fr: {
-      title: 'Rien n\u2019est plant\u00e9 ici',
-      description:
-        'Ce chemin ne m\u00e8ne nulle part dans le jardin. Revenez voir ce qui fleurit.',
-      cta: 'Aller au jardin',
-    },
-  },
-  'invalid-share': {
-    en: {
-      title: 'This bouquet wilted',
-      description:
-        'The share link seems to be invalid or incomplete. Ask for a fresh one, or head to your garden.',
-      cta: 'Go to garden',
-    },
-    fr: {
-      title: 'Ce bouquet a fan\u00e9',
-      description:
-        'Le lien de partage semble invalide ou incomplet. Demandez-en un nouveau, ou retournez \u00e0 votre jardin.',
-      cta: 'Aller au jardin',
-    },
-  },
-};
 
 export default function App() {
   const { lang, t } = useI18n();
@@ -123,11 +88,15 @@ export default function App() {
   }, [garden.owner]);
 
   if (routeError) {
-    const s = fallbackStrings[routeError][lang];
+    const isNotFound = routeError === 'not-found';
     return (
       <FallbackPage
-        title={s.title}
-        description={s.description}
+        title={t(isNotFound ? 'notFoundTitle' : 'invalidShareTitle') as string}
+        description={
+          t(
+            isNotFound ? 'notFoundDescription' : 'invalidShareDescription',
+          ) as string
+        }
         actions={
           <Button
             variant="solid"
@@ -136,7 +105,7 @@ export default function App() {
               window.location.replace('/');
             }}
           >
-            {s.cta}
+            {t(isNotFound ? 'notFoundCta' : 'invalidShareCta') as string}
           </Button>
         }
       />
@@ -211,7 +180,7 @@ export default function App() {
         </p>
         <div className="absolute bottom-8 left-8 z-50 w-[max(200px,20vw)]">
           <LanguageSwitcher />
-          <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-normal leading-[1.6] text-fg">
+          <p className="text-xs font-normal leading-[1.6] text-fg">
             <strong className="font-bold">{t('descriptionBrand')}</strong>{' '}
             {t('descriptionBody')}
           </p>

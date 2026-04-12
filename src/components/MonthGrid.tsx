@@ -46,10 +46,10 @@ export default function MonthGrid({
             title={months[i]}
             type="button"
           >
-            <span className="font-[inherit] text-2xs font-bold lowercase tracking-[0.05em] pointer-events-none opacity-90">
+            <span className="text-2xs font-bold lowercase tracking-[0.05em] pointer-events-none opacity-90">
               {months[i]}
             </span>
-            <span className="font-[inherit] text-[9.5px] lowercase tracking-[0.03em] pointer-events-none opacity-55">
+            <span className="text-[9.5px] lowercase tracking-[0.03em] pointer-events-none opacity-55">
               {t('states.' + state)}
             </span>
           </button>
