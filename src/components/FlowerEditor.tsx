@@ -1,5 +1,5 @@
 import { useState, type SyntheticEvent } from 'react';
-import { CircleAlert } from 'lucide-react';
+import { CircleAlert, ArrowLeft } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import Button from './Button';
 import MonthGrid from './MonthGrid';
@@ -81,11 +81,15 @@ export default function FlowerEditor({
   return (
     <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
       <button
-        className="self-start p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg"
+        className="group/back self-start flex gap-[0.35rem] items-center p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg"
         onClick={onCancel}
         type="button"
       >
-        ← {t('cancel')}
+        <ArrowLeft
+          className="shrink-0 transition-transform duration-150 ease-out group-hover/back:-translate-x-[3px]"
+          size={11}
+        />
+        {t('cancel')}
       </button>
 
       <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">

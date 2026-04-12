@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import FlowerRow from './FlowerRow';
 import type { EnrichedFlower } from '../types';
@@ -51,10 +52,14 @@ export default function FlowerCatalog({
   return (
     <>
       <button
-        className="self-start p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg"
+        className="group/back self-start flex gap-[0.35rem] items-center p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg"
         onClick={onBack}
       >
-        ← {t('backButton')}
+        <ArrowLeft
+          className="shrink-0 transition-transform duration-150 ease-out group-hover/back:-translate-x-[3px]"
+          size={11}
+        />
+        {t('backButton')}
       </button>
       <div className="flex flex-col pb-[0.4rem]">
         <h3 className="pt-2 text-xs font-bold text-muted uppercase tracking-[0.05em]">

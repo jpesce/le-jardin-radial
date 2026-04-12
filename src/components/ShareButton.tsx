@@ -1,6 +1,14 @@
 import { useState, useCallback, useRef, type ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Link, Check, Download, Upload, Image } from 'lucide-react';
+import {
+  Share2,
+  Link,
+  Check,
+  Download,
+  Upload,
+  Image,
+  ArrowLeft,
+} from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import Button from './Button';
 import Popover from './Popover';
@@ -150,12 +158,16 @@ export default function ShareButton({
       ) : showExportOptions ? (
         <div className="flex flex-col gap-[0.35rem] px-[0.65rem] py-[0.4rem]">
           <button
-            className="self-start p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg"
+            className="group/back self-start flex gap-[0.35rem] items-center p-0 font-[inherit] text-xs text-muted lowercase tracking-[0.03em] cursor-pointer bg-transparent border-none hover:text-fg"
             onClick={() => {
               setShowExportOptions(false);
             }}
           >
-            ← {t('backButton')}
+            <ArrowLeft
+              className="shrink-0 transition-transform duration-150 ease-out group-hover/back:-translate-x-[3px]"
+              size={11}
+            />
+            {t('backButton')}
           </button>
           <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold lowercase">
             {t('exportImageTitle')}

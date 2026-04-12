@@ -362,7 +362,10 @@ test.describe('flower editor', () => {
     await page.locator('input').nth(0).fill('Should Not Save');
     await page.locator('input').nth(1).fill('Ne Pas Sauvegarder');
 
-    await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Cancel', exact: true })
+      .last()
+      .click();
 
     await expect(page.getByText('Available flowers')).toBeVisible();
     await expect(
