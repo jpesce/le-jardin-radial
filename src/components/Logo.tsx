@@ -4,7 +4,7 @@ import {
   INNER_PALETTE,
   pick,
   colorsFromName,
-} from './logo-colors';
+} from '../utils/logoColors';
 
 interface LogoProps {
   textColor?: string;

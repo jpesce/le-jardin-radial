@@ -7,7 +7,7 @@ import Logo from './components/Logo';
 import SharedBanner from './components/SharedBanner';
 import FallbackPage from './components/FallbackPage';
 import Button from './components/Button';
-import { OUTER_PALETTE, INNER_PALETTE, pick } from './components/logo-colors';
+import { OUTER_PALETTE, INNER_PALETTE, pick } from './utils/logoColors';
 import { useGarden, getSharedState } from './hooks/useGarden';
 import { useI18n } from './i18n/I18nContext';
 import { updateMeta } from './i18n/updateMeta';

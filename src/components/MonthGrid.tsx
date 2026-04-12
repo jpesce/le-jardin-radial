@@ -1,6 +1,6 @@
 import { useI18n } from '../i18n/I18nContext';
 import { DEFAULT_BLOOM_COLOR, DEFAULT_STATE_COLORS } from '../data/colors';
-import { isLight } from './logo-colors';
+import { isLight } from '../utils/logoColors';
 import type { FlowerState } from '../types';
 
 const STATES: FlowerState[] = ['dormant', 'sprouting', 'blooming', 'foliage'];

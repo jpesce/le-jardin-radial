@@ -2,7 +2,7 @@ import { useState, useCallback, type CSSProperties } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, ArrowLeft } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
-import { colorsFromName, isLight } from './logo-colors';
+import { colorsFromName, isLight } from '../utils/logoColors';
 import Button from './Button';
 import Popover from './Popover';
 
