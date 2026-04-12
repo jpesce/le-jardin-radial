@@ -4,19 +4,19 @@ import Button from './Button';
 import Popover from './Popover';
 import { cn } from '../utils/cn';
 
-interface ResetConfirmationProps {
+interface ResetProps {
   isOpen: boolean;
   onToggle: () => void;
   onClose: () => void;
   onReset: () => void;
 }
 
-export default function ResetConfirmation({
+export default function Reset({
   isOpen,
   onToggle,
   onClose,
   onReset,
-}: ResetConfirmationProps) {
+}: ResetProps) {
   const { t } = useI18n();
 
   const handleConfirm = () => {

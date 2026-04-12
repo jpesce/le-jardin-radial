@@ -8,7 +8,7 @@ import Popover from './Popover';
 import { cn } from '../utils/cn';
 import type { ImportCallbacks } from '../types';
 
-interface ShareButtonProps {
+interface ShareProps {
   isOpen: boolean;
   onToggle: () => void;
   onClose: () => void;
@@ -19,7 +19,7 @@ interface ShareButtonProps {
   onImportJson: (file: File, callbacks?: ImportCallbacks) => void;
 }
 
-export default function ShareButton({
+export default function Share({
   isOpen,
   onToggle,
   onClose,
@@ -28,7 +28,7 @@ export default function ShareButton({
   onExportSvg,
   onExportPng,
   onImportJson,
-}: ShareButtonProps) {
+}: ShareProps) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);

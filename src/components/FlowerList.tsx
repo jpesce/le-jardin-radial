@@ -8,8 +8,8 @@ import Button from './Button';
 import FlowerCatalog from './FlowerCatalog';
 import FlowerEditor from './FlowerEditor';
 import FlowerGardenView from './FlowerGardenView';
-import ResetConfirmation from './ResetConfirmation';
-import ShareButton from './ShareButton';
+import Reset from './Reset';
+import Share from './Share';
 import type {
   EnrichedFlower,
   CustomFlowerData,
@@ -151,7 +151,7 @@ export default function FlowerList({
   return (
     <div className="absolute top-6 right-8 z-[100] flex flex-col items-end max-[480px]:top-3 max-[480px]:right-3">
       <div className="panel-actions flex gap-[0.4rem] items-center">
-        <ResetConfirmation
+        <Reset
           isOpen={activePopover === 'reset'}
           onToggle={() => {
             togglePopover('reset');
@@ -159,7 +159,7 @@ export default function FlowerList({
           onClose={closePopover}
           onReset={onReset}
         />
-        <ShareButton
+        <Share
           isOpen={activePopover === 'share'}
           onToggle={() => {
             togglePopover('share');
