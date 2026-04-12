@@ -4,8 +4,11 @@ import SharedBanner from './SharedBanner';
 const noop = () => {};
 
 const meta = {
-  title: 'Components/SharedBanner',
+  title: 'Organisms/SharedBanner',
   component: SharedBanner,
+  parameters: {
+    layout: 'fullscreen',
+  },
   argTypes: {
     backgroundColor: { control: 'color' },
     animateEntry: { control: 'boolean' },
@@ -16,9 +19,6 @@ const meta = {
     onSave: noop,
     onDismiss: noop,
     animateEntry: true,
-  },
-  parameters: {
-    layout: 'fullscreen',
   },
 } satisfies Meta<typeof SharedBanner>;
 

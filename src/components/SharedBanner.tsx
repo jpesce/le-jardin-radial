@@ -7,12 +7,17 @@ import Button from './Button';
 import Popover from './Popover';
 
 interface SharedBannerProps {
+  /** Banner background color — text and button contrast are derived automatically */
   backgroundColor: string;
+  /** Called when the user confirms saving the shared garden */
   onSave: () => void;
+  /** Called when the user dismisses the shared garden */
   onDismiss: () => void;
+  /** Animate the banner height on mount */
   animateEntry: boolean;
 }
 
+/** Read-only banner shown when viewing a shared garden. Derives text and button contrast from the background color. */
 export default function SharedBanner({
   backgroundColor,
   onSave,

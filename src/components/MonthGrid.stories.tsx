@@ -6,7 +6,7 @@ import type { FlowerState } from '../types';
 const DORMANT: FlowerState[] = Array<FlowerState>(12).fill('dormant');
 
 const meta = {
-  title: 'Components/MonthGrid',
+  title: 'Molecules/MonthGrid',
   component: MonthGrid,
   argTypes: {
     bloomColor: { control: 'color' },
@@ -31,10 +31,24 @@ export const Default: Story = {
     value: DORMANT,
     onChange: () => {},
   },
+  parameters: {
+    docs: {
+      source: {
+        code: `<MonthGrid value={states} onChange={setStates} bloomColor="#e85138" />`,
+      },
+    },
+  },
   render: (args) => <MonthGridWithState {...args} />,
 };
 
 export const MixedStates: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `<MonthGrid value={states} onChange={setStates} bloomColor="#8f80f9" />`,
+      },
+    },
+  },
   args: {
     value: [
       'dormant',

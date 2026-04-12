@@ -1,9 +1,12 @@
 interface LogoProps {
   className?: string;
+  /** Color of the outer circle */
   circleOuterColor: string;
+  /** Color of the inner circle */
   circleInnerColor: string;
 }
 
+/** Le Jardin Radial wordmark with configurable circle colors. */
 export default function Logo({
   className,
   circleOuterColor,

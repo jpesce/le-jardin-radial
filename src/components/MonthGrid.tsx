@@ -6,11 +6,15 @@ import type { FlowerState } from '../types';
 const STATES: FlowerState[] = ['dormant', 'sprouting', 'blooming', 'foliage'];
 
 interface MonthGridProps {
+  /** Array of 12 flower states (one per month) */
   value: FlowerState[];
+  /** Called with updated states when a month is clicked */
   onChange: (value: FlowerState[]) => void;
+  /** Color used for the blooming state */
   bloomColor?: string;
 }
 
+/** Interactive 3x4 grid for editing bloom cycles. Click to cycle through states: dormant, sprouting, blooming, foliage. */
 export default function MonthGrid({
   value,
   onChange,

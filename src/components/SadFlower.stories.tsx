@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import SadFlower from './SadFlower';
 
 const meta = {
-  title: 'Components/SadFlower',
+  title: 'Assets/SadFlower',
   component: SadFlower,
   argTypes: {
-    className: { control: 'text' },
+    className: { table: { disable: true } },
   },
   decorators: [
     (Story) => (

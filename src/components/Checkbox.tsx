@@ -6,6 +6,7 @@ const CHECKBOX_CLASS =
   "before:content-[''] before:w-2 before:h-2 before:bg-subtle before:rounded-[2px] before:scale-0 before:transition-transform before:duration-100 " +
   'checked:before:scale-100';
 
+/** Custom styled checkbox using Tailwind pseudo-element variants. */
 export default function Checkbox({
   className,
   ...props

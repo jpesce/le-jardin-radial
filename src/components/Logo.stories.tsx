@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import Logo from './Logo';
 
 const meta = {
-  title: 'Components/Logo',
+  title: 'Assets/Logo',
   component: Logo,
   argTypes: {
     circleOuterColor: { control: 'color' },

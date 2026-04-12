@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { within, userEvent } from '@storybook/test';
+import { within, userEvent } from 'storybook/test';
 import { Sprout, Download, Pencil } from 'lucide-react';
 import Button from './Button';
 
 const meta = {
-  title: 'Primitives/Button',
+  title: 'Atoms/Button',
   component: Button,
   argTypes: {
     children: { control: 'text' },
@@ -93,6 +93,15 @@ export const Animated: Story = {
     size: 'lg',
     animated: true,
     children: 'Plan garden',
+  },
+  parameters: {
+    docs: {
+      source: {
+        code: `<Button variant="outline" round size="lg" icon={<Sprout size={14} />} animated>
+  {isOpen ? 'Done' : 'Plan garden'}
+</Button>`,
+      },
+    },
   },
   render: () => <AnimatedButton />,
   play: async ({ canvasElement }) => {

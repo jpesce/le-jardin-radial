@@ -4,18 +4,25 @@ import Button from './Button';
 import Popover from './Popover';
 import { cn } from '../utils/cn';
 
+type PopoverAlign = 'right' | 'left' | 'center';
+
 interface ResetProps {
   isOpen: boolean;
   onToggle: () => void;
   onClose: () => void;
+  /** Called after the user confirms the reset */
   onReset: () => void;
+  /** Popover alignment relative to trigger */
+  align?: PopoverAlign;
 }
 
+/** Reset button with confirmation popover. Asks the user to confirm before erasing all garden data. */
 export default function Reset({
   isOpen,
   onToggle,
   onClose,
   onReset,
+  align,
 }: ResetProps) {
   const { t } = useI18n();
 
@@ -39,6 +46,7 @@ export default function Reset({
           aria-label="Reset garden"
         />
       }
+      align={align}
       ariaLabel={t('resetTitle') as string}
       className="gap-2 w-64 py-3 px-4"
     >

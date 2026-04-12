@@ -1,11 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useI18n } from '../i18n/I18nContext';
 import FallbackPage from './FallbackPage';
 import Button from './Button';
 
 const meta = {
-  title: 'Components/FallbackPage',
+  title: 'Organisms/FallbackPage',
   component: FallbackPage,
+  argTypes: {
+    title: { control: 'text' },
+    description: { control: 'text' },
+    actions: { table: { disable: true } },
+  },
   parameters: {
     layout: 'fullscreen',
   },
@@ -14,42 +18,28 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function NotFoundStory() {
-  const { t } = useI18n();
-  return (
-    <FallbackPage
-      title={t('notFoundTitle') as string}
-      description={t('notFoundDescription') as string}
-      actions={
-        <Button variant="solid" size="md">
-          {t('notFoundCta') as string}
-        </Button>
-      }
-    />
-  );
-}
-
 export const NotFound: Story = {
-  args: { title: '', description: '', actions: null },
-  render: () => <NotFoundStory />,
+  args: {
+    title: 'Nothing planted here',
+    description:
+      'This path doesn\u2019t lead anywhere in the garden. Head back to see what\u2019s blooming.',
+    actions: (
+      <Button variant="solid" size="md">
+        Go to garden
+      </Button>
+    ),
+  },
 };
 
-function InvalidShareStory() {
-  const { t } = useI18n();
-  return (
-    <FallbackPage
-      title={t('invalidShareTitle') as string}
-      description={t('invalidShareDescription') as string}
-      actions={
-        <Button variant="solid" size="md">
-          {t('invalidShareCta') as string}
-        </Button>
-      }
-    />
-  );
-}
-
 export const InvalidShare: Story = {
-  args: { title: '', description: '', actions: null },
-  render: () => <InvalidShareStory />,
+  args: {
+    title: 'This bouquet wilted',
+    description:
+      'The share link seems to be invalid or incomplete. Ask for a fresh one, or head to your garden.',
+    actions: (
+      <Button variant="solid" size="md">
+        Go to garden
+      </Button>
+    ),
+  },
 };

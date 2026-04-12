@@ -1,3 +1,4 @@
+/** Animated SVG of a wilting flower with swaying petals. Used in error boundary and fallback pages. */
 export default function SadFlower({ className }: { className?: string }) {
   return (
     <svg viewBox="20 55 80 100" className={className} aria-hidden="true">

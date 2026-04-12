@@ -52,14 +52,21 @@ const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonInnerProps>(
 );
 
 export interface ButtonProps extends ComponentPropsWithoutRef<'button'> {
+  /** Visual style: outline, solid, or ghost */
   variant?: string;
+  /** Use rounded-full shape */
   round?: boolean;
+  /** Button size: xs, sm, md, or lg */
   size?: string;
+  /** Color scheme: default or danger */
   color?: string;
+  /** Icon element rendered before children */
   icon?: ReactNode;
+  /** Enable animated width transitions via react-use-measure */
   animated?: boolean;
 }
 
+/** Reusable button with variant, size, shape, and color options. Supports icons and animated width transitions. */
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { variant, round, size, color, icon, animated, className, children, ...rest },
   ref,

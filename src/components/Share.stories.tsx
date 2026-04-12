@@ -1,24 +1,34 @@
 import { useState, type ComponentProps } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import Reset from './Reset';
+import { within, userEvent } from 'storybook/test';
+import Share from './Share';
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const noop = () => {};
 
 const meta = {
-  title: 'Organisms/Reset',
-  component: Reset,
+  title: 'Organisms/Share',
+  component: Share,
   argTypes: {
     isOpen: { control: 'boolean' },
     align: { control: 'select', options: ['right', 'left', 'center'] },
     onToggle: { table: { disable: true } },
     onClose: { table: { disable: true } },
-    onReset: { table: { disable: true } },
+    onGetShareUrl: { table: { disable: true } },
+    onExportJson: { table: { disable: true } },
+    onExportSvg: { table: { disable: true } },
+    onExportPng: { table: { disable: true } },
+    onImportJson: { table: { disable: true } },
   },
   args: {
     align: 'center',
     onToggle: noop,
     onClose: noop,
-    onReset: noop,
+    onGetShareUrl: () => 'https://jardin.pesce.cc/share/example',
+    onExportJson: noop,
+    onExportSvg: noop,
+    onExportPng: noop,
+    onImportJson: noop,
   },
   decorators: [
     (Story) => (
@@ -27,7 +37,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof Reset>;
+} satisfies Meta<typeof Share>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -40,19 +50,16 @@ export const Open: Story = {
   args: { isOpen: true },
 };
 
-function ResetWithState(props: ComponentProps<typeof Reset>) {
+function ShareWithState(props: ComponentProps<typeof Share>) {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <Reset
+    <Share
       {...props}
       isOpen={isOpen}
       onToggle={() => {
         setIsOpen((prev) => !prev);
       }}
       onClose={() => {
-        setIsOpen(false);
-      }}
-      onReset={() => {
         setIsOpen(false);
       }}
     />
@@ -65,14 +72,24 @@ export const Interactive: Story = {
   parameters: {
     docs: {
       source: {
-        code: `<Reset
+        code: `<Share
   isOpen={isOpen}
   onToggle={() => setIsOpen(prev => !prev)}
   onClose={() => setIsOpen(false)}
-  onReset={handleReset}
+  onGetShareUrl={() => getShareUrl()}
+  onExportJson={exportJson}
+  onExportSvg={exportSvg}
+  onExportPng={exportPng}
+  onImportJson={importJson}
 />`,
       },
     },
   },
-  render: (args) => <ResetWithState {...args} />,
+  render: (args) => <ShareWithState {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await sleep(600);
+    await userEvent.click(button);
+  },
 };

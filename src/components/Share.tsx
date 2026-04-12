@@ -8,6 +8,8 @@ import Popover from './Popover';
 import { cn } from '../utils/cn';
 import type { ImportCallbacks } from '../types';
 
+type PopoverAlign = 'right' | 'left' | 'center';
+
 interface ShareProps {
   isOpen: boolean;
   onToggle: () => void;
@@ -17,8 +19,11 @@ interface ShareProps {
   onExportSvg: () => void;
   onExportPng: () => void;
   onImportJson: (file: File, callbacks?: ImportCallbacks) => void;
+  /** Popover alignment relative to trigger */
+  align?: PopoverAlign;
 }
 
+/** Share button with menu popover for copy link, save/load garden, and image export (SVG/PNG). */
 export default function Share({
   isOpen,
   onToggle,
@@ -28,6 +33,7 @@ export default function Share({
   onExportSvg,
   onExportPng,
   onImportJson,
+  align,
 }: ShareProps) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -107,6 +113,7 @@ export default function Share({
     <Popover
       isOpen={isOpen}
       onClose={close}
+      align={align}
       trigger={
         <Button
           variant="outline"

@@ -22,15 +22,23 @@ const ALIGN_CLASS: Record<PopoverAlign, string> = {
 };
 
 interface PopoverProps {
+  /** Whether the popover is visible */
   isOpen: boolean;
+  /** Called when clicking outside or pressing Escape */
   onClose: () => void;
+  /** Trigger element — gets aria-expanded, aria-haspopup, and stopPropagation injected */
   trigger?: ReactElement;
+  /** Horizontal alignment relative to trigger: right, left, or center */
   align?: PopoverAlign;
+  /** Accessible label for the dialog */
   ariaLabel?: string;
+  /** Additional CSS classes for the dropdown */
   className?: string;
+  /** Dropdown content */
   children: ReactNode;
 }
 
+/** Animated dropdown with click-outside, Escape key, and optional trigger with injected accessibility attributes. */
 export default function Popover({
   isOpen,
   onClose,

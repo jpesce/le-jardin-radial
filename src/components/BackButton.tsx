@@ -4,6 +4,7 @@ import { cn } from '../utils/cn';
 
 type BackButtonProps = ComponentPropsWithoutRef<'button'>;
 
+/** Back navigation button with animated arrow that slides left on hover. Suppresses transition on mount to prevent flicker when switching views. */
 export default function BackButton({
   className,
   children,

@@ -2,11 +2,15 @@ import { useEffect, type ReactNode } from 'react';
 import SadFlower from './SadFlower';
 
 interface FallbackPageProps {
+  /** Page heading */
   title: string;
+  /** Explanatory text below the heading */
   description: string;
+  /** Action buttons (e.g. "Go to garden") */
   actions: ReactNode;
 }
 
+/** Full-page fallback layout with title, description, and action slot. Used for not-found and invalid share pages. */
 export default function FallbackPage({
   title,
   description,
