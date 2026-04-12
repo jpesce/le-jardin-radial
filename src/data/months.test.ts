@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { parseMonths, bloomRanges, firstBloomStart } from './months';
-import type { MonthsConfig } from '../types';
+import {
+  parseMonths,
+  compactMonths,
+  bloomRanges,
+  firstBloomStart,
+} from './months';
+import type { FlowerState, MonthsConfig } from '../types';
 
 const states = (obj: MonthsConfig) => parseMonths(obj);
 
@@ -119,5 +124,69 @@ describe('firstBloomStart', () => {
 
   it('no blooming returns 12', () => {
     expect(firstBloomStart(states({ '1-12': 'dormant' }))).toBe(12);
+  });
+});
+
+describe('compactMonths', () => {
+  it('compresses all-same states into a single range', () => {
+    expect(compactMonths(Array<FlowerState>(12).fill('dormant'))).toEqual({
+      '1-12': 'dormant',
+    });
+  });
+
+  it('keeps single months as individual keys', () => {
+    expect(
+      compactMonths([
+        'blooming',
+        'dormant',
+        'dormant',
+        'dormant',
+        'dormant',
+        'dormant',
+        'dormant',
+        'dormant',
+        'dormant',
+        'dormant',
+        'dormant',
+        'dormant',
+      ]),
+    ).toEqual({ '1': 'blooming', '2-12': 'dormant' });
+  });
+
+  it('handles alternating states', () => {
+    expect(
+      compactMonths([
+        'dormant',
+        'sprouting',
+        'foliage',
+        'blooming',
+        'blooming',
+        'blooming',
+        'foliage',
+        'foliage',
+        'sprouting',
+        'dormant',
+        'dormant',
+        'dormant',
+      ]),
+    ).toEqual({
+      '1': 'dormant',
+      '2': 'sprouting',
+      '3': 'foliage',
+      '4-6': 'blooming',
+      '7-8': 'foliage',
+      '9': 'sprouting',
+      '10-12': 'dormant',
+    });
+  });
+
+  it('round-trips with parseMonths', () => {
+    const original = {
+      '1-3': 'dormant' as const,
+      '4-6': 'blooming' as const,
+      '7-9': 'foliage' as const,
+      '10-12': 'sprouting' as const,
+    };
+    expect(compactMonths(parseMonths(original))).toEqual(original);
   });
 });

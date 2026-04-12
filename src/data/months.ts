@@ -35,6 +35,20 @@ export function firstBloomStart(monthStates: MonthStates): number {
   return ranges.length > 0 ? (ranges[0]?.start ?? 12) : 12;
 }
 
+export function compactMonths(states: FlowerState[]): MonthsConfig {
+  const result: MonthsConfig = {};
+  let i = 0;
+  while (i < 12) {
+    const state = states[i] ?? 'dormant';
+    let end = i;
+    while (end + 1 < 12 && states[end + 1] === state) end++;
+    const key = i === end ? `${i + 1}` : `${i + 1}-${end + 1}`;
+    result[key] = state;
+    i = end + 1;
+  }
+  return result;
+}
+
 export function parseMonths(monthsObj: MonthsConfig): MonthStates {
   const result: FlowerState[] = new Array<FlowerState>(12).fill('dormant');
 

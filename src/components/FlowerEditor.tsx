@@ -5,31 +5,12 @@ import BackButton from './BackButton';
 import Button from './Button';
 import MonthGrid from './MonthGrid';
 import { DEFAULT_BLOOM_COLOR } from '../data/colors';
-import { parseMonths } from '../data/months';
-import type {
-  EnrichedFlower,
-  FlowerState,
-  MonthsConfig,
-  CustomFlowerData,
-} from '../types';
+import { parseMonths, compactMonths } from '../data/months';
+import type { EnrichedFlower, FlowerState, CustomFlowerData } from '../types';
 
 const DEFAULT_MONTHS: FlowerState[] = new Array<FlowerState>(12).fill(
   'dormant',
 );
-
-function compactMonths(states: FlowerState[]): MonthsConfig {
-  const result: MonthsConfig = {};
-  let i = 0;
-  while (i < 12) {
-    const state = states[i] ?? 'dormant';
-    let end = i;
-    while (end + 1 < 12 && states[end + 1] === state) end++;
-    const key = i === end ? `${i + 1}` : `${i + 1}-${end + 1}`;
-    result[key] = state;
-    i = end + 1;
-  }
-  return result;
-}
 
 interface FlowerEditorProps {
   flower: EnrichedFlower | null | undefined;
