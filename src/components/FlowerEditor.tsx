@@ -89,7 +89,7 @@ export default function FlowerEditor({
           className="shrink-0 transition-transform duration-150 ease-out group-hover/back:-translate-x-[3px]"
           size={11}
         />
-        {t('cancel')}
+        {t('backButton')}
       </button>
 
       <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
