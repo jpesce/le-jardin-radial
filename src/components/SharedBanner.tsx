@@ -1,10 +1,10 @@
 import { useState, useCallback, type CSSProperties } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Eye, ArrowLeft } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
-import { useClickOutside } from '../hooks/useClickOutside';
 import { colorsFromName, isLight } from './logo-colors';
 import Button from './Button';
+import Popover from './Popover';
 
 interface SharedBannerProps {
   owner: string;
@@ -30,7 +30,6 @@ export default function SharedBanner({
   const closeConfirm = useCallback(() => {
     setConfirmOpen(false);
   }, []);
-  useClickOutside(closeConfirm, confirmOpen);
 
   return (
     <motion.div
@@ -55,69 +54,55 @@ export default function SharedBanner({
           />{' '}
           {t('dismissShared')}
         </button>
-        <div className="relative flex gap-3 items-center">
+        <div className="flex gap-3 items-center">
           <span className="flex gap-[0.4rem] items-center tracking-[0.03em] opacity-80">
             <Eye size={14} />
             {t('sharedBanner')}
           </span>
-          <button
-            className="py-[0.3rem] px-3 font-[inherit] text-2xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer border-none rounded bg-[var(--btn-bg)] transition-[background] duration-150 hover:bg-[var(--btn-hover-bg)]"
-            style={
-              {
-                '--btn-bg': btnBg,
-                '--btn-hover-bg': btnHoverBg,
-                color: textColor,
-              } as CSSProperties
-            }
-            onPointerDown={(e) => {
-              e.stopPropagation();
-            }}
-            onClick={() => {
-              setConfirmOpen((prev) => !prev);
-            }}
-          >
-            {t('saveToMyGarden')}
-          </button>
-          <AnimatePresence>
-            {confirmOpen && (
-              <motion.div
-                className="absolute top-full right-0 z-[200] flex flex-col gap-2 w-64 py-3 px-4 mt-2 text-fg bg-surface border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-fg)_8%,transparent)]"
-                onPointerDown={(e) => {
-                  e.stopPropagation();
+          <Popover
+            isOpen={confirmOpen}
+            onClose={closeConfirm}
+            trigger={
+              <button
+                className="py-[0.3rem] px-3 font-[inherit] text-2xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer border-none rounded bg-[var(--btn-bg)] transition-[background] duration-150 hover:bg-[var(--btn-hover-bg)]"
+                style={
+                  {
+                    '--btn-bg': btnBg,
+                    '--btn-hover-bg': btnHoverBg,
+                    color: textColor,
+                  } as CSSProperties
+                }
+                onClick={() => {
+                  setConfirmOpen((prev) => !prev);
                 }}
-                initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
               >
-                <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-fg lowercase">
-                  {t('replaceTitle')}
-                </p>
-                <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
-                  {t('replaceConfirm')}
-                </p>
-                <div className="flex gap-[0.4rem] [&>*]:flex-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setConfirmOpen(false);
-                    }}
-                  >
-                    {t('replaceKeep')}
-                  </Button>
-                  <Button
-                    variant="solid"
-                    size="sm"
-                    color="danger"
-                    onClick={onSave}
-                  >
-                    {t('replaceYes')}
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {t('saveToMyGarden')}
+              </button>
+            }
+            ariaLabel={t('replaceTitle') as string}
+            className="z-[200] gap-2 w-64 py-3 px-4 mt-2 text-fg"
+          >
+            <p className="font-['JetBrains_Mono_Variable',monospace] text-xs font-bold text-fg lowercase">
+              {t('replaceTitle')}
+            </p>
+            <p className="font-['JetBrains_Mono_Variable',monospace] text-2xs leading-[1.5] text-subtle">
+              {t('replaceConfirm')}
+            </p>
+            <div className="flex gap-[0.4rem] [&>*]:flex-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setConfirmOpen(false);
+                }}
+              >
+                {t('replaceKeep')}
+              </Button>
+              <Button variant="solid" size="sm" color="danger" onClick={onSave}>
+                {t('replaceYes')}
+              </Button>
+            </div>
+          </Popover>
         </div>
       </div>
     </motion.div>
