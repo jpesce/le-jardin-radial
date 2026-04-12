@@ -10,6 +10,10 @@
   <img width="100%" src="docs/screenshot.png" alt="Screenshot"/>
 </p>
 
+<p align="center">
+  <a href="https://jardin.pesce.cc"><strong>Live app</strong></a> · <a href="https://jardin.pesce.cc/components"><strong>Component library</strong></a>
+</p>
+
 ## Features
 
 - 🌸 Radial chart visualizing blooming cycles and color patterns across the year
@@ -26,7 +30,8 @@ Prerequisites: [Node.js](https://nodejs.org/) (v22+) and [pnpm](https://pnpm.io/
 
 ```bash
 pnpm install
-pnpm dev
+pnpm dev            # app at localhost:5173
+pnpm storybook      # components at localhost:6006
 ```
 
 ## Tech stack
@@ -39,7 +44,6 @@ pnpm dev
 - **Framer Motion** — animations
 - **Lucide** — icons
 - **lz-string** — URL sharing via compressed state
-- **Storybook** — [component documentation](https://jardin.pesce.cc/components)
 
 ## Testing
 
