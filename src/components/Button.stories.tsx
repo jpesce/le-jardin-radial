@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, userEvent } from '@storybook/test';
 import { Sprout, Download, Pencil } from 'lucide-react';
 import Button from './Button';
 
@@ -12,7 +14,7 @@ const meta = {
     color: { control: 'select', options: ['default', 'danger'] },
     round: { control: 'boolean' },
     animated: { control: 'boolean' },
-    icon: { control: false },
+    icon: { table: { disable: true } },
   },
 } satisfies Meta<typeof Button>;
 
@@ -64,13 +66,41 @@ export const ExtraSmall: Story = {
   },
 };
 
+function AnimatedButton() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Button
+      variant="outline"
+      round
+      size="lg"
+      icon={<Sprout size={14} />}
+      animated
+      onClick={() => {
+        setOpen((prev) => !prev);
+      }}
+    >
+      {open ? 'Done' : 'Plan garden'}
+    </Button>
+  );
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export const Animated: Story = {
   args: {
     variant: 'outline',
     round: true,
     size: 'lg',
-    icon: <Sprout size={14} />,
     animated: true,
     children: 'Plan garden',
+  },
+  render: () => <AnimatedButton />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button');
+    await sleep(800);
+    await userEvent.click(button);
+    await sleep(1200);
+    await userEvent.click(button);
   },
 };

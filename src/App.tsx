@@ -7,7 +7,12 @@ import Logo from './components/Logo';
 import SharedBanner from './components/SharedBanner';
 import FallbackPage from './components/FallbackPage';
 import Button from './components/Button';
-import { OUTER_PALETTE, INNER_PALETTE, pick } from './utils/logoColors';
+import {
+  OUTER_PALETTE,
+  INNER_PALETTE,
+  pick,
+  colorsFromName,
+} from './utils/logoColors';
 import { useGarden, getSharedState } from './hooks/useGarden';
 import { useI18n } from './i18n/I18nContext';
 import { updateMeta } from './i18n/updateMeta';
@@ -117,7 +122,7 @@ export default function App() {
       <AnimatePresence>
         {garden.isShared && (
           <SharedBanner
-            owner={garden.owner}
+            backgroundColor={colorsFromName(garden.owner).outer}
             onSave={garden.saveShared}
             onDismiss={garden.dismissShared}
             animateEntry={hasBeenLocal}
@@ -126,7 +131,11 @@ export default function App() {
       </AnimatePresence>
       <main className="relative flex flex-1 flex-col items-center w-full p-8 max-[480px]:p-4">
         <div className="absolute top-8 left-8 z-50 w-[max(120px,20vw)]">
-          <Logo className="block w-full h-auto" name={garden.owner} />
+          <Logo
+            className="block w-full h-auto"
+            circleOuterColor={colorsFromName(garden.owner).outer}
+            circleInnerColor={colorsFromName(garden.owner).inner}
+          />
           <span className="block mt-[1.2vw] text-[0.95vw] font-normal text-fg uppercase tracking-[0.15em]">
             de {garden.owner}
           </span>

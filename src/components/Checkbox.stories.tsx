@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import Checkbox from './Checkbox';
 
@@ -21,11 +21,12 @@ export const Checked: Story = {
   args: { checked: true },
 };
 
-function InteractiveCheckbox() {
-  const [checked, setChecked] = useState(false);
+function CheckboxWithState(props: ComponentProps<typeof Checkbox>) {
+  const [checked, setChecked] = useState(props.checked ?? false);
   return (
     <label className="flex gap-2 items-center text-xs text-subtle cursor-pointer">
       <Checkbox
+        {...props}
         checked={checked}
         onChange={(e) => {
           setChecked(e.target.checked);
@@ -37,5 +38,7 @@ function InteractiveCheckbox() {
 }
 
 export const Interactive: Story = {
-  render: () => <InteractiveCheckbox />,
+  args: { checked: false },
+  argTypes: { checked: { table: { disable: true } } },
+  render: (args) => <CheckboxWithState {...args} />,
 };

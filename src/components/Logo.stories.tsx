@@ -5,7 +5,8 @@ const meta = {
   title: 'Components/Logo',
   component: Logo,
   argTypes: {
-    name: { control: 'text' },
+    circleOuterColor: { control: 'color' },
+    circleInnerColor: { control: 'color' },
   },
   decorators: [
     (Story) => (
@@ -20,9 +21,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: { className: 'w-full h-auto', name: 'Tainah Drummond' },
+  args: {
+    className: 'w-full h-auto',
+    circleOuterColor: '#e85138',
+    circleInnerColor: '#f9d748',
+  },
 };
 
-export const DifferentName: Story = {
-  args: { className: 'w-full h-auto', name: 'Alice' },
+export const CoolTones: Story = {
+  args: {
+    className: 'w-full h-auto',
+    circleOuterColor: '#8f80f9',
+    circleInnerColor: '#9ff487',
+  },
 };

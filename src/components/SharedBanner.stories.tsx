@@ -1,12 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import SharedBanner from './SharedBanner';
 
+const noop = () => {};
+
 const meta = {
   title: 'Components/SharedBanner',
   component: SharedBanner,
   argTypes: {
-    owner: { control: 'text' },
+    backgroundColor: { control: 'color' },
     animateEntry: { control: 'boolean' },
+    onSave: { table: { disable: true } },
+    onDismiss: { table: { disable: true } },
+  },
+  args: {
+    onSave: noop,
+    onDismiss: noop,
+    animateEntry: true,
   },
   parameters: {
     layout: 'fullscreen',
@@ -16,22 +25,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const noop = () => {};
-
-export const LightOwner: Story = {
+export const LightBackground: Story = {
   args: {
-    owner: 'Tainah Drummond',
-    animateEntry: false,
-    onSave: noop,
-    onDismiss: noop,
+    backgroundColor: '#f9d748',
   },
 };
 
-export const DarkOwner: Story = {
+export const DarkBackground: Story = {
   args: {
-    owner: 'Alice',
-    animateEntry: false,
-    onSave: noop,
-    onDismiss: noop,
+    backgroundColor: '#0c00ff',
   },
 };

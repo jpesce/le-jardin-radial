@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import Reset from './Reset';
 
@@ -7,6 +7,9 @@ const meta = {
   component: Reset,
   argTypes: {
     isOpen: { control: 'boolean' },
+    onToggle: { table: { disable: true } },
+    onClose: { table: { disable: true } },
+    onReset: { table: { disable: true } },
   },
   decorators: [
     (Story) => (
@@ -20,10 +23,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function InteractiveReset() {
-  const [isOpen, setIsOpen] = useState(false);
+function ResetWithState(props: ComponentProps<typeof Reset>) {
+  const [isOpen, setIsOpen] = useState(props.isOpen);
   return (
     <Reset
+      {...props}
       isOpen={isOpen}
       onToggle={() => {
         setIsOpen((prev) => !prev);
@@ -45,5 +49,6 @@ export const Interactive: Story = {
     onClose: () => {},
     onReset: () => {},
   },
-  render: () => <InteractiveReset />,
+  argTypes: { isOpen: { table: { disable: true } } },
+  render: (args) => <ResetWithState {...args} />,
 };

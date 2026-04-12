@@ -1,20 +1,14 @@
-import {
-  OUTER_PALETTE,
-  INNER_PALETTE,
-  pick,
-  colorsFromName,
-} from '../utils/logoColors';
-
 interface LogoProps {
   className?: string;
-  name?: string;
+  circleOuterColor: string;
+  circleInnerColor: string;
 }
 
-export default function Logo({ className, name = '' }: LogoProps) {
-  const colors = name
-    ? colorsFromName(name)
-    : { outer: pick(OUTER_PALETTE), inner: pick(INNER_PALETTE) };
-
+export default function Logo({
+  className,
+  circleOuterColor,
+  circleInnerColor,
+}: LogoProps) {
   return (
     <svg
       className={className}
@@ -37,8 +31,8 @@ export default function Logo({ className, name = '' }: LogoProps) {
         <path d="M253.2,178.2c-.9,0-1.53-.94-1.06-1.88l38.28-71.61c.24-.47.71-.71,1.18-.71s.94.24,1.18.71l38.28,71.61c.43.82-.12,1.88-1.06,1.88h-12.96c-.59,0-.94-.24-1.18-.71l-10.72-20.26c-.24-.47-1.06-1.41-2.24-1.41h-22.61c-1.18,0-2,.94-2.24,1.41l-10.72,20.26c-.24.47-.59.71-1.18.71h-12.96ZM297.01,141.69l-4.59-8.72c-.24-.47-.47-.71-.82-.71s-.59.24-.82.71l-4.59,8.72h10.84Z" />
         <path d="M343.76,178.2c-.94,0-1.41-.47-1.41-1.3v-71.26c0-.94.35-1.41,1.18-1.41h12.13c.94,0,1.3.47,1.3,1.41v57.6c0,.35.2.59.55.59h9.7c.71,0,1.41.59,1.41,1.3v11.78c0,.82-.47,1.3-1.41,1.3h-23.44Z" />
       </g>
-      <circle fill={colors.outer} cx="449.07" cy="140.85" r="37.71" />
-      <circle fill={colors.inner} cx="449.07" cy="140.85" r="20.96" />
+      <circle fill={circleOuterColor} cx="449.07" cy="140.85" r="37.71" />
+      <circle fill={circleInnerColor} cx="449.07" cy="140.85" r="20.96" />
     </svg>
   );
 }

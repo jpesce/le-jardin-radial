@@ -3,6 +3,7 @@ import tseslint from 'typescript-eslint';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
+import storybook from 'eslint-plugin-storybook';
 import playwright from 'eslint-plugin-playwright';
 import globals from 'globals';
 import prettier from 'eslint-config-prettier';
@@ -96,7 +97,8 @@ export default [
       globals: { ...globals.browser },
     },
   },
-  { ignores: ['dist/'] },
+  ...storybook.configs['flat/recommended'],
+  { ignores: ['dist/', '!.storybook'] },
   // must be last to override formatting rules
   prettier,
 ];

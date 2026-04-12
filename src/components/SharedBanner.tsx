@@ -2,27 +2,26 @@ import { useState, useCallback, type CSSProperties } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, ArrowLeft } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
-import { colorsFromName, isLight } from '../utils/logoColors';
+import { isLight } from '../utils/logoColors';
 import Button from './Button';
 import Popover from './Popover';
 
 interface SharedBannerProps {
-  owner: string;
+  backgroundColor: string;
   onSave: () => void;
   onDismiss: () => void;
   animateEntry: boolean;
 }
 
 export default function SharedBanner({
-  owner,
+  backgroundColor,
   onSave,
   onDismiss,
   animateEntry,
 }: SharedBannerProps) {
   const { t } = useI18n();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const { outer } = colorsFromName(owner);
-  const light = isLight(outer);
+  const light = isLight(backgroundColor);
   const textColor = light ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.95)';
   const btnBg = light ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)';
   const btnHoverBg = light ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.25)';
@@ -34,11 +33,15 @@ export default function SharedBanner({
   return (
     <motion.div
       className="w-full text-xs leading-normal"
-      style={{ background: outer, color: textColor }}
+      style={{ background: backgroundColor, color: textColor }}
       initial={
         animateEntry ? { height: 0, overflow: 'hidden' as const } : false
       }
-      animate={{ height: 'auto', overflow: 'visible' as const }}
+      animate={{
+        height: 'auto',
+        overflow: 'hidden' as const,
+        transitionEnd: { overflow: 'visible' as const },
+      }}
       exit={{ height: 0, overflow: 'hidden' as const }}
       transition={{ height: { duration: 0.3, ease: 'easeInOut' } }}
     >
