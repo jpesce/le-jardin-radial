@@ -39,6 +39,7 @@ pnpm dev
 - **Framer Motion** — animations
 - **Lucide** — icons
 - **lz-string** — URL sharing via compressed state
+- **Storybook** — [component documentation](https://jardin.pesce.cc/components)
 
 ## Testing
 
