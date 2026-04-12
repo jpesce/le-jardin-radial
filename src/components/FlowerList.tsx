@@ -1,16 +1,13 @@
-import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sprout, Pencil, GripVertical } from 'lucide-react';
+import { Sprout } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { raw as catalogRaw } from '../data/flowers';
 import { useClickOutside } from '../hooks/useClickOutside';
-import { useDragReorder } from '../hooks/useDragReorder';
 import Button from './Button';
-import Checkbox from './Checkbox';
-import { cn } from '../utils/cn';
 import FlowerCatalog from './FlowerCatalog';
 import FlowerEditor from './FlowerEditor';
-import FlowerRow from './FlowerRow';
+import FlowerGardenView from './FlowerGardenView';
 import ResetConfirmation from './ResetConfirmation';
 import ShareButton from './ShareButton';
 import type {
@@ -19,7 +16,6 @@ import type {
   ImportCallbacks,
 } from '../types';
 
-const LAYOUT_TRANSITION = { duration: 0.3, ease: 'easeInOut' as const };
 const CATALOG_IDS = new Set(catalogRaw.map((f) => f.id));
 
 type ViewState =
@@ -80,56 +76,13 @@ export default function FlowerList({
   onClose,
 }: FlowerListProps) {
   const { t } = useI18n();
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [view, setViewRaw] = useState<ViewState>('garden');
   const setView = (v: ViewState) => {
-    setHoveredId(null);
     setViewRaw(v);
   };
   const [activePopover, setActivePopover] = useState<string | null>(null);
-  const listRef = useRef<HTMLUListElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const liveRegionRef = useRef<HTMLDivElement>(null);
-
-  const { dragFrom, dropTarget, handlePointerDown } = useDragReorder(
-    listRef,
-    selected,
-    onReorder,
-  );
-
-  const handleKeyboardReorder = useCallback(
-    (e: React.KeyboardEvent, flowerId: string, selectedIdx: number) => {
-      const dir = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0;
-      if (!dir) return;
-      e.preventDefault();
-
-      const toIdx = selectedIdx + dir;
-      if (toIdx < 0 || toIdx >= selected.length) return;
-
-      const reordered = [...selected];
-      const removed = reordered.splice(selectedIdx, 1)[0];
-      if (removed !== undefined) reordered.splice(toIdx, 0, removed);
-      onReorder(reordered);
-
-      // Restore focus after React re-render
-      requestAnimationFrame(() => {
-        const handle = listRef.current?.querySelector<HTMLElement>(
-          `[data-reorder-id="${flowerId}"]`,
-        );
-        handle?.focus();
-      });
-
-      // Announce to screen readers
-      if (liveRegionRef.current) {
-        const flower = gardenFlowers.find((f) => f.id === flowerId);
-        if (flower) {
-          liveRegionRef.current.textContent = `${flower.displayName}, ${toIdx + 1} of ${selected.length}`;
-        }
-      }
-    },
-    [selected, onReorder, gardenFlowers],
-  );
 
   const closePanel = useCallback(() => {
     setViewRaw('garden');
@@ -156,21 +109,7 @@ export default function FlowerList({
     onTogglePanel();
   }, [onTogglePanel]);
 
-  const sortedFlowers = useMemo(() => {
-    const sel = selected
-      .map((id) => gardenFlowers.find((f) => f.id === id))
-      .filter((f): f is EnrichedFlower => Boolean(f));
-    const unselected = gardenFlowers.filter((f) => !selected.includes(f.id));
-    return [...sel, ...unselected];
-  }, [gardenFlowers, selected]);
-
-  const selectedSet = useMemo(() => new Set(selected), [selected]);
-
-  const handleClickOutside = useCallback(() => {
-    if (dragFrom !== null) return;
-    closePanel();
-  }, [closePanel, dragFrom]);
-  useClickOutside(handleClickOutside, isOpen, [panelRef, buttonRef]);
+  useClickOutside(closePanel, isOpen, [panelRef, buttonRef]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -298,171 +237,22 @@ export default function FlowerList({
                   }
                 />
               ) : (
-                <>
-                  <div className="flex flex-col gap-[0.35rem]">
-                    <label className="flex gap-[0.4rem] items-center text-xs text-muted lowercase tracking-[0.03em] cursor-pointer select-none">
-                      {t('gardenerLabel')}
-                    </label>
-                    <input
-                      type="text"
-                      className="px-[0.6rem] py-[0.4rem] font-[inherit] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
-                      value={gardenOwner}
-                      onChange={(e) => {
-                        onGardenOwnerChange(e.target.value);
-                      }}
-                    />
-                    <label className="flex gap-[0.4rem] items-center text-xs text-muted lowercase tracking-[0.03em] cursor-pointer select-none mt-[0.6rem]">
-                      <Checkbox
-                        checked={showLabels}
-                        onChange={(e) => {
-                          onShowLabelsChange(e.target.checked);
-                        }}
-                      />
-                      {t('showFlowerNames')}
-                    </label>
-                  </div>
-                  <div className="flex items-center pt-5">
-                    <h3 className="text-xs font-bold text-muted uppercase tracking-[0.05em]">
-                      {t('pickFlowers')}
-                    </h3>
-                    <Button
-                      variant="ghost"
-                      size="xs"
-                      icon={<Pencil size={10} />}
-                      className="ml-1"
-                      aria-label="Manage flowers"
-                      onClick={() => {
-                        setView('manage');
-                      }}
-                    />
-                  </div>
-
-                  <ul
-                    ref={listRef}
-                    className={cn(
-                      'flex flex-col list-none',
-                      dragFrom !== null && 'pointer-events-none',
-                    )}
-                  >
-                    <AnimatePresence initial={false}>
-                      {sortedFlowers.flatMap((flower) => {
-                        const isSelected = selectedSet.has(flower.id);
-                        const selectedIdx = selected.indexOf(flower.id);
-
-                        const isDragging = dragFrom !== null;
-                        const isDraggedItem =
-                          isSelected && dragFrom === selectedIdx;
-                        const isHovered = hoveredId === flower.id;
-
-                        const showIndicatorAbove =
-                          isDragging &&
-                          isSelected &&
-                          dropTarget === selectedIdx &&
-                          dropTarget !== dragFrom &&
-                          dropTarget !== dragFrom + 1;
-
-                        const showIndicatorBelow =
-                          isDragging &&
-                          isSelected &&
-                          selectedIdx === selected.length - 1 &&
-                          dropTarget === selected.length &&
-                          dropTarget !== dragFrom + 1;
-
-                        const items = [
-                          <motion.li
-                            key={flower.id}
-                            layout
-                            transition={{ layout: LAYOUT_TRANSITION }}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: isDraggedItem ? 0.4 : 1 }}
-                            exit={{ opacity: 0 }}
-                            className={cn(
-                              'group relative',
-                              showIndicatorAbove &&
-                                'before:content-[""] before:absolute before:inset-x-0 before:h-px before:bg-border-hover before:top-0',
-                              showIndicatorBelow &&
-                                'after:content-[""] after:absolute after:inset-x-0 after:h-px after:bg-border-hover after:bottom-0',
-                            )}
-                            data-hovered={isHovered || undefined}
-                            data-selected-idx={
-                              isSelected ? selectedIdx : undefined
-                            }
-                            onPointerMove={() => {
-                              if (dragFrom === null && hoveredId !== flower.id)
-                                setHoveredId(flower.id);
-                            }}
-                            onMouseLeave={() => {
-                              setHoveredId(null);
-                            }}
-                            onPointerDown={
-                              isSelected
-                                ? (e) => {
-                                    handlePointerDown(e, selectedIdx);
-                                  }
-                                : undefined
-                            }
-                          >
-                            <label className="flex flex-1 gap-[0.5rem] items-center py-[0.25rem] text-xs text-subtle cursor-pointer">
-                              <FlowerRow
-                                flower={flower}
-                                checked={isSelected}
-                                onToggle={() => {
-                                  onToggle(flower.id);
-                                }}
-                                onEdit={() => {
-                                  setView({ edit: flower.id, from: 'garden' });
-                                }}
-                                dragHandle={
-                                  isSelected ? (
-                                    <span
-                                      className="absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-drag-handle cursor-grab select-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing group-hover:opacity-100 group-data-[hovered]:opacity-100 focus-visible:opacity-100 focus-visible:bg-divider focus-visible:outline-none"
-                                      role="button"
-                                      tabIndex={0}
-                                      aria-label={`Reorder ${flower.displayName}`}
-                                      aria-roledescription="sortable"
-                                      data-reorder-id={flower.id}
-                                      onKeyDown={(e) => {
-                                        handleKeyboardReorder(
-                                          e,
-                                          flower.id,
-                                          selectedIdx,
-                                        );
-                                      }}
-                                      onPointerDown={(e) => {
-                                        e.stopPropagation();
-                                      }}
-                                    >
-                                      <GripVertical size={11} />
-                                    </span>
-                                  ) : null
-                                }
-                              />
-                            </label>
-                          </motion.li>,
-                        ];
-
-                        const isLastSelected =
-                          isSelected &&
-                          selectedIdx === selected.length - 1 &&
-                          sortedFlowers.length > selected.length;
-
-                        if (isLastSelected) {
-                          items.push(
-                            <motion.li
-                              key="__divider"
-                              layout
-                              transition={{ layout: LAYOUT_TRANSITION }}
-                              className="h-px my-[0.4rem] bg-divider"
-                              aria-hidden
-                            />,
-                          );
-                        }
-
-                        return items;
-                      })}
-                    </AnimatePresence>
-                  </ul>
-                </>
+                <FlowerGardenView
+                  gardenFlowers={gardenFlowers}
+                  selected={selected}
+                  onToggle={onToggle}
+                  onReorder={onReorder}
+                  onEditFlower={(id) => {
+                    setView({ edit: id, from: 'garden' });
+                  }}
+                  onManage={() => {
+                    setView('manage');
+                  }}
+                  showLabels={showLabels}
+                  onShowLabelsChange={onShowLabelsChange}
+                  gardenOwner={gardenOwner}
+                  onGardenOwnerChange={onGardenOwnerChange}
+                />
               )}
               <div className="sticky bottom-0 shrink-0 h-6 pointer-events-none bg-linear-to-b from-transparent to-bg" />
             </div>
@@ -479,12 +269,6 @@ export default function FlowerList({
           </motion.aside>
         )}
       </AnimatePresence>
-      <div
-        ref={liveRegionRef}
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      />
     </div>
   );
 }
