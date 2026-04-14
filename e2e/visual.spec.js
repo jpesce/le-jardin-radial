@@ -15,25 +15,33 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('visual regression', () => {
   test('main view — English', async ({ page }) => {
-    await expect(page).toHaveScreenshot('main-view-en.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('desktop-main-view-en.png', {
+      fullPage: true,
+    });
   });
 
   test('main view — French', async ({ page }) => {
     await page.getByRole('button', { name: 'fr', exact: true }).click();
-    await expect(page).toHaveScreenshot('main-view-fr.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('desktop-main-view-fr.png', {
+      fullPage: true,
+    });
   });
 
   test('panel — garden view', async ({ page }) => {
     await page.getByText('Plan garden').click();
     await expect(page.getByText('Gardener')).toBeVisible();
-    await expect(page).toHaveScreenshot('panel-garden.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('desktop-panel-garden.png', {
+      fullPage: true,
+    });
   });
 
   test('panel — manage view', async ({ page }) => {
     await page.getByText('Plan garden').click();
     await page.getByRole('button', { name: 'Manage flowers' }).click();
     await expect(page.getByText('Available flowers')).toBeVisible();
-    await expect(page).toHaveScreenshot('panel-manage.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('desktop-panel-manage.png', {
+      fullPage: true,
+    });
   });
 
   test('panel — flower editor (create)', async ({ page }) => {
@@ -41,7 +49,7 @@ test.describe('visual regression', () => {
     await page.getByRole('button', { name: 'Manage flowers' }).click();
     await page.getByText('Create flower').click();
     await expect(page.getByText('Bloom color')).toBeVisible();
-    await expect(page).toHaveScreenshot('panel-editor-create.png', {
+    await expect(page).toHaveScreenshot('desktop-panel-editor-create.png', {
       fullPage: true,
     });
   });
@@ -49,7 +57,7 @@ test.describe('visual regression', () => {
   test('share dropdown', async ({ page }) => {
     await page.getByRole('button', { name: 'Share garden' }).click();
     await expect(page.getByText('Copy link')).toBeVisible();
-    await expect(page).toHaveScreenshot('share-dropdown.png', {
+    await expect(page).toHaveScreenshot('desktop-share-dropdown.png', {
       fullPage: true,
     });
   });
@@ -57,7 +65,7 @@ test.describe('visual regression', () => {
   test('reset confirmation', async ({ page }) => {
     await page.getByRole('button', { name: 'Reset garden' }).click();
     await expect(page.getByText('Reset garden?')).toBeVisible();
-    await expect(page).toHaveScreenshot('reset-confirm.png', {
+    await expect(page).toHaveScreenshot('desktop-reset-confirm.png', {
       fullPage: true,
     });
   });
@@ -81,7 +89,7 @@ test.describe('visual regression', () => {
           .evaluate((el) => el.getAttribute('opacity')),
       )
       .toBe('0.85');
-    await expect(page).toHaveScreenshot('shared-banner.png', {
+    await expect(page).toHaveScreenshot('desktop-shared-banner.png', {
       fullPage: true,
     });
   });
@@ -105,7 +113,7 @@ test.describe('visual regression', () => {
       .toBe('0.85');
     await page.getByText('Save to my garden').click();
     await expect(page.getByText('Replace your garden?')).toBeVisible();
-    await expect(page).toHaveScreenshot('shared-save-confirm.png', {
+    await expect(page).toHaveScreenshot('desktop-shared-save-confirm.png', {
       fullPage: true,
     });
   });
@@ -141,7 +149,148 @@ test.describe('visual regression', () => {
         svg.pauseAnimations?.();
       });
     });
-    await expect(page).toHaveScreenshot('error-boundary.png', {
+    await expect(page).toHaveScreenshot('desktop-error-boundary.png', {
+      fullPage: true,
+    });
+  });
+});
+
+test.describe('visual regression — mobile', () => {
+  test.use({ viewport: { width: 375, height: 667 } });
+
+  test('main view — English', async ({ page }) => {
+    await expect(page).toHaveScreenshot('mobile-main-view-en.png', {
+      fullPage: true,
+    });
+  });
+
+  test('main view — French', async ({ page }) => {
+    await page.getByRole('button', { name: 'fr', exact: true }).click();
+    await expect(page).toHaveScreenshot('mobile-main-view-fr.png', {
+      fullPage: true,
+    });
+  });
+
+  test('panel — garden view', async ({ page }) => {
+    await page.getByText('Plan garden').click();
+    await expect(page.getByText('Gardener')).toBeVisible();
+    await expect(page).toHaveScreenshot('mobile-panel-garden.png', {
+      fullPage: true,
+    });
+  });
+
+  test('panel — manage view', async ({ page }) => {
+    await page.getByText('Plan garden').click();
+    await page.getByRole('button', { name: 'Manage flowers' }).click();
+    await expect(page.getByText('Available flowers')).toBeVisible();
+    await expect(page).toHaveScreenshot('mobile-panel-manage.png', {
+      fullPage: true,
+    });
+  });
+
+  test('panel — flower editor (create)', async ({ page }) => {
+    await page.getByText('Plan garden').click();
+    await page.getByRole('button', { name: 'Manage flowers' }).click();
+    await page.getByText('Create flower').click();
+    await expect(page.getByText('Bloom color')).toBeVisible();
+    await expect(page).toHaveScreenshot('mobile-panel-editor-create.png', {
+      fullPage: true,
+    });
+  });
+
+  test('share dropdown', async ({ page }) => {
+    await page.getByRole('button', { name: 'Share garden' }).click();
+    await expect(page.getByText('Copy link')).toBeVisible();
+    await expect(page).toHaveScreenshot('mobile-share-dropdown.png', {
+      fullPage: true,
+    });
+  });
+
+  test('reset confirmation', async ({ page }) => {
+    await page.getByRole('button', { name: 'Reset garden' }).click();
+    await expect(page.getByText('Reset garden?')).toBeVisible();
+    await expect(page).toHaveScreenshot('mobile-reset-confirm.png', {
+      fullPage: true,
+    });
+  });
+
+  test('shared garden banner', async ({ page }) => {
+    await page
+      .context()
+      .grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.getByRole('button', { name: 'Share garden' }).click();
+    await page.getByText('Copy link').click();
+    const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
+    await page.goto(shareUrl);
+    await expect(page.getByText('View only', { exact: true })).toBeVisible();
+    await expect(page.locator('textPath').first()).toBeVisible();
+    await expect
+      .poll(() =>
+        page
+          .locator('text[opacity]')
+          .first()
+          .evaluate((el) => el.getAttribute('opacity')),
+      )
+      .toBe('0.85');
+    await expect(page).toHaveScreenshot('mobile-shared-banner.png', {
+      fullPage: true,
+    });
+  });
+
+  test('shared garden — save confirmation', async ({ page }) => {
+    await page
+      .context()
+      .grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.getByRole('button', { name: 'Share garden' }).click();
+    await page.getByText('Copy link').click();
+    const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
+    await page.goto(shareUrl);
+    await expect(page.locator('textPath').first()).toBeVisible();
+    await expect
+      .poll(() =>
+        page
+          .locator('text[opacity]')
+          .first()
+          .evaluate((el) => el.getAttribute('opacity')),
+      )
+      .toBe('0.85');
+    await page.getByText('Save', { exact: true }).click();
+    await expect(page.getByText('Replace your garden?')).toBeVisible();
+    await expect(page).toHaveScreenshot('mobile-shared-save-confirm.png', {
+      fullPage: true,
+    });
+  });
+
+  test('error boundary fallback', async ({ page }) => {
+    await page.evaluate(() => {
+      localStorage.setItem('jardin-radial-lang', 'en');
+      localStorage.setItem(
+        'jardin-radial',
+        JSON.stringify({
+          state: {
+            owner: null,
+            labels: 'bad',
+            defaultCatalog: 'bad',
+            garden: null,
+            selected: null,
+            customFlowers: null,
+          },
+          version: 0,
+        }),
+      );
+    });
+    await page.reload();
+    await expect(page.getByText('Well, that didn\u2019t bloom')).toBeVisible();
+    await page.addStyleTag({
+      content:
+        'svg animate, svg animateTransform { animation-play-state: paused !important; }',
+    });
+    await page.evaluate(() => {
+      document.querySelectorAll('svg').forEach((svg) => {
+        svg.pauseAnimations?.();
+      });
+    });
+    await expect(page).toHaveScreenshot('mobile-error-boundary.png', {
       fullPage: true,
     });
   });
