@@ -20,7 +20,8 @@ React + D3.js + TypeScript garden visualization. Deployed at jardin.pesce.cc via
 - **D3.js** — imperative radial chart
 - **Zustand** — state management with persist middleware
 - **Tailwind CSS v4** — utility-first styling, design tokens via `@theme`
-- **Framer Motion** — animations (panel, banner, popovers)
+- **Radix UI** — Popover and Checkbox primitives (shadcn copy-paste model)
+- **Framer Motion** — animations (panel, banner)
 - **Playwright** — E2E + visual regression tests
 - **Vitest** — unit tests
 - **ESLint** (strictTypeChecked) + **Prettier** + **commitlint** + **Husky**
@@ -53,8 +54,8 @@ State model: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowe
 
 - **Button** (`Button.tsx`): `variant` (outline/solid/ghost), `round`, `size` (xs-lg), `color` (default/danger), `animated` prop for width transitions via `useLayoutEffect` + `getBoundingClientRect`. Uses `cn()` for class composition.
 - **BackButton** (`BackButton.tsx`): Shared back navigation button with ArrowLeft icon and hover animation. Suppresses transition on mount to prevent flicker when switching views.
-- **Checkbox** (`Checkbox.tsx`): Custom styled checkbox using Tailwind `before:` pseudo-element variants.
-- **Popover** (`Popover.tsx`): Reusable popover with optional `trigger` prop (injects `aria-expanded`, `aria-haspopup`, `stopPropagation` via `cloneElement`), click-outside, Escape key, `role="dialog"`, `aria-label`. Shared animation constants.
+- **Checkbox** (`ui/checkbox.tsx`): Radix Checkbox (shadcn). Small square indicator, not check icon.
+- **Popover** (`ui/popover.tsx`): Radix Popover (shadcn). CSS keyframe animations (`popover-in`/`popover-out`), `data-[state]` driven. Built-in focus trapping, click-outside dismiss, Escape key.
 
 **Layout components:**
 
@@ -63,7 +64,7 @@ State model: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowe
 
 **Panel components:**
 
-- **GardenPanel** (`GardenPanel.tsx`): Self-contained trigger button + editing panel — view routing (garden/manage/create/edit), keyboard navigation (Escape to go back, Enter to submit), click-outside dismiss. Reads garden state from Zustand directly.
+- **GardenPanel** (`GardenPanel.tsx`): Self-contained Radix Popover — trigger button + editing panel. View routing (garden/manage/create/edit), custom Escape handler (capture phase, preempts Radix for view navigation), `onOpenAutoFocus` prevented to avoid selecting input. Reads garden state from Zustand directly.
 - **FlowerGardenView** (`FlowerGardenView.tsx`): Garden view — owner input, labels toggle, sortable flower list with drag reorder (`setPointerCapture` on handle, `touch-action: none` for mobile), keyboard reorder (ArrowUp/ArrowDown with `aria-live` announcements), hover state management (JS-controlled via `data-hovered` to support suppression during drag and animation).
 - **FlowerCatalog** (`FlowerCatalog.tsx`): Manage view — searchable list, garden membership toggles.
 - **FlowerEditor** (`FlowerEditor.tsx`): Create/edit view — name (en/fr), scientific name, bloom color, month grid.
@@ -71,8 +72,8 @@ State model: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowe
 
 **Action controls:**
 
-- **Reset** (`Reset.tsx`): Reset button + confirmation popover. Accepts `round`, `size`, `align` pass-through props.
-- **Share** (`Share.tsx`): Share button + menu popover with copy link, save/load garden, image export sub-view (SVG/PNG). Accepts `round`, `size`, `align` pass-through props.
+- **Reset** (`Reset.tsx`): Reset button + Radix confirmation popover. Accepts `round`, `size`, `align` pass-through props.
+- **Share** (`Share.tsx`): Share button + Radix menu popover with copy link, save/load garden, image export sub-view (SVG/PNG). Accepts `round`, `size`, `align` pass-through props.
 
 **Other:**
 
