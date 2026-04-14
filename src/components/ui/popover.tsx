@@ -19,6 +19,7 @@ function PopoverContent({
   className,
   align = 'end',
   sideOffset = 6,
+  collisionPadding = 16,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
   return (
@@ -26,6 +27,7 @@ function PopoverContent({
       data-slot="popover-content"
       align={align}
       sideOffset={sideOffset}
+      collisionPadding={collisionPadding}
       className={cn(
         'z-[101] flex flex-col max-w-[calc(100vw-2rem)] bg-surface border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-fg)_8%,transparent)] outline-hidden',
         'data-[state=open]:animate-popover-in data-[state=closed]:animate-popover-out',

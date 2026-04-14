@@ -113,13 +113,14 @@ export default function GardenPanel({
       <PopoverContent
         ref={panelRef}
         align="end"
+        collisionPadding={0}
         onOpenAutoFocus={(e) => {
           e.preventDefault(); // Don't auto-focus/select inputs
         }}
         onEscapeKeyDown={(e) => {
           e.preventDefault(); // Let our custom handler manage Escape
         }}
-        className="flex flex-col w-[calc(100vw-2rem)] sm:w-[300px] max-h-[calc(100dvh-9rem)] sm:max-h-[calc(100dvh-6rem)] p-0 overflow-hidden rounded-xl shadow-[0_4px_24px_color-mix(in_srgb,var(--color-fg)_8%,transparent)]"
+        className="flex flex-col w-screen max-sm:max-w-none sm:w-[300px] max-h-[calc(100dvh-9rem)] sm:max-h-[calc(100dvh-6rem)] p-0 overflow-hidden max-sm:rounded-none sm:rounded-xl shadow-[0_4px_24px_color-mix(in_srgb,var(--color-fg)_8%,transparent)]"
       >
         <div className="flex flex-1 flex-col gap-[0.25rem] min-h-0 px-[1.875rem] pt-6 overflow-y-auto">
           {view === 'manage' ? (
