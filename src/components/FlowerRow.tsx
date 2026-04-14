@@ -3,7 +3,7 @@ import { Pencil, User } from 'lucide-react';
 import { bloomRanges } from '../data/months';
 import { useI18n } from '../i18n/I18nContext';
 import Button from './Button';
-import Checkbox from './Checkbox';
+import { Checkbox } from './ui/checkbox';
 import type { EnrichedFlower } from '../types';
 
 interface FlowerRowProps {
@@ -29,7 +29,7 @@ export default function FlowerRow({
       {dragHandle}
       <Checkbox
         checked={checked}
-        onChange={onToggle}
+        onCheckedChange={onToggle}
         className="group-hover:border-fg group-data-[hovered]:border-fg"
       />
       <span

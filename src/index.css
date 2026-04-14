@@ -38,6 +38,32 @@
   --text-xs--line-height: initial;
   --text-sm: 13px;
   --text-sm--line-height: initial;
+
+  /* Popover animations */
+  --animate-popover-in: popover-in 0.18s ease-out;
+  --animate-popover-out: popover-out 0.15s ease-in;
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popover-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
 }
 
 body {

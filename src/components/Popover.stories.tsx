@@ -1,29 +1,19 @@
-import { useState, type ComponentProps } from 'react';
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { within, userEvent } from 'storybook/test';
-import Popover from './Popover';
+import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
 import Button from './Button';
 import { Share2 } from 'lucide-react';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const meta = {
-  title: 'Molecules/Popover',
-  component: Popover,
+  title: 'Primitives/Popover',
+  component: PopoverContent,
   argTypes: {
-    align: { control: 'select', options: ['right', 'left', 'center'] },
-    ariaLabel: { control: 'text' },
+    align: { control: 'select', options: ['start', 'center', 'end'] },
     className: { table: { disable: true } },
-    isOpen: { table: { disable: true } },
-    onClose: { table: { disable: true } },
-    trigger: { table: { disable: true } },
     children: { table: { disable: true } },
-  },
-  args: {
-    align: 'center',
-    ariaLabel: 'Example popover',
-    className: 'gap-2 w-64 py-3 px-4',
-    children: <p className="text-xs text-subtle">Popover content goes here.</p>,
   },
   decorators: [
     (Story) => (
@@ -32,57 +22,47 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof Popover>;
+} satisfies Meta<typeof PopoverContent>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function PopoverWithState(props: ComponentProps<typeof Popover>) {
+function PopoverWithState({ align }: { align?: 'start' | 'center' | 'end' }) {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <Popover
-      {...props}
-      isOpen={isOpen}
-      onClose={() => {
-        setIsOpen(false);
-      }}
-      trigger={
-        <Button
-          variant="outline"
-          round
-          size="lg"
-          icon={<Share2 size={14} />}
-          onClick={() => {
-            setIsOpen((prev) => !prev);
-          }}
-        />
-      }
-    />
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" round size="lg" icon={<Share2 size={14} />} />
+      </PopoverTrigger>
+      <PopoverContent align={align} className="gap-2 w-64 py-3 px-4">
+        <p className="text-xs font-bold text-fg lowercase">Share menu</p>
+        <p className="text-2xs text-subtle">
+          Click outside or press Escape to close.
+        </p>
+      </PopoverContent>
+    </Popover>
   );
 }
 
 export const Default: Story = {
   args: {
-    isOpen: false,
-    onClose: () => {},
+    align: 'center',
   },
   parameters: {
     docs: {
       source: {
-        code: `<Popover
-  isOpen={isOpen}
-  onClose={() => setIsOpen(false)}
-  align="center"
-  trigger={<Button onClick={toggle} />}
-  ariaLabel="Menu"
-  className="gap-2 w-64 py-3 px-4"
->
-  <p>Content</p>
+        code: `<Popover open={isOpen} onOpenChange={setIsOpen}>
+  <PopoverTrigger asChild>
+    <Button onClick={toggle} />
+  </PopoverTrigger>
+  <PopoverContent align="center" className="gap-2 w-64 py-3 px-4">
+    <p>Content</p>
+  </PopoverContent>
 </Popover>`,
       },
     },
   },
-  render: (args) => <PopoverWithState {...args} />,
+  render: (args) => <PopoverWithState align={args.align} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole('button');

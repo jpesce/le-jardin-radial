@@ -4,11 +4,11 @@ import { Share2, Link, Check, Download, Upload, Image } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import BackButton from './BackButton';
 import Button from './Button';
-import Popover from './Popover';
+import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
 import { cn } from '../utils/cn';
 import type { ImportCallbacks } from '../types';
 
-type PopoverAlign = 'right' | 'left' | 'center';
+type PopoverAlign = 'start' | 'center' | 'end';
 
 interface ShareProps {
   isOpen: boolean;
@@ -37,7 +37,7 @@ export default function Share({
   onExportSvg,
   onExportPng,
   onImportJson,
-  align,
+  align = 'end',
   round = true,
   size = 'lg',
 }: ShareProps) {
@@ -117,143 +117,149 @@ export default function Share({
 
   return (
     <Popover
-      isOpen={isOpen}
-      onClose={close}
-      align={align}
-      trigger={
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (open) onToggle();
+        else close();
+      }}
+    >
+      <PopoverTrigger asChild>
         <Button
           variant="outline"
           round={round}
           size={size}
           icon={<Share2 size={14} className="-translate-x-px" />}
           className={cn('text-fg', isOpen && 'border-muted')}
-          onClick={onToggle}
           aria-label="Share garden"
         />
-      }
-      ariaLabel="Share garden"
-      className="w-max max-w-64 p-[0.35rem] [&>button]:justify-start"
-    >
-      {pendingFile ? (
-        <div className="flex flex-col gap-2 px-[0.65rem] py-[0.4rem]">
-          <p className="text-xs font-bold lowercase">
-            {t('importConfirmTitle')}
-          </p>
-          <p className="text-2xs leading-[1.5] text-subtle">
-            {t('importConfirmText')}
-          </p>
-          {importError && (
-            <p className="text-2xs leading-[1.5] text-danger">
-              {t('importError')}
+      </PopoverTrigger>
+      <PopoverContent
+        align={align}
+        className="w-max max-w-64 p-[0.35rem] [&>button]:justify-start"
+      >
+        {pendingFile ? (
+          <div className="flex flex-col gap-2 px-[0.65rem] py-[0.4rem]">
+            <p className="text-xs font-bold lowercase">
+              {t('importConfirmTitle')}
             </p>
-          )}
-          <div className="flex gap-[0.4rem] [&>*]:flex-1">
-            <Button variant="outline" size="sm" onClick={cancelImport}>
-              {t('cancel')}
+            <p className="text-2xs leading-[1.5] text-subtle">
+              {t('importConfirmText')}
+            </p>
+            {importError && (
+              <p className="text-2xs leading-[1.5] text-danger">
+                {t('importError')}
+              </p>
+            )}
+            <div className="flex gap-[0.4rem] [&>*]:flex-1">
+              <Button variant="outline" size="sm" onClick={cancelImport}>
+                {t('cancel')}
+              </Button>
+              <Button
+                variant="solid"
+                size="sm"
+                color="danger"
+                onClick={confirmImport}
+              >
+                {t('importJson')}
+              </Button>
+            </div>
+          </div>
+        ) : showExportOptions ? (
+          <div className="flex flex-col gap-[0.35rem] px-[0.65rem] py-[0.4rem]">
+            <BackButton
+              onClick={() => {
+                setShowExportOptions(false);
+              }}
+            >
+              {t('backButton')}
+            </BackButton>
+            <p className="text-xs font-bold lowercase">
+              {t('exportImageTitle')}
+            </p>
+            <p className="text-2xs leading-[1.5] text-subtle">
+              {t('exportImageHint')}
+            </p>
+            <div className="flex gap-[0.4rem] [&>*]:flex-1">
+              <Button variant="outline" size="sm" onClick={handleExportSvg}>
+                SVG
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleExportPng}>
+                PNG
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <Button
+              variant="ghost"
+              size="md"
+              icon={
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={copied ? 'check' : 'link'}
+                    style={{ display: 'flex' }}
+                    initial={{ scale: 0, rotate: -90 }}
+                    animate={{
+                      scale: 1,
+                      rotate: 0,
+                      transition: {
+                        type: 'spring',
+                        duration: 0.5,
+                        bounce: 0.5,
+                      },
+                    }}
+                    exit={{
+                      scale: 0,
+                      rotate: 90,
+                      transition: { duration: 0.15, ease: 'easeIn' },
+                    }}
+                  >
+                    {copied ? <Check size={13} /> : <Link size={13} />}
+                  </motion.span>
+                </AnimatePresence>
+              }
+              onClick={() => {
+                void handleCopyLink();
+              }}
+            >
+              {copied ? t('linkCopied') : t('copyLink')}
             </Button>
             <Button
-              variant="solid"
-              size="sm"
-              color="danger"
-              onClick={confirmImport}
+              variant="ghost"
+              size="md"
+              icon={<Download size={13} />}
+              onClick={handleExportJson}
+            >
+              {t('exportJson')}
+            </Button>
+            <Button
+              variant="ghost"
+              size="md"
+              icon={<Upload size={13} />}
+              onClick={() => fileInputRef.current?.click()}
             >
               {t('importJson')}
             </Button>
-          </div>
-        </div>
-      ) : showExportOptions ? (
-        <div className="flex flex-col gap-[0.35rem] px-[0.65rem] py-[0.4rem]">
-          <BackButton
-            onClick={() => {
-              setShowExportOptions(false);
-            }}
-          >
-            {t('backButton')}
-          </BackButton>
-          <p className="text-xs font-bold lowercase">{t('exportImageTitle')}</p>
-          <p className="text-2xs leading-[1.5] text-subtle">
-            {t('exportImageHint')}
-          </p>
-          <div className="flex gap-[0.4rem] [&>*]:flex-1">
-            <Button variant="outline" size="sm" onClick={handleExportSvg}>
-              SVG
+            <Button
+              variant="ghost"
+              size="md"
+              icon={<Image size={13} />}
+              onClick={() => {
+                setShowExportOptions(true);
+              }}
+            >
+              {t('exportImage')}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleExportPng}>
-              PNG
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <>
-          <Button
-            variant="ghost"
-            size="md"
-            icon={
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={copied ? 'check' : 'link'}
-                  style={{ display: 'flex' }}
-                  initial={{ scale: 0, rotate: -90 }}
-                  animate={{
-                    scale: 1,
-                    rotate: 0,
-                    transition: {
-                      type: 'spring',
-                      duration: 0.5,
-                      bounce: 0.5,
-                    },
-                  }}
-                  exit={{
-                    scale: 0,
-                    rotate: 90,
-                    transition: { duration: 0.15, ease: 'easeIn' },
-                  }}
-                >
-                  {copied ? <Check size={13} /> : <Link size={13} />}
-                </motion.span>
-              </AnimatePresence>
-            }
-            onClick={() => {
-              void handleCopyLink();
-            }}
-          >
-            {copied ? t('linkCopied') : t('copyLink')}
-          </Button>
-          <Button
-            variant="ghost"
-            size="md"
-            icon={<Download size={13} />}
-            onClick={handleExportJson}
-          >
-            {t('exportJson')}
-          </Button>
-          <Button
-            variant="ghost"
-            size="md"
-            icon={<Upload size={13} />}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {t('importJson')}
-          </Button>
-          <Button
-            variant="ghost"
-            size="md"
-            icon={<Image size={13} />}
-            onClick={() => {
-              setShowExportOptions(true);
-            }}
-          >
-            {t('exportImage')}
-          </Button>
-        </>
-      )}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".json"
-        onChange={handleFileSelect}
-        style={{ display: 'none' }}
-      />
+          </>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+        />
+      </PopoverContent>
     </Popover>
   );
 }

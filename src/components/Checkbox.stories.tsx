@@ -1,9 +1,9 @@
-import { useState, type ComponentProps } from 'react';
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import Checkbox from './Checkbox';
+import { Checkbox } from './ui/checkbox';
 
 const meta = {
-  title: 'Atoms/Checkbox',
+  title: 'Primitives/Checkbox',
   component: Checkbox,
   argTypes: {
     checked: { control: 'boolean' },
@@ -21,15 +21,15 @@ export const Checked: Story = {
   args: { checked: true },
 };
 
-function CheckboxWithState(props: ComponentProps<typeof Checkbox>) {
+function CheckboxWithState(props: React.ComponentProps<typeof Checkbox>) {
   const [checked, setChecked] = useState(props.checked ?? false);
   return (
     <label className="flex gap-2 items-center text-xs text-subtle cursor-pointer">
       <Checkbox
         {...props}
-        checked={checked}
-        onChange={(e) => {
-          setChecked(e.target.checked);
+        checked={checked as boolean}
+        onCheckedChange={(v) => {
+          setChecked(v === true);
         }}
       />
       Show flower names
@@ -44,7 +44,7 @@ export const Interactive: Story = {
     docs: {
       source: {
         code: `<label className="flex gap-2 items-center text-xs cursor-pointer">
-  <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} />
+  <Checkbox checked={checked} onCheckedChange={setChecked} />
   Show flower names
 </label>`,
       },

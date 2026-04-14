@@ -4,7 +4,7 @@ import { Pencil, GripVertical } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { useDragReorder } from '../hooks/useDragReorder';
 import Button from './Button';
-import Checkbox from './Checkbox';
+import { Checkbox } from './ui/checkbox';
 import { cn } from '../utils/cn';
 import FlowerRow from './FlowerRow';
 import type { EnrichedFlower } from '../types';
@@ -106,8 +106,8 @@ export default function FlowerGardenView({
         <label className="flex gap-[0.4rem] items-center text-xs text-muted lowercase tracking-[0.03em] cursor-pointer select-none mt-[0.6rem]">
           <Checkbox
             checked={showLabels}
-            onChange={(e) => {
-              onShowLabelsChange(e.target.checked);
+            onCheckedChange={(checked) => {
+              onShowLabelsChange(checked === true);
             }}
           />
           {t('showFlowerNames')}

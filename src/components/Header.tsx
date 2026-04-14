@@ -119,7 +119,7 @@ export default function Header({
             onReset={garden.reset}
             round={round}
             size={buttonSize}
-            align={isMobile ? 'left' : 'right'}
+            align={isMobile ? 'start' : 'end'}
           />
         </div>
         <GardenPanel

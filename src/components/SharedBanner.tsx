@@ -4,7 +4,7 @@ import { Eye, ArrowLeft } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { isLight } from '../utils/logoColors';
 import Button from './Button';
-import Popover from './Popover';
+import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
 
 interface SharedBannerProps {
   /** Banner background color — text and button contrast are derived automatically */
@@ -70,9 +70,12 @@ export default function SharedBanner({
             <span className="max-sm:hidden">{t('sharedBanner')}</span>
           </span>
           <Popover
-            isOpen={confirmOpen}
-            onClose={closeConfirm}
-            trigger={
+            open={confirmOpen}
+            onOpenChange={(open) => {
+              if (!open) closeConfirm();
+            }}
+          >
+            <PopoverTrigger asChild>
               <button
                 className="py-[0.3rem] px-3 text-2xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer border-none rounded bg-[var(--btn-bg)] transition-[background] duration-150 hover:bg-[var(--btn-hover-bg)]"
                 style={
@@ -89,30 +92,34 @@ export default function SharedBanner({
                 <span className="sm:hidden">{t('saveToMyGardenShort')}</span>
                 <span className="max-sm:hidden">{t('saveToMyGarden')}</span>
               </button>
-            }
-            ariaLabel={t('replaceTitle') as string}
-            className="z-[200] gap-2 w-64 py-3 px-4 mt-2 text-fg"
-          >
-            <p className="text-xs font-bold text-fg lowercase">
-              {t('replaceTitle')}
-            </p>
-            <p className="text-2xs leading-[1.5] text-subtle">
-              {t('replaceConfirm')}
-            </p>
-            <div className="flex gap-[0.4rem] [&>*]:flex-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setConfirmOpen(false);
-                }}
-              >
-                {t('replaceKeep')}
-              </Button>
-              <Button variant="solid" size="sm" color="danger" onClick={onSave}>
-                {t('replaceYes')}
-              </Button>
-            </div>
+            </PopoverTrigger>
+            <PopoverContent className="z-[200] gap-2 w-64 py-3 px-4 text-fg">
+              <p className="text-xs font-bold text-fg lowercase">
+                {t('replaceTitle')}
+              </p>
+              <p className="text-2xs leading-[1.5] text-subtle">
+                {t('replaceConfirm')}
+              </p>
+              <div className="flex gap-[0.4rem] [&>*]:flex-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setConfirmOpen(false);
+                  }}
+                >
+                  {t('replaceKeep')}
+                </Button>
+                <Button
+                  variant="solid"
+                  size="sm"
+                  color="danger"
+                  onClick={onSave}
+                >
+                  {t('replaceYes')}
+                </Button>
+              </div>
+            </PopoverContent>
           </Popover>
         </div>
       </div>
