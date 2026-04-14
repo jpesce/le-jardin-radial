@@ -2,11 +2,13 @@ import {
   forwardRef,
   useState,
   useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
   type ComponentPropsWithoutRef,
   type ReactNode,
 } from 'react';
 import { motion } from 'framer-motion';
-import useMeasure from 'react-use-measure';
 import { buttonClass, innerClass } from '../utils/buttonStyles';
 import { cn } from '../utils/cn';
 
@@ -23,26 +25,40 @@ const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonInnerProps>(
     { className, icon, innerClassName, children, ...rest },
     ref,
   ) {
-    const [measureRef, bounds] = useMeasure();
+    const innerRef = useRef<HTMLSpanElement>(null);
+    const [width, setWidth] = useState<number | null>(null);
     const hasChildren = children !== undefined && children !== null;
 
-    const [ready, setReady] = useState(false);
+    const [ready, setReady] = useState(
+      () => document.fonts.status === 'loaded',
+    );
     useEffect(() => {
-      void document.fonts.ready.then(() => {
-        setReady(true);
-      });
+      if (!ready) {
+        void document.fonts.ready.then(() => {
+          setReady(true);
+        });
+      }
+    }, [ready]);
+
+    const measure = useCallback(() => {
+      if (innerRef.current) {
+        setWidth(innerRef.current.getBoundingClientRect().width);
+      }
     }, []);
+
+    // Measure synchronously before paint on content, font, or style changes
+    useLayoutEffect(measure, [children, ready, measure, innerClassName, icon]);
 
     return (
       <motion.button
         ref={ref}
         className={className}
         initial={false}
-        animate={{ width: bounds.width > 0 ? bounds.width : 'auto' }}
+        animate={width !== null ? { width } : {}}
         transition={ready ? SPRING : INSTANT}
         {...(rest as Record<string, unknown>)}
       >
-        <span ref={measureRef} className={innerClassName}>
+        <span ref={innerRef} className={innerClassName}>
           {icon}
           {hasChildren && <span>{children}</span>}
         </span>
@@ -62,7 +78,7 @@ export interface ButtonProps extends ComponentPropsWithoutRef<'button'> {
   color?: string;
   /** Icon element rendered before children */
   icon?: ReactNode;
-  /** Enable animated width transitions via react-use-measure */
+  /** Enable animated width transitions */
   animated?: boolean;
 }
 

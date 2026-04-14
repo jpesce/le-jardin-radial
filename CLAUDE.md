@@ -51,7 +51,7 @@ State model: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowe
 
 **Reusable primitives:**
 
-- **Button** (`Button.tsx`): `variant` (outline/solid/ghost), `round`, `size` (xs-lg), `color` (default/danger), `animated` prop for width transitions via `react-use-measure`. Uses `cn()` for class composition.
+- **Button** (`Button.tsx`): `variant` (outline/solid/ghost), `round`, `size` (xs-lg), `color` (default/danger), `animated` prop for width transitions via `useLayoutEffect` + `getBoundingClientRect`. Uses `cn()` for class composition.
 - **BackButton** (`BackButton.tsx`): Shared back navigation button with ArrowLeft icon and hover animation. Suppresses transition on mount to prevent flicker when switching views.
 - **Checkbox** (`Checkbox.tsx`): Custom styled checkbox using Tailwind `before:` pseudo-element variants.
 - **Popover** (`Popover.tsx`): Reusable popover with optional `trigger` prop (injects `aria-expanded`, `aria-haspopup`, `stopPropagation` via `cloneElement`), click-outside, Escape key, `role="dialog"`, `aria-label`. Shared animation constants.
