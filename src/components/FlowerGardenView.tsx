@@ -12,18 +12,29 @@ import type { EnrichedFlower } from '../types';
 const LAYOUT_TRANSITION = { duration: 0.3, ease: 'easeInOut' as const };
 
 interface FlowerGardenViewProps {
+  /** Flowers currently in the garden, in display order */
   gardenFlowers: EnrichedFlower[];
+  /** IDs of flowers selected (checked) for display on the chart */
   selected: string[];
+  /** Toggle a flower's selected state by ID */
   onToggle: (id: string) => void;
+  /** Reorder garden flowers by providing new ID order */
   onReorder: (ids: string[]) => void;
+  /** Edit a custom flower by ID */
   onEditFlower: (id: string) => void;
+  /** Navigate to the manage/catalog view */
   onManage: () => void;
+  /** Whether flower name labels are shown on the chart */
   showLabels: boolean;
+  /** Toggle flower name labels on the chart */
   onShowLabelsChange: (value: boolean) => void;
+  /** Garden owner name displayed in the header */
   gardenOwner: string;
+  /** Update the garden owner name */
   onGardenOwnerChange: (value: string) => void;
 }
 
+/** Garden view — owner input, labels toggle, sortable flower list with drag reorder and keyboard navigation. */
 export default function FlowerGardenView({
   gardenFlowers,
   selected,
@@ -211,7 +222,7 @@ export default function FlowerGardenView({
                     dragHandle={
                       isSelected ? (
                         <span
-                          className="absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-drag-handle cursor-grab select-none touch-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing group-data-[hovered]:opacity-100 max-sm:opacity-100 focus-visible:opacity-100 focus-visible:bg-divider focus-visible:outline-none"
+                          className="absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-earth-200 cursor-grab select-none touch-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing group-data-[hovered]:opacity-100 max-sm:opacity-100 focus-visible:opacity-100 focus-visible:bg-divider focus-visible:outline-none"
                           role="button"
                           tabIndex={0}
                           aria-label={`Reorder ${flower.displayName}`}

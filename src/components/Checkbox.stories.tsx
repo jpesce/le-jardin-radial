@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Checkbox } from './ui/checkbox';
 
 const meta = {
-  title: 'Primitives/Checkbox',
+  title: 'Atoms/Checkbox',
   component: Checkbox,
   argTypes: {
     checked: { control: 'boolean' },

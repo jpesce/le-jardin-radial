@@ -137,6 +137,13 @@ Desktop uses absolute positioning for header/footer overlaid on the chart. Mobil
 - `colors.ts`: `resolveColor()`, `DEFAULT_STATE_COLORS`, `DEFAULT_BLOOM_COLOR`.
 - `src/types.ts`: shared types (`FlowerState`, `RawFlower`, `EnrichedFlower`, `GardenState`, `Lang`, `ImportCallbacks`).
 
+### Storybook
+
+Component library documentation at `pnpm storybook`. Atomic Design hierarchy: Atoms → Molecules → Organisms → Assets. Introduction MDX page provides project overview. Language toolbar switches between French and English. Branded theme with earth palette in `.storybook/manager.ts`.
+
+- Every component with a Storybook story **must** have a JSDoc comment on the component function and on every prop in its Props interface. Storybook autodocs renders these as component and prop descriptions.
+- Stories use `noop = () => {}` for callback props (not `fn()` from storybook/test).
+
 ### Testing
 
 - **Unit tests** (vitest): reducer actions, state validation, reconciliation, i18n utils, month parsing. Files colocated in `src/`.

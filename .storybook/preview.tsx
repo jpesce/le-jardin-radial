@@ -36,7 +36,14 @@ const preview: Preview = {
   parameters: {
     options: {
       storySort: {
-        order: ['Atoms', 'Molecules', 'Organisms', 'Assets'],
+        order: [
+          'Introduction',
+          'Design Tokens',
+          'Atoms',
+          'Molecules',
+          'Organisms',
+          'Assets',
+        ],
       },
     },
     controls: {

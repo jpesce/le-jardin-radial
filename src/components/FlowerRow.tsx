@@ -7,13 +7,19 @@ import { Checkbox } from './ui/checkbox';
 import type { EnrichedFlower } from '../types';
 
 interface FlowerRowProps {
+  /** Flower data to display */
   flower: EnrichedFlower;
+  /** Whether the flower is selected for the garden */
   checked: boolean;
+  /** Toggle flower selection */
   onToggle: () => void;
+  /** Edit callback — only shown for custom flowers */
   onEdit?: (() => void) | null;
+  /** Drag handle element for reorder mode */
   dragHandle?: ReactNode;
 }
 
+/** Flower list item — checkbox, color dot, name, bloom range. Requires parent `group` class for hover styles. */
 export default function FlowerRow({
   flower,
   checked,

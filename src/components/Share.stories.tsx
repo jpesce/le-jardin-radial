@@ -11,7 +11,7 @@ const meta = {
   component: Share,
   argTypes: {
     isOpen: { control: 'boolean' },
-    align: { control: 'select', options: ['right', 'left', 'center'] },
+    align: { control: 'select', options: ['start', 'center', 'end'] },
     round: { control: 'boolean' },
     size: { control: 'select', options: ['xs', 'sm', 'md', 'lg'] },
     onToggle: { table: { disable: true } },

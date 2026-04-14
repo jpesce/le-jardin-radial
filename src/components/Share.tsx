@@ -11,13 +11,21 @@ import type { ImportCallbacks } from '../types';
 type PopoverAlign = 'start' | 'center' | 'end';
 
 interface ShareProps {
+  /** Whether the share popover is open */
   isOpen: boolean;
+  /** Toggle the popover open/closed */
   onToggle: () => void;
+  /** Close the popover */
   onClose: () => void;
+  /** Generate a share URL for the current garden */
   onGetShareUrl: () => string;
+  /** Export garden data as JSON file */
   onExportJson: () => void;
+  /** Export chart as SVG image */
   onExportSvg: () => void;
+  /** Export chart as PNG image */
   onExportPng: () => void;
+  /** Import garden data from a JSON file */
   onImportJson: (file: File, callbacks?: ImportCallbacks) => void;
   /** Popover alignment relative to trigger */
   align?: PopoverAlign;

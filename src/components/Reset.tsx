@@ -7,8 +7,11 @@ import { cn } from '../utils/cn';
 type PopoverAlign = 'start' | 'center' | 'end';
 
 interface ResetProps {
+  /** Whether the confirmation popover is open */
   isOpen: boolean;
+  /** Toggle the popover open/closed */
   onToggle: () => void;
+  /** Close the popover */
   onClose: () => void;
   /** Called after the user confirms the reset */
   onReset: () => void;

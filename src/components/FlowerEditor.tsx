@@ -13,12 +13,17 @@ const DEFAULT_MONTHS: FlowerState[] = new Array<FlowerState>(12).fill(
 );
 
 interface FlowerEditorProps {
+  /** Existing flower to edit, or null/undefined to create a new one */
   flower: EnrichedFlower | null | undefined;
+  /** Called with flower data when the form is submitted and valid */
   onSave: (data: CustomFlowerData) => void;
+  /** Cancel editing and return to previous view */
   onCancel: () => void;
+  /** Delete the flower — only shown when provided */
   onDelete?: () => void;
 }
 
+/** Create/edit form for custom flowers — name (en/fr), scientific name, bloom color, and month schedule. */
 export default function FlowerEditor({
   flower,
   onSave,

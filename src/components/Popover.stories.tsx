@@ -8,7 +8,7 @@ import { Share2 } from 'lucide-react';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const meta = {
-  title: 'Primitives/Popover',
+  title: 'Atoms/Popover',
   component: PopoverContent,
   argTypes: {
     align: { control: 'select', options: ['start', 'center', 'end'] },

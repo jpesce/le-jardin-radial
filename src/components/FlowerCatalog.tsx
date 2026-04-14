@@ -5,12 +5,17 @@ import FlowerRow from './FlowerRow';
 import type { EnrichedFlower } from '../types';
 
 interface FlowerCatalogProps {
+  /** All available flowers (catalog + custom) with garden membership */
   flowers: EnrichedFlower[];
+  /** Toggle a flower's garden membership by ID */
   onToggle: (id: string) => void;
+  /** Return to the garden view */
   onBack: () => void;
+  /** Edit a custom flower by ID — only shown for custom flowers */
   onEditFlower?: ((id: string) => void) | null;
 }
 
+/** Searchable flower list for managing garden membership. Custom flowers appear above catalog flowers. */
 export default function FlowerCatalog({
   flowers,
   onToggle,

@@ -1,0 +1,103 @@
+import { Meta, ColorPalette, ColorItem, Typeset } from '@storybook/addon-docs/blocks';
+
+<Meta title="Design Tokens" />
+
+# Design Tokens
+
+Two-tier color system defined in `src/index.css` via Tailwind `@theme`.
+
+## Primitive palette
+
+<ColorPalette>
+  <ColorItem
+    title="Earth tones"
+    subtitle="--color-earth-*"
+    colors={{
+      '900': '#443528',
+      '500': '#9b938c',
+      '400': '#b4aea9',
+      '300': '#c1bcb7',
+      '200': '#dad7d4',
+      '150': '#e8e6e5',
+      '100': '#eeedec',
+      '50': '#f3f2f1',
+      '25': '#fbfbfb',
+      '0': '#ffffff',
+    }}
+  />
+</ColorPalette>
+
+## Semantic tokens
+
+<ColorPalette>
+  <ColorItem
+    title="Text"
+    subtitle="Foreground hierarchy"
+    colors={{
+      'fg': '#443528',
+      'subtle': '#9b938c',
+      'muted': '#b4aea9',
+      'faint': '#c1bcb7',
+    }}
+  />
+  <ColorItem
+    title="Surfaces"
+    subtitle="Backgrounds"
+    colors={{
+      'surface': '#ffffff',
+      'surface-input': '#fbfbfb',
+      'divider': '#f3f2f1',
+    }}
+  />
+  <ColorItem
+    title="Borders"
+    subtitle="Edges and separators"
+    colors={{
+      'border': '#eeedec',
+      'border-input': '#e8e6e5',
+      'border-hover': '#dad7d4',
+    }}
+  />
+  <ColorItem
+    title="Status"
+    subtitle="Feedback colors"
+    colors={{
+      'warning': '#d97706',
+      'danger': '#b91c1c',
+    }}
+  />
+</ColorPalette>
+
+## Typography
+
+export const typography = {
+  type: {
+    primary: "'JetBrains Mono Variable', monospace",
+  },
+  weight: {
+    regular: '400',
+    bold: '700',
+  },
+  size: {
+    '2xs': 11,
+    'xs': 12,
+    'sm': 13,
+    'base': 14,
+  },
+};
+
+**Font:** JetBrains Mono Variable
+
+**Weights:** 400 (regular), 700 (bold)
+
+<Typeset
+  fontSizes={[
+    `2xs — ${typography.size['2xs']}px`,
+    `xs — ${typography.size.xs}px`,
+    `sm — ${typography.size.sm}px`,
+    `base — ${typography.size.base}px`,
+  ]}
+  fontWeight={typography.weight.regular}
+  sampleText="le jardin radial"
+  fontFamily={typography.type.primary}
+/>
