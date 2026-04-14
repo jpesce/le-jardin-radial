@@ -50,7 +50,7 @@ export default function SharedBanner({
       exit={{ height: 0, overflow: 'hidden' as const }}
       transition={{ height: { duration: 0.3, ease: 'easeInOut' } }}
     >
-      <div className="flex gap-4 items-center justify-between px-8 py-[0.4rem]">
+      <div className="flex gap-2 sm:gap-4 items-center justify-between px-4 sm:px-8 py-[0.4rem]">
         <button
           className="group/back flex gap-[0.35rem] items-center p-0 text-xs lowercase tracking-[0.03em] whitespace-nowrap cursor-pointer bg-transparent border-none opacity-80 transition-opacity duration-150 hover:opacity-100"
           style={{ color: textColor }}
@@ -60,12 +60,14 @@ export default function SharedBanner({
             className="shrink-0 transition-transform duration-150 ease-out group-hover/back:-translate-x-[3px]"
             size={11}
           />{' '}
-          {t('dismissShared')}
+          <span className="sm:hidden">{t('backButton')}</span>
+          <span className="max-sm:hidden">{t('dismissShared')}</span>
         </button>
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-2 sm:gap-3 items-center">
           <span className="flex gap-[0.4rem] items-center tracking-[0.03em] opacity-80">
             <Eye size={14} />
-            {t('sharedBanner')}
+            <span className="sm:hidden">{t('sharedBannerShort')}</span>
+            <span className="max-sm:hidden">{t('sharedBanner')}</span>
           </span>
           <Popover
             isOpen={confirmOpen}
@@ -84,7 +86,8 @@ export default function SharedBanner({
                   setConfirmOpen((prev) => !prev);
                 }}
               >
-                {t('saveToMyGarden')}
+                <span className="sm:hidden">{t('saveToMyGardenShort')}</span>
+                <span className="max-sm:hidden">{t('saveToMyGarden')}</span>
               </button>
             }
             ariaLabel={t('replaceTitle') as string}

@@ -7,6 +7,7 @@ const meta = {
   argTypes: {
     circleOuterColor: { control: 'color' },
     circleInnerColor: { control: 'color' },
+    variant: { control: 'select', options: ['stacked', 'inline'] },
   },
   decorators: [
     (Story) => (
@@ -20,7 +21,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const Stacked: Story = {
   args: {
     className: 'w-full h-auto',
     circleOuterColor: '#e85138',
@@ -28,10 +29,11 @@ export const Default: Story = {
   },
 };
 
-export const CoolTones: Story = {
+export const Inline: Story = {
   args: {
     className: 'w-full h-auto',
-    circleOuterColor: '#8f80f9',
-    circleInnerColor: '#9ff487',
+    circleOuterColor: '#e85138',
+    circleInnerColor: '#f9d748',
+    variant: 'inline',
   },
 };

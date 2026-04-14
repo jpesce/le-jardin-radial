@@ -22,7 +22,7 @@ test.describe('initial load', () => {
   });
 
   test('shows default owner name', async ({ page }) => {
-    await expect(page.locator('text=DE TAINAH DRUMMOND')).toBeVisible();
+    await expect(page.getByText('de Tainah Drummond').first()).toBeVisible();
   });
 });
 
@@ -41,7 +41,7 @@ test.describe('panel', () => {
     const input = page.locator('input[type="text"]').first();
     await input.clear();
     await input.fill('Alice');
-    await expect(page.locator('text=DE ALICE')).toBeVisible();
+    await expect(page.getByText('de Alice').first()).toBeVisible();
   });
 
   test('persists owner name after reload', async ({ page }) => {
@@ -56,7 +56,7 @@ test.describe('panel', () => {
       .poll(() => page.evaluate(() => localStorage.getItem('jardin-radial')))
       .toBeTruthy();
     await page.reload();
-    await expect(page.locator('text=DE ALICE')).toBeVisible();
+    await expect(page.getByText('de Alice').first()).toBeVisible();
   });
 
   test('toggles flower visibility on chart', async ({ page }) => {
@@ -126,7 +126,7 @@ test.describe('reset', () => {
     await page.getByRole('button', { name: 'Reset garden' }).click();
     await page.getByText('Erase all').click();
 
-    await expect(page.locator('text=DE TAINAH DRUMMOND')).toBeVisible();
+    await expect(page.getByText('de Tainah Drummond').first()).toBeVisible();
   });
 });
 
@@ -159,9 +159,9 @@ test.describe('shared garden', () => {
 
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
-    await expect(page.getByText('View only')).toBeVisible();
+    await expect(page.getByText('View only — save to edit')).toBeVisible();
     await expect(page.getByText('Back to my garden')).toBeVisible();
-    await expect(page.getByText('Save to my garden')).toBeVisible();
+    await expect(page.getByText('Save to my garden').first()).toBeVisible();
   });
 
   test('dismiss returns to own garden', async ({ page }) => {
@@ -186,14 +186,14 @@ test.describe('shared garden', () => {
     await page.goto(shareUrl);
 
     // Verify shared banner is visible
-    await expect(page.getByText('Save to my garden')).toBeVisible({
+    await expect(page.getByText('Save to my garden').first()).toBeVisible({
       timeout: 10000,
     });
 
     // Dismiss
     await page.getByText('Back to my garden').click();
-    await expect(page.getByText('View only')).toBeHidden();
-    await expect(page.locator('text=DE ALICE')).toBeVisible();
+    await expect(page.getByText('View only — save to edit')).toBeHidden();
+    await expect(page.getByText('de Alice').first()).toBeVisible();
   });
 
   test('back button restores shared garden after dismiss', async ({ page }) => {
@@ -206,10 +206,10 @@ test.describe('shared garden', () => {
     await page.goto(shareUrl);
 
     await page.getByText('Back to my garden').click();
-    await expect(page.getByText('View only')).toBeHidden();
+    await expect(page.getByText('View only — save to edit')).toBeHidden();
 
     await page.goBack();
-    await expect(page.getByText('View only')).toBeVisible();
+    await expect(page.getByText('View only — save to edit')).toBeVisible();
   });
 
   test('hides panel buttons when shared', async ({ page }) => {
@@ -239,11 +239,11 @@ test.describe('shared garden', () => {
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
 
-    await page.getByText('Save to my garden').click();
+    await page.getByText('Save to my garden').first().click();
     await expect(page.getByText('Replace your garden?')).toBeVisible();
     await page.getByRole('button', { name: 'Replace' }).click();
 
-    await expect(page.getByText('View only')).toBeHidden();
+    await expect(page.getByText('View only — save to edit')).toBeHidden();
     await expect(page.getByText('Plan garden')).toBeVisible();
   });
 });

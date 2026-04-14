@@ -54,7 +54,7 @@ export default function FlowerRow({
           variant="ghost"
           size="xs"
           icon={<Pencil size={11} />}
-          className="absolute top-1/2 right-[calc(-20px-4.5px)] opacity-0 -translate-y-1/2 transition-opacity duration-100 group-hover:opacity-100 group-data-[hovered]:opacity-100"
+          className="absolute top-1/2 right-[calc(-20px-4.5px)] opacity-0 -translate-y-1/2 transition-opacity duration-100 group-hover:opacity-100 group-data-[hovered]:opacity-100 max-sm:opacity-100"
           aria-label="Edit flower"
           onClick={(e) => {
             e.preventDefault();

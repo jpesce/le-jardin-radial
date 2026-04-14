@@ -18,6 +18,8 @@ const EMPTY_MSG_PX = 12;
 const CELL_STROKE_PX = 1;
 const LINE_STROKE_PX = 1.5;
 const ICON_SIZE = 16;
+// Max extent of non-scaling elements beyond OUTER_RADIUS
+const LABEL_EXTENT = 24 + LABEL_OFFSET;
 
 const COLOR_LABEL = '#c1bcb7';
 const COLOR_DIVIDER = '#fff';
@@ -166,7 +168,7 @@ export default function RadialChart({
   const initialized = useRef(false);
   const measured = useRef(false);
   const initialLoad = useRef(true);
-  const [scale, setScale] = useState(1);
+  const [displayWidth, setDisplayWidth] = useState(SIZE);
   const { t, lang } = useI18n();
 
   const tRef = useRef(t);
@@ -177,9 +179,8 @@ export default function RadialChart({
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
       if (entry) {
-        const displayWidth = entry.contentRect.width;
         measured.current = true;
-        setScale(displayWidth / SIZE);
+        setDisplayWidth(entry.contentRect.width);
       }
     });
     observer.observe(svgRef.current);
@@ -188,6 +189,16 @@ export default function RadialChart({
     };
   }, []);
 
+  // ViewBox sized so labels fit exactly at the edge
+  const viewBoxSize =
+    displayWidth > 2 * LABEL_EXTENT
+      ? Math.max(
+          SIZE,
+          (2 * OUTER_RADIUS * displayWidth) / (displayWidth - 2 * LABEL_EXTENT),
+        )
+      : SIZE;
+  const viewBoxPad = (viewBoxSize - SIZE) / 2;
+  const scale = displayWidth / viewBoxSize;
   const inv = scale > 0 ? 1 / scale : 1;
   const invRef = useRef(inv);
   invRef.current = inv;
@@ -233,6 +244,8 @@ export default function RadialChart({
 
       g.select('.season-markers')
         .append('line')
+        .attr('class', 'season-line')
+        .attr('data-angle', angle)
         .attr('x1', rLineStart * Math.cos(angle))
         .attr('y1', rLineStart * Math.sin(angle))
         .attr('x2', rLineEnd * Math.cos(angle))
@@ -252,8 +265,7 @@ export default function RadialChart({
         .append('g')
         .attr('class', 'season-icon')
         .attr('data-season-key', key)
-        .attr('data-x', x)
-        .attr('data-y', y)
+        .attr('data-angle', angle)
         .attr('data-rotate', rotate || 0)
         .attr(
           'transform',
@@ -365,12 +377,25 @@ export default function RadialChart({
       .attr('font-size', `${EMPTY_MSG_PX * inv}px`)
       .style('opacity', 1);
 
+    const iconR = labelR + LABEL_OFFSET * inv;
+    const lineEndR = iconR - LABEL_OFFSET * 0.5 * inv;
+    g.select('.season-markers')
+      .selectAll('.season-line')
+      .each(function () {
+        const el = d3.select(this);
+        const angle = parseFloat(el.attr('data-angle'));
+        el.attr('x2', lineEndR * Math.cos(angle)).attr(
+          'y2',
+          lineEndR * Math.sin(angle),
+        );
+      });
     g.select('.season-markers')
       .selectAll('.season-icon')
       .each(function () {
         const el = d3.select(this);
-        const x = el.attr('data-x');
-        const y = el.attr('data-y');
+        const angle = parseFloat(el.attr('data-angle'));
+        const x = iconR * Math.cos(angle);
+        const y = iconR * Math.sin(angle);
         const s = (ICON_SIZE * inv) / 24;
         const r = el.attr('data-rotate');
         const rot = r && r !== '0' ? `rotate(${r},12,12)` : '';
@@ -599,7 +624,7 @@ export default function RadialChart({
       : t('emptyState');
 
   return (
-    <div className="relative w-full max-w-[min(100%,calc(100dvh-6rem))] aspect-square mx-auto">
+    <div className="relative w-full max-w-[min(100%,calc(100dvh-4rem))] aspect-square mx-auto">
       <svg
         ref={(el) => {
           svgRef.current = el;
@@ -607,7 +632,7 @@ export default function RadialChart({
             externalSvgRef.current = el;
           }
         }}
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        viewBox={`${-viewBoxPad} ${-viewBoxPad} ${viewBoxSize} ${viewBoxSize}`}
         className="radial-chart-svg block w-full h-full"
         role="img"
         aria-label={`${t('chartTitle') as string} — ${chartDesc as string}`}

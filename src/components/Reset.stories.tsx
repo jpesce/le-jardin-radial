@@ -10,6 +10,8 @@ const meta = {
   argTypes: {
     isOpen: { control: 'boolean' },
     align: { control: 'select', options: ['right', 'left', 'center'] },
+    round: { control: 'boolean' },
+    size: { control: 'select', options: ['xs', 'sm', 'md', 'lg'] },
     onToggle: { table: { disable: true } },
     onClose: { table: { disable: true } },
     onReset: { table: { disable: true } },

@@ -6,7 +6,7 @@ export default defineConfig({
   timeout: 30000,
   snapshotPathTemplate: '{testDir}/snapshots/{arg}{ext}',
   expect: {
-    toHaveScreenshot: { maxDiffPixelRatio: 0.03 },
+    toHaveScreenshot: { maxDiffPixels: 100, threshold: 0.2 },
   },
   use: {
     baseURL: 'http://localhost:5174',

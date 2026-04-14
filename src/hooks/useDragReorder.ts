@@ -22,6 +22,7 @@ export function useDragReorder(
       if (e.button !== 0) return;
 
       const handle = e.currentTarget as HTMLElement;
+      handle.setPointerCapture(e.pointerId);
       const startY = e.clientY;
       const currentIds = [...selected];
       let isDragging = false;
@@ -44,7 +45,6 @@ export function useDragReorder(
         if (!isDragging) {
           if (Math.abs(moveEvent.clientY - startY) < DRAG_THRESHOLD) return;
           isDragging = true;
-          handle.setPointerCapture(e.pointerId);
           handle.style.cursor = 'grabbing';
           document.body.style.setProperty('user-select', 'none');
           setDragFrom(selectedIdx);
@@ -54,9 +54,10 @@ export function useDragReorder(
         setDropTarget(currentTarget);
       };
 
-      const onUp = () => {
-        document.removeEventListener('pointermove', onMove);
-        document.removeEventListener('pointerup', onUp);
+      const cleanup = () => {
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onUp);
+        handle.removeEventListener('pointercancel', onCancel);
 
         if (isDragging) {
           handle.releasePointerCapture(e.pointerId);
@@ -64,6 +65,11 @@ export function useDragReorder(
           document.body.style.removeProperty('user-select');
         }
 
+        setDragFrom(null);
+        setDropTarget(null);
+      };
+
+      const onUp = () => {
         if (isDragging && currentTarget !== null) {
           let toIdx = currentTarget;
           if (toIdx > selectedIdx) toIdx--;
@@ -74,13 +80,16 @@ export function useDragReorder(
             onReorder(reordered);
           }
         }
-
-        setDragFrom(null);
-        setDropTarget(null);
+        cleanup();
       };
 
-      document.addEventListener('pointermove', onMove);
-      document.addEventListener('pointerup', onUp);
+      const onCancel = () => {
+        cleanup();
+      };
+
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onUp);
+      handle.addEventListener('pointercancel', onCancel);
     },
     [selected, onReorder, listRef],
   );

@@ -39,6 +39,8 @@
   "importConfirmText": "Vos fleurs et réglages seront remplacés.",
   "importError": "Fichier invalide",
   "sharedBanner": "Lecture seule — sauvegardez pour modifier",
+  "sharedBannerShort": "Lecture seule",
+  "saveToMyGardenShort": "Garder",
   "saveToMyGarden": "Sauvegarder dans mon jardin",
   "dismissShared": "Retour à mon jardin",
   "replaceTitle": "Remplacer votre jardin ?",

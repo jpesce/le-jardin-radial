@@ -14,6 +14,10 @@ interface ResetProps {
   onReset: () => void;
   /** Popover alignment relative to trigger */
   align?: PopoverAlign;
+  /** Round button shape */
+  round?: boolean;
+  /** Button size */
+  size?: string;
 }
 
 /** Reset button with confirmation popover. Asks the user to confirm before erasing all garden data. */
@@ -23,6 +27,8 @@ export default function Reset({
   onClose,
   onReset,
   align,
+  round = true,
+  size = 'lg',
 }: ResetProps) {
   const { t } = useI18n();
 
@@ -38,8 +44,8 @@ export default function Reset({
       trigger={
         <Button
           variant="outline"
-          round
-          size="lg"
+          round={round}
+          size={size}
           icon={<RotateCcw size={14} />}
           className={cn('text-fg', isOpen && 'border-muted')}
           onClick={onToggle}
@@ -48,7 +54,7 @@ export default function Reset({
       }
       align={align}
       ariaLabel={t('resetTitle') as string}
-      className="gap-2 w-64 py-3 px-4"
+      className="gap-2 w-64 py-3 px-4 max-sm:fixed max-sm:left-4 max-sm:right-4 max-sm:top-auto max-sm:w-auto max-sm:mt-2"
     >
       <p className="text-xs font-bold text-fg lowercase">{t('resetTitle')}</p>
       <p className="text-2xs leading-[1.5] text-subtle">{t('resetConfirm')}</p>

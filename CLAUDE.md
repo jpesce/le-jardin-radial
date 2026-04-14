@@ -56,25 +56,31 @@ State model: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowe
 - **Checkbox** (`Checkbox.tsx`): Custom styled checkbox using Tailwind `before:` pseudo-element variants.
 - **Popover** (`Popover.tsx`): Reusable popover with optional `trigger` prop (injects `aria-expanded`, `aria-haspopup`, `stopPropagation` via `cloneElement`), click-outside, Escape key, `role="dialog"`, `aria-label`. Shared animation constants.
 
+**Layout components:**
+
+- **Header** (`Header.tsx`): App header — logo, action buttons (Reset, Share, GardenPanel). Reads garden state from Zustand directly. Manages popover mutual exclusivity. Responsive: stacked logo on desktop, inline logo on mobile. Uses `useIsMobile` hook for button shape/size.
+- **Footer** (`Footer.tsx`): Language switcher, description, and credits. Absolute on desktop, stacked flow on mobile.
+
 **Panel components:**
 
-- **FlowerList** (`FlowerList.tsx`): Panel orchestrator — view state (garden/manage/create/edit), popover coordination (reset/share mutual exclusivity via `activePopover`), keyboard navigation (Escape to go back, Enter to submit).
-- **FlowerGardenView** (`FlowerGardenView.tsx`): Garden view — owner input, labels toggle, sortable flower list with drag reorder (`setPointerCapture`), keyboard reorder (ArrowUp/ArrowDown with `aria-live` announcements), hover state management (JS-controlled via `data-hovered` to support suppression during drag and animation).
+- **GardenPanel** (`GardenPanel.tsx`): Self-contained trigger button + editing panel — view routing (garden/manage/create/edit), keyboard navigation (Escape to go back, Enter to submit), click-outside dismiss. Reads garden state from Zustand directly.
+- **FlowerGardenView** (`FlowerGardenView.tsx`): Garden view — owner input, labels toggle, sortable flower list with drag reorder (`setPointerCapture` on handle, `touch-action: none` for mobile), keyboard reorder (ArrowUp/ArrowDown with `aria-live` announcements), hover state management (JS-controlled via `data-hovered` to support suppression during drag and animation).
 - **FlowerCatalog** (`FlowerCatalog.tsx`): Manage view — searchable list, garden membership toggles.
 - **FlowerEditor** (`FlowerEditor.tsx`): Create/edit view — name (en/fr), scientific name, bloom color, month grid.
-- **FlowerRow** (`FlowerRow.tsx`): Flower list item fragment — requires parent `group` class for hover styles.
+- **FlowerRow** (`FlowerRow.tsx`): Flower list item fragment — requires parent `group` class for hover styles. Edit button and drag handle always visible on mobile (`max-sm:opacity-100`).
 
 **Action controls:**
 
-- **Reset** (`Reset.tsx`): Reset button + confirmation popover using `Popover`.
-- **Share** (`Share.tsx`): Share button + menu popover with copy link, save/load garden, image export sub-view (SVG/PNG).
+- **Reset** (`Reset.tsx`): Reset button + confirmation popover. Accepts `round`, `size`, `align` pass-through props.
+- **Share** (`Share.tsx`): Share button + menu popover with copy link, save/load garden, image export sub-view (SVG/PNG). Accepts `round`, `size`, `align` pass-through props.
 
 **Other:**
 
-- **RadialChart** (`RadialChart.tsx`): D3 imperative chart with `svgRef` prop for image export. Non-scaling elements hidden until ResizeObserver provides measurement. Flower labels appear immediately on load, fade only on user toggle.
-- **SharedBanner** (`SharedBanner.tsx`): Read-only mode banner with save confirmation popover, owner-derived colors.
+- **RadialChart** (`RadialChart.tsx`): D3 imperative chart with `svgRef` prop for image export. Dynamic viewBox sized to fit non-scaling labels at any screen size. Non-scaling elements hidden until ResizeObserver provides measurement. Flower labels appear immediately on load, fade only on user toggle.
+- **SharedBanner** (`SharedBanner.tsx`): Read-only mode banner with save confirmation popover. Responsive text: short labels on mobile, full text on desktop.
 - **ErrorBoundary** (`ErrorBoundary.tsx`): Class component with animated SadFlower fallback, bilingual error messages, reload/reset actions.
 - **FallbackPage** (`FallbackPage.tsx`): Composable layout for not-found and invalid-share pages.
+- **Logo** (`Logo.tsx`): Wordmark SVG with `stacked` (two-line, desktop) and `inline` (single-line, mobile) variants.
 
 ### i18n — no library
 
@@ -100,16 +106,28 @@ The radial chart uses D3 direct DOM manipulation inside `useEffect` hooks.
 
 - **Init effect** (`[]`): creates SVG structure once. Non-scaling elements start with `opacity: 0`.
 - **Language effect** (`[t]`): updates month label text.
-- **Scale effect** (`[inv]`): updates non-scaling elements on resize. Guarded by `measured` ref — skips until ResizeObserver provides actual scale, preventing flash of oversized text. Reveals elements with `opacity: 1`. On first measurement, reveals flower labels immediately (no fade).
+- **Scale effect** (`[inv]`): updates non-scaling elements on resize. Guarded by `measured` ref — skips until ResizeObserver provides actual scale, preventing flash of oversized text. Reveals elements with `opacity: 1`. On first measurement, reveals flower labels immediately (no fade). Season icons and dashed lines reposition dynamically (same scaling as month labels).
+- **Dynamic viewBox**: viewBox size is computed from `displayWidth` so non-scaling labels fit exactly at the edge: `V = max(SIZE, 2 * OUTER_RADIUS * w / (w - 2 * LABEL_EXTENT))`. No magic padding numbers.
 - **Data effect** (`[flowers, showLabels]`): data joins for cells AND curved labels, transitions, tooltips. Flower label enter transition only runs after initial load (`initialLoad` ref).
 - **`tRef` pattern**: a ref to the current `t()` function so D3 event handlers always read the latest translations.
 - RadialChart.tsx is exempted from `@typescript-eslint/no-explicit-any` and related rules — D3's transition reuse pattern requires type casts.
 
+### Responsive layout
+
+Desktop uses absolute positioning for header/footer overlaid on the chart. Mobile (`max-sm:`) switches to `static` positioning with normal document flow. The `useIsMobile` hook (`src/hooks/useIsMobile.ts`) provides a JS boolean matching the Tailwind `sm:` breakpoint (640px) for prop-level responsive behavior (button shape, size, popover alignment).
+
+- Header: stacked two-line logo on desktop, inline single-line logo on mobile
+- Footer: absolute corners on desktop, stacked flow on mobile with `mt-auto` for bottom alignment
+- Drag handles and edit buttons: hover-dependent on desktop, always visible on mobile
+- SharedBanner: full text on desktop, short labels on mobile
+- GardenPanel popover: `absolute` on desktop, `fixed` viewport-centered on mobile for Reset
+
 ### Utilities
 
 - `src/utils/cn.ts`: `cn()` — tailwind-merge + clsx wrapper.
+- `src/utils/buttonStyles.ts`: `buttonClass()` and `innerClass()` — pure Tailwind class builders for Button variants.
 - `src/utils/exportImage.ts`: `exportSvg()` and `exportPng()` — standalone SVG/PNG export with embedded base64 woff2 font, `text, tspan { font-family }` rule for reliable rendering. PNG uses data URI + canvas at 3x scale (1800×1800).
-- `src/utils/logoColors.ts`: color palettes, `colorsFromName()`, `isLight()`, `pick()` — used by Logo, SharedBanner, MonthGrid.
+- `src/utils/logoColors.ts`: color palettes, `colorsFromName()`, `isLight()`, `pick()` — used by Header, SharedBanner, MonthGrid.
 
 ### Data
 

@@ -70,7 +70,7 @@ test.describe('visual regression', () => {
     await page.getByText('Copy link').click();
     const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
     await page.goto(shareUrl);
-    await expect(page.getByText('View only')).toBeVisible();
+    await expect(page.getByText('View only — save to edit')).toBeVisible();
     // Wait for D3 label animations to complete (opacity transitions to 1)
     await expect(page.locator('textPath').first()).toBeVisible();
     await expect

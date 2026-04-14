@@ -21,6 +21,10 @@ interface ShareProps {
   onImportJson: (file: File, callbacks?: ImportCallbacks) => void;
   /** Popover alignment relative to trigger */
   align?: PopoverAlign;
+  /** Round button shape */
+  round?: boolean;
+  /** Button size */
+  size?: string;
 }
 
 /** Share button with menu popover for copy link, save/load garden, and image export (SVG/PNG). */
@@ -34,6 +38,8 @@ export default function Share({
   onExportPng,
   onImportJson,
   align,
+  round = true,
+  size = 'lg',
 }: ShareProps) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -117,8 +123,8 @@ export default function Share({
       trigger={
         <Button
           variant="outline"
-          round
-          size="lg"
+          round={round}
+          size={size}
           icon={<Share2 size={14} className="-translate-x-px" />}
           className={cn('text-fg', isOpen && 'border-muted')}
           onClick={onToggle}

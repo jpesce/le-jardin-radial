@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import RadialChart from './components/RadialChart';
-import FlowerList from './components/FlowerList';
-import LanguageSwitcher from './components/LanguageSwitcher';
-import Logo from './components/Logo';
+import Footer from './components/Footer';
+import Header from './components/Header';
 import SharedBanner from './components/SharedBanner';
 import FallbackPage from './components/FallbackPage';
 import Button from './components/Button';
@@ -129,71 +128,29 @@ export default function App() {
           />
         )}
       </AnimatePresence>
-      <main className="relative flex flex-1 flex-col items-center w-full p-8 max-[480px]:p-4">
-        <div className="absolute top-8 left-8 z-50 w-[max(120px,20vw)]">
-          <Logo
-            className="block w-full h-auto"
-            circleOuterColor={colorsFromName(garden.owner).outer}
-            circleInnerColor={colorsFromName(garden.owner).inner}
-          />
-          <span className="block mt-[1.2vw] text-[0.95vw] font-normal text-fg uppercase tracking-[0.15em]">
-            de {garden.owner}
-          </span>
-        </div>
-        <RadialChart
-          flowers={garden.selectedFlowers}
-          showLabels={garden.labels}
-          svgRef={chartSvgRef}
+      <main className="relative flex flex-1 flex-col items-center w-full p-8 max-sm:p-4">
+        <Header
+          panelOpen={panelOpen}
+          onTogglePanel={() => {
+            setPanelOpen((prev) => !prev);
+          }}
+          onClosePanel={() => {
+            setPanelOpen(false);
+          }}
+          onExportSvg={handleExportSvg}
+          onExportPng={handleExportPng}
+          showActions={!garden.isShared}
         />
-        <AnimatePresence>
-          {!garden.isShared && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <FlowerList
-                gardenFlowers={garden.gardenFlowers}
-                allFlowers={garden.allFlowers}
-                selected={garden.selected}
-                onToggle={garden.toggleSelected}
-                onReorder={garden.reorderSelected}
-                onToggleGarden={garden.toggleGarden}
-                onAddCustomFlower={garden.addCustomFlower}
-                onEditFlower={garden.editFlower}
-                onDeleteFlower={garden.deleteFlower}
-                onReset={garden.reset}
-                onGetShareUrl={garden.getShareUrl}
-                onExportJson={garden.exportJson}
-                onExportSvg={handleExportSvg}
-                onExportPng={handleExportPng}
-                onImportJson={garden.importJson}
-                showLabels={garden.labels}
-                onShowLabelsChange={garden.setLabels}
-                gardenOwner={garden.owner}
-                onGardenOwnerChange={garden.setOwner}
-                isOpen={panelOpen}
-                onTogglePanel={() => {
-                  setPanelOpen((prev) => !prev);
-                }}
-                onClose={() => {
-                  setPanelOpen(false);
-                }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <p className="absolute right-8 bottom-8 z-50 w-[360px] text-xs font-normal leading-[1.6] text-fg text-left">
-          {t('credits')}
-        </p>
-        <div className="absolute bottom-8 left-8 z-50 w-[max(200px,20vw)]">
-          <LanguageSwitcher />
-          <p className="text-xs font-normal leading-[1.6] text-fg">
-            <strong className="font-bold">{t('descriptionBrand')}</strong>{' '}
-            {t('descriptionBody')}
-          </p>
+
+        <div className="w-full max-sm:flex-1 max-sm:flex max-sm:items-center">
+          <RadialChart
+            flowers={garden.selectedFlowers}
+            showLabels={garden.labels}
+            svgRef={chartSvgRef}
+          />
         </div>
+
+        <Footer />
       </main>
     </div>
   );

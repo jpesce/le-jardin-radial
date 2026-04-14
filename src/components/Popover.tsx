@@ -74,7 +74,7 @@ export default function Popover({
       {isOpen && (
         <motion.div
           className={cn(
-            'absolute top-full z-[101] flex flex-col mt-[0.35rem] bg-surface border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-fg)_8%,transparent)]',
+            'absolute top-full z-[101] flex flex-col mt-[0.35rem] max-w-[calc(100vw-2rem)] bg-surface border border-border rounded-lg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-fg)_8%,transparent)]',
             ALIGN_CLASS[align],
             className,
           )}
