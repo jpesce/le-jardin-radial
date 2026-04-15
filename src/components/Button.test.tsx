@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { buttonClass, innerClass } from '../utils/buttonStyles';
-import Button from './Button';
+import { buttonClass, innerClass } from './ui/buttonStyles';
+import Button from './ui/button';
 
 describe('buttonClass', () => {
   it('applies outline variant by default', () => {

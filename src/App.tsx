@@ -5,7 +5,7 @@ import Footer from './components/Footer';
 import Header from './components/Header';
 import SharedBanner from './components/SharedBanner';
 import FallbackPage from './components/FallbackPage';
-import Button from './components/Button';
+import Button from './components/ui/button';
 import {
   OUTER_PALETTE,
   INNER_PALETTE,

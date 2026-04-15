@@ -1,6 +1,6 @@
 import { RotateCcw } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
-import Button from './Button';
+import Button from './ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
 import { cn } from '../utils/cn';
 

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import FallbackPage from './FallbackPage';
-import Button from './Button';
+import Button from './ui/button';
 
 const meta = {
   title: 'Organisms/FallbackPage',

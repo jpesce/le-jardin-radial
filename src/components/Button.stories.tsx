@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { within, userEvent } from 'storybook/test';
 import { Sprout, Download, Pencil } from 'lucide-react';
-import Button from './Button';
+import Button from './ui/button';
 
 const meta = {
   title: 'Atoms/Button',

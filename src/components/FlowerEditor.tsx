@@ -2,8 +2,9 @@ import { useState, type SyntheticEvent } from 'react';
 import { CircleAlert } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import BackButton from './BackButton';
-import Button from './Button';
+import Button from './ui/button';
 import MonthGrid from './MonthGrid';
+import { Input } from './ui/input';
 import { DEFAULT_BLOOM_COLOR } from '../data/colors';
 import { parseMonths, compactMonths } from '../data/months';
 import type { EnrichedFlower, FlowerState, CustomFlowerData } from '../types';
@@ -71,9 +72,8 @@ export default function FlowerEditor({
 
       <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
         {t('flowerNameEn')}
-        <input
-          type="text"
-          className="w-full m-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+        <Input
+          className="w-full"
           value={nameEn}
           onChange={(e) => {
             setNameEn(e.target.value);
@@ -84,9 +84,8 @@ export default function FlowerEditor({
 
       <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
         {t('flowerNameFr')}
-        <input
-          type="text"
-          className="w-full m-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+        <Input
+          className="w-full"
           value={nameFr}
           onChange={(e) => {
             setNameFr(e.target.value);
@@ -96,9 +95,8 @@ export default function FlowerEditor({
 
       <label className="flex flex-col gap-1 text-xs text-muted lowercase tracking-[0.03em]">
         {t('scientificName')}
-        <input
-          type="text"
-          className="w-full m-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+        <Input
+          className="w-full"
           value={scientificName}
           onChange={(e) => {
             setScientificName(e.target.value);
@@ -117,9 +115,8 @@ export default function FlowerEditor({
               setBloomColor(e.target.value);
             }}
           />
-          <input
-            type="text"
-            className="flex-1 m-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+          <Input
+            className="flex-1"
             value={bloomColor}
             onChange={(e) => {
               setBloomColor(e.target.value);

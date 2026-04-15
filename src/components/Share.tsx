@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Link, Check, Download, Upload, Image } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import BackButton from './BackButton';
-import Button from './Button';
+import Button from './ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
 import { cn } from '../utils/cn';
 import type { ImportCallbacks } from '../types';
@@ -57,6 +57,7 @@ export default function Share({
   const [wasOpen, setWasOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Reset sub-views when popover reopens (synchronous state derived from props)
   if (isOpen && !wasOpen) {
     setPendingFile(null);
     setImportError(null);

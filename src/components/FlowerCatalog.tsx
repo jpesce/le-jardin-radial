@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import BackButton from './BackButton';
 import FlowerRow from './FlowerRow';
+import { Input } from './ui/input';
 import type { EnrichedFlower } from '../types';
 
 interface FlowerCatalogProps {
@@ -65,9 +66,8 @@ export default function FlowerCatalog({
           {t('catalogHint')}
         </p>
       </div>
-      <input
-        type="text"
-        className="w-full mt-0 px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
+      <Input
+        className="w-full"
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);

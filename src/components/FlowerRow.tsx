@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Pencil, User } from 'lucide-react';
 import { bloomRanges } from '../data/months';
 import { useI18n } from '../i18n/I18nContext';
-import Button from './Button';
+import Button from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import type { EnrichedFlower } from '../types';
 

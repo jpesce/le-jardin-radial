@@ -1,7 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { LANG_STORAGE_KEY, resolveLangFromPath } from '../i18n/i18n-utils';
 import { STORAGE_KEY } from '../hooks/useGarden';
-import Button from './Button';
+import Button from './ui/button';
 import FallbackPage from './FallbackPage';
 
 const strings = {

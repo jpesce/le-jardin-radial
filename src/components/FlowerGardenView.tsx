@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Pencil, GripVertical } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { useDragReorder } from '../hooks/useDragReorder';
-import Button from './Button';
+import Button from './ui/button';
 import { Checkbox } from './ui/checkbox';
+import { Input } from './ui/input';
 import { cn } from '../utils/cn';
 import FlowerRow from './FlowerRow';
 import type { EnrichedFlower } from '../types';
@@ -109,10 +110,8 @@ export default function FlowerGardenView({
         >
           {t('gardenerLabel')}
         </label>
-        <input
+        <Input
           id="garden-owner"
-          type="text"
-          className="px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
           value={gardenOwner}
           onChange={(e) => {
             onGardenOwnerChange(e.target.value);

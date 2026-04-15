@@ -9,8 +9,8 @@ import {
   type ReactNode,
 } from 'react';
 import { motion } from 'framer-motion';
-import { buttonClass, innerClass } from '../utils/buttonStyles';
-import { cn } from '../utils/cn';
+import { buttonClass, innerClass } from './buttonStyles';
+import { cn } from '../../utils/cn';
 
 const SPRING = { type: 'spring' as const, bounce: 0, duration: 0.4 };
 const INSTANT = { duration: 0 };

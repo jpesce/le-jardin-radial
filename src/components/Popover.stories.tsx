@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { within, userEvent } from 'storybook/test';
 import { Popover, PopoverTrigger, PopoverContent } from './ui/popover';
-import Button from './Button';
+import Button from './ui/button';
 import { Share2 } from 'lucide-react';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
