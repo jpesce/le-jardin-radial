@@ -52,14 +52,15 @@ State model: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowe
 
 **Reusable primitives:**
 
-- **Button** (`Button.tsx`): `variant` (outline/solid/ghost), `round`, `size` (xs-lg), `color` (default/danger), `animated` prop for width transitions via `useLayoutEffect` + `getBoundingClientRect`. Uses `cn()` for class composition.
+- **Button** (`ui/button.tsx`): `variant` (outline/solid/ghost), `round`, `size` (xs-lg), `color` (default/danger), `animated` prop for width transitions via `useLayoutEffect` + `getBoundingClientRect`. Style builders in `ui/buttonStyles.ts`. Uses `cn()` for class composition.
+- **Input** (`ui/input.tsx`): Text input with earth-palette styling. Forwards ref and all native input attributes.
 - **BackButton** (`BackButton.tsx`): Shared back navigation button with ArrowLeft icon and hover animation. Suppresses transition on mount to prevent flicker when switching views.
 - **Checkbox** (`ui/checkbox.tsx`): Radix Checkbox (shadcn). Small square indicator, not check icon.
 - **Popover** (`ui/popover.tsx`): Radix Popover (shadcn). CSS keyframe animations (`popover-in`/`popover-out`), `data-[state]` driven. Built-in focus trapping, click-outside dismiss, Escape key.
 
 **Layout components:**
 
-- **Header** (`Header.tsx`): App header — logo, action buttons (Reset, Share, GardenPanel). Reads garden state from Zustand directly. Manages popover mutual exclusivity. Responsive: stacked logo on desktop, inline logo on mobile. Uses `useIsMobile` hook for button shape/size.
+- **Header** (`Header.tsx`): App header — logo, action buttons (Reset, Share, GardenPanel). Reads garden state from Zustand directly. Manages popover mutual exclusivity. `pointer-events-none` on header with `pointer-events-auto` on children so chart tooltips work through transparent areas. Responsive: stacked logo on desktop, inline logo on mobile. Uses `useIsMobile` hook for button shape/size.
 - **Footer** (`Footer.tsx`): Language switcher, description, and credits. Absolute on desktop, stacked flow on mobile.
 
 **Panel components:**
@@ -77,7 +78,7 @@ State model: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowe
 
 **Other:**
 
-- **RadialChart** (`RadialChart.tsx`): D3 imperative chart with `svgRef` prop for image export. Dynamic viewBox sized to fit non-scaling labels at any screen size. Non-scaling elements hidden until ResizeObserver provides measurement. Flower labels appear immediately on load, fade only on user toggle.
+- **RadialChart** (`RadialChart.tsx`): D3 imperative chart with `svgRef` prop for image export. Dynamic viewBox sized to fit non-scaling labels at any screen size. Non-scaling elements hidden until ResizeObserver provides measurement. Flower labels appear immediately on load, fade only on user toggle. Collision-aware `positionTooltip` helper flips/shifts tooltips to avoid viewport overflow.
 - **SharedBanner** (`SharedBanner.tsx`): Read-only mode banner with save confirmation popover. Responsive text: short labels on mobile, full text on desktop.
 - **ErrorBoundary** (`ErrorBoundary.tsx`): Class component with animated SadFlower fallback, bilingual error messages, reload/reset actions.
 - **FallbackPage** (`FallbackPage.tsx`): Composable layout for not-found and invalid-share pages.
@@ -121,12 +122,11 @@ Desktop uses absolute positioning for header/footer overlaid on the chart. Mobil
 - Footer: absolute corners on desktop, stacked flow on mobile with `mt-auto` for bottom alignment
 - Drag handles and edit buttons: hover-dependent on desktop, always visible on mobile
 - SharedBanner: full text on desktop, short labels on mobile
-- GardenPanel popover: `absolute` on desktop, `fixed` viewport-centered on mobile for Reset
+- Popovers: Radix positioning with `collisionPadding={16}` default; GardenPanel spans full viewport width on mobile
 
 ### Utilities
 
 - `src/utils/cn.ts`: `cn()` — tailwind-merge + clsx wrapper.
-- `src/utils/buttonStyles.ts`: `buttonClass()` and `innerClass()` — pure Tailwind class builders for Button variants.
 - `src/utils/exportImage.ts`: `exportSvg()` and `exportPng()` — standalone SVG/PNG export with embedded base64 woff2 font, `text, tspan { font-family }` rule for reliable rendering. PNG uses data URI + canvas at 3x scale (1800×1800).
 - `src/utils/logoColors.ts`: color palettes, `colorsFromName()`, `isLight()`, `pick()` — used by Header, SharedBanner, MonthGrid.
 
@@ -146,8 +146,9 @@ Component library documentation at `pnpm storybook`. Atomic Design hierarchy: At
 
 ### Testing
 
-- **Unit tests** (vitest): reducer actions, state validation, reconciliation, i18n utils, month parsing. Files colocated in `src/`.
-- **E2E tests** (playwright, `e2e/`): functional tests for all user flows (panel, share, reset, language, shared garden, manage, editor, drag reorder, keyboard reorder, error boundary, not-found, invalid-share, URL normalization) + visual regression screenshots with seeded deterministic state. Semantic ARIA selectors preferred over CSS classes.
+- **Unit tests** (vitest): reducer actions, state validation, reconciliation, share URL round-trip, colors, i18n utils, month parsing. Files colocated in `src/`.
+- **E2E tests** (playwright, `e2e/`): functional tests for all user flows (panel, share, reset, language, shared garden, manage, editor, drag reorder, keyboard reorder, error boundary, not-found, invalid-share, URL normalization) + visual regression screenshots (desktop + mobile) with seeded deterministic state. Semantic ARIA selectors preferred over CSS classes.
+- **Accessibility tests** (axe-core, `e2e/a11y.spec.js`): automated a11y audit on all key pages, ignoring color-contrast.
 - **Visual baselines**: `e2e/snapshots/`. Update with `pnpm exec playwright test e2e/visual.spec.js --update-snapshots`.
 
 ## Deployment

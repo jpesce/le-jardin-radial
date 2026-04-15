@@ -12,7 +12,7 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked.map((config) => ({
     ...config,
-    files: ['src/**/*.{ts,tsx}', '.storybook/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', '.storybook/**/*.{ts,tsx}', 'scripts/**/*.ts'],
   })),
   {
     files: ['**/*.{ts,tsx}'],

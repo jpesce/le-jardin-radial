@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img width="100%" src="docs/screenshot.png" alt="Screenshot"/>
+  <img width="100%" src="docs/screenshot.webp" alt="Screenshot"/>
 </p>
 
 <p align="center">
@@ -40,6 +40,7 @@ pnpm storybook      # components at localhost:6006
 - **React** + **Vite** — UI and build
 - **D3.js** — radial chart
 - **Tailwind CSS v4** — styling with design tokens
+- **Radix UI** — popover and checkbox primitives (shadcn)
 - **Zustand** — state management with persistence
 - **Framer Motion** — animations
 - **Lucide** — icons
@@ -49,13 +50,19 @@ pnpm storybook      # components at localhost:6006
 
 ```bash
 pnpm test          # unit tests (vitest)
-pnpm test:e2e      # functional + visual regression tests (playwright)
+pnpm test:e2e      # functional, visual regression, and accessibility tests (playwright + axe-core)
 ```
 
 To update visual regression baselines after intentional UI changes:
 
 ```bash
 pnpm exec playwright test e2e/visual.spec.js --update-snapshots
+```
+
+To regenerate the README screenshot:
+
+```bash
+npx tsx scripts/screenshot.ts
 ```
 
 ## Credits
