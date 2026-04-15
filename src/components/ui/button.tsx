@@ -8,11 +8,13 @@ import {
   type ComponentPropsWithoutRef,
   type ReactNode,
 } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { buttonClass, innerClass } from './buttonStyles';
 import { cn } from '../../utils/cn';
 
 const SPRING = { type: 'spring' as const, bounce: 0, duration: 0.4 };
+const FADE_IN = { duration: 0.3, delay: 0.05 };
+const FADE_OUT = { duration: 0.15 };
 const INSTANT = { duration: 0 };
 
 interface AnimatedButtonInnerProps extends ComponentPropsWithoutRef<'button'> {
@@ -28,6 +30,14 @@ const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonInnerProps>(
     const innerRef = useRef<HTMLSpanElement>(null);
     const [width, setWidth] = useState<number | null>(null);
     const hasChildren = children !== undefined && children !== null;
+
+    // Track label changes: counter serves as remount key + first-change gate
+    const [prevChildren, setPrevChildren] = useState(children);
+    const [changeCount, setChangeCount] = useState(0);
+    if (children !== prevChildren) {
+      setPrevChildren(children);
+      setChangeCount((c) => c + 1);
+    }
 
     const [ready, setReady] = useState(
       () => document.fonts.status === 'loaded',
@@ -52,7 +62,7 @@ const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonInnerProps>(
     return (
       <motion.button
         ref={ref}
-        className={className}
+        className={cn(className, 'justify-start')}
         initial={false}
         animate={width !== null ? { width } : {}}
         transition={ready ? SPRING : INSTANT}
@@ -60,7 +70,18 @@ const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonInnerProps>(
       >
         <span ref={innerRef} className={innerClassName}>
           {icon}
-          {hasChildren && <span>{children}</span>}
+          <AnimatePresence mode="popLayout" initial={false}>
+            {hasChildren && (
+              <motion.span
+                key={changeCount}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: FADE_IN }}
+                exit={{ opacity: 0, transition: FADE_OUT }}
+              >
+                {children}
+              </motion.span>
+            )}
+          </AnimatePresence>
         </span>
       </motion.button>
     );
