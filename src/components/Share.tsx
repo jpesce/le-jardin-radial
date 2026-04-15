@@ -54,25 +54,18 @@ export default function Share({
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [showExportOptions, setShowExportOptions] = useState(false);
-  const [wasOpen, setWasOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset sub-views when popover reopens (synchronous state derived from props)
-  if (isOpen && !wasOpen) {
+  const resetSubViews = useCallback(() => {
     setPendingFile(null);
     setImportError(null);
     setShowExportOptions(false);
-  }
-  if (isOpen !== wasOpen) {
-    setWasOpen(isOpen);
-  }
+  }, []);
 
   const close = useCallback(() => {
     onClose();
-    setPendingFile(null);
-    setImportError(null);
-    setShowExportOptions(false);
-  }, [onClose]);
+    resetSubViews();
+  }, [onClose, resetSubViews]);
 
   const handleCopyLink = async () => {
     const url = onGetShareUrl();
@@ -128,8 +121,10 @@ export default function Share({
     <Popover
       open={isOpen}
       onOpenChange={(open) => {
-        if (open) onToggle();
-        else close();
+        if (open) {
+          resetSubViews();
+          onToggle();
+        } else close();
       }}
     >
       <PopoverTrigger asChild>

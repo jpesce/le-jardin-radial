@@ -40,7 +40,7 @@ test.describe('panel', () => {
 
   test('updates owner name', async ({ page }) => {
     await page.getByText('Plan garden').click();
-    const input = page.locator('input[type="text"]').first();
+    const input = page.getByLabel('Gardener');
     await input.clear();
     await input.fill('Alice');
     await expect(page.getByText('de Alice').first()).toBeVisible();
@@ -48,7 +48,7 @@ test.describe('panel', () => {
 
   test('persists owner name after reload', async ({ page }) => {
     await page.getByText('Plan garden').click();
-    const input = page.locator('input[type="text"]').first();
+    const input = page.getByLabel('Gardener');
     await input.clear();
     await input.fill('Alice');
     await page.getByText('Done').click();
@@ -120,7 +120,7 @@ test.describe('reset', () => {
 
   test('confirm resets garden', async ({ page }) => {
     await page.getByText('Plan garden').click();
-    const input = page.locator('input[type="text"]').first();
+    const input = page.getByLabel('Gardener');
     await input.clear();
     await input.fill('Alice');
     await page.getByText('Done').click();
@@ -173,7 +173,8 @@ test.describe('shared garden', () => {
 
     // Change owner and wait for persist
     await page.getByText('Plan garden').click();
-    const input = page.locator('input[type="text"]').first();
+    await expect(page.getByText('Gardener')).toBeVisible();
+    const input = page.getByLabel('Gardener');
     await input.clear();
     await input.fill('Alice');
     await page.getByText('Done').click();

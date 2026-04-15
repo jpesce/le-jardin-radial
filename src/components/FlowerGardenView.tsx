@@ -12,6 +12,140 @@ import type { EnrichedFlower } from '../types';
 
 const LAYOUT_TRANSITION = { duration: 0.3, ease: 'easeInOut' as const };
 
+// ── Drag handle ─────────────────────────────────────────────────────────
+
+interface DragHandleProps {
+  /** Flower name for accessible label */
+  displayName: string;
+  /** Flower ID for focus restoration after keyboard reorder */
+  flowerId: string;
+  /** Called on keyboard ArrowUp/ArrowDown */
+  onKeyDown: (e: React.KeyboardEvent) => void;
+  /** Called on pointer drag start */
+  onPointerDown: (e: React.PointerEvent) => void;
+}
+
+/** Grip icon for drag reorder — supports both pointer drag and keyboard ArrowUp/ArrowDown. */
+function DragHandle({
+  displayName,
+  flowerId,
+  onKeyDown,
+  onPointerDown,
+}: DragHandleProps) {
+  return (
+    <span
+      className="absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-earth-200 cursor-grab select-none touch-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing group-data-[hovered]:opacity-100 max-sm:opacity-100 focus-visible:opacity-100 focus-visible:bg-divider focus-visible:outline-none"
+      role="button"
+      tabIndex={0}
+      aria-label={`Reorder ${displayName}`}
+      aria-roledescription="sortable"
+      data-reorder-id={flowerId}
+      onKeyDown={onKeyDown}
+      onClick={(e) => {
+        e.preventDefault();
+      }}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        onPointerDown(e);
+      }}
+    >
+      <GripVertical size={11} />
+    </span>
+  );
+}
+
+// ── List item ───────────────────────────────────────────────────────────
+
+interface FlowerListItemProps {
+  /** Flower data */
+  flower: EnrichedFlower;
+  /** Whether this flower is selected (checked) */
+  isSelected: boolean;
+  /** Index within the selected array (-1 if unselected) */
+  selectedIdx: number;
+  /** Whether this item is being dragged */
+  isDraggedItem: boolean;
+  /** Whether to show a drop indicator above this item */
+  showIndicatorAbove: boolean;
+  /** Whether to show a drop indicator below this item */
+  showIndicatorBelow: boolean;
+  /** Whether this item is hovered */
+  isHovered: boolean;
+  /** Pointer move handler for hover tracking */
+  onHover: () => void;
+  /** Mouse leave handler to clear hover */
+  onHoverEnd: () => void;
+  /** Pointer down handler for drag initiation */
+  onPointerDown: (e: React.PointerEvent) => void;
+  /** Toggle flower selection */
+  onToggle: () => void;
+  /** Edit this flower */
+  onEdit: () => void;
+  /** Keyboard reorder handler for the drag handle */
+  onKeyboardReorder: (e: React.KeyboardEvent) => void;
+}
+
+/** Animated flower list item with optional drag handle and drop indicators. */
+function FlowerListItem({
+  flower,
+  isSelected,
+  selectedIdx,
+  isDraggedItem,
+  showIndicatorAbove,
+  showIndicatorBelow,
+  isHovered,
+  onHover,
+  onHoverEnd,
+  onPointerDown,
+  onToggle,
+  onEdit,
+  onKeyboardReorder,
+}: FlowerListItemProps) {
+  return (
+    <motion.li
+      key={flower.id}
+      layout
+      transition={{ layout: LAYOUT_TRANSITION }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isDraggedItem ? 0.4 : 1 }}
+      exit={{ opacity: 0 }}
+      className={cn(
+        'group relative',
+        showIndicatorAbove &&
+          'before:content-[""] before:absolute before:inset-x-0 before:h-px before:bg-border-hover before:top-0',
+        showIndicatorBelow &&
+          'after:content-[""] after:absolute after:inset-x-0 after:h-px after:bg-border-hover after:bottom-0',
+      )}
+      data-hovered={isHovered || undefined}
+      data-selected-idx={isSelected ? selectedIdx : undefined}
+      onPointerMove={onHover}
+      onMouseLeave={onHoverEnd}
+      onPointerDown={isSelected ? onPointerDown : undefined}
+    >
+      <label className="flex flex-1 gap-[0.5rem] items-center py-[0.25rem] text-xs text-subtle cursor-pointer">
+        <FlowerRow
+          flower={flower}
+          checked={isSelected}
+          onToggle={onToggle}
+          onEdit={onEdit}
+          dragHandle={
+            isSelected ? (
+              <DragHandle
+                displayName={flower.displayName}
+                flowerId={flower.id}
+                onKeyDown={onKeyboardReorder}
+                onPointerDown={onPointerDown}
+              />
+            ) : null
+          }
+        />
+      </label>
+    </motion.li>
+  );
+}
+
+// ── Garden view ─────────────────────────────────────────────────────────
+
 interface FlowerGardenViewProps {
   /** Flowers currently in the garden, in display order */
   gardenFlowers: EnrichedFlower[];
@@ -101,6 +235,8 @@ export default function FlowerGardenView({
 
   const selectedSet = useMemo(() => new Set(selected), [selected]);
 
+  const isDragging = dragFrom !== null;
+
   return (
     <>
       <div className="flex flex-col gap-[0.35rem]">
@@ -145,7 +281,7 @@ export default function FlowerGardenView({
         ref={listRef}
         className={cn(
           'flex flex-col list-none',
-          dragFrom !== null && 'pointer-events-none',
+          isDragging && 'pointer-events-none',
         )}
       >
         <AnimatePresence initial={false}>
@@ -153,104 +289,60 @@ export default function FlowerGardenView({
             const isSelected = selectedSet.has(flower.id);
             const selectedIdx = selected.indexOf(flower.id);
 
-            const isDragging = dragFrom !== null;
-            const isDraggedItem = isSelected && dragFrom === selectedIdx;
-            const isHovered = hoveredId === flower.id;
-
-            const showIndicatorAbove =
-              isDragging &&
-              isSelected &&
-              dropTarget === selectedIdx &&
-              dropTarget !== dragFrom &&
-              dropTarget !== dragFrom + 1;
-
-            const showIndicatorBelow =
-              isDragging &&
-              isSelected &&
-              selectedIdx === selected.length - 1 &&
-              dropTarget === selected.length &&
-              dropTarget !== dragFrom + 1;
-
             const items = [
-              <motion.li
+              <FlowerListItem
                 key={flower.id}
-                layout
-                transition={{ layout: LAYOUT_TRANSITION }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isDraggedItem ? 0.4 : 1 }}
-                exit={{ opacity: 0 }}
-                className={cn(
-                  'group relative',
-                  showIndicatorAbove &&
-                    'before:content-[""] before:absolute before:inset-x-0 before:h-px before:bg-border-hover before:top-0',
-                  showIndicatorBelow &&
-                    'after:content-[""] after:absolute after:inset-x-0 after:h-px after:bg-border-hover after:bottom-0',
-                )}
-                data-hovered={isHovered || undefined}
-                data-selected-idx={isSelected ? selectedIdx : undefined}
-                onPointerMove={() => {
+                flower={flower}
+                isSelected={isSelected}
+                selectedIdx={selectedIdx}
+                isDraggedItem={isSelected && dragFrom === selectedIdx}
+                showIndicatorAbove={
+                  isDragging &&
+                  isSelected &&
+                  dropTarget === selectedIdx &&
+                  dropTarget !== dragFrom &&
+                  dropTarget !== dragFrom + 1
+                }
+                showIndicatorBelow={
+                  isDragging &&
+                  isSelected &&
+                  selectedIdx === selected.length - 1 &&
+                  dropTarget === selected.length &&
+                  dropTarget !== dragFrom + 1
+                }
+                isHovered={hoveredId === flower.id}
+                onHover={() => {
                   if (
-                    dragFrom === null &&
+                    !isDragging &&
                     !suppressHover.current &&
                     hoveredId !== flower.id
                   )
                     setHoveredId(flower.id);
                 }}
-                onMouseLeave={() => {
+                onHoverEnd={() => {
                   setHoveredId(null);
                 }}
-                onPointerDown={
-                  isSelected
-                    ? (e) => {
-                        handlePointerDown(e, selectedIdx);
-                      }
-                    : undefined
-                }
-              >
-                <label className="flex flex-1 gap-[0.5rem] items-center py-[0.25rem] text-xs text-subtle cursor-pointer">
-                  <FlowerRow
-                    flower={flower}
-                    checked={isSelected}
-                    onToggle={() => {
-                      setHoveredId(null);
-                      suppressHover.current = true;
-                      setTimeout(() => {
-                        suppressHover.current = false;
-                      }, LAYOUT_TRANSITION.duration * 1000);
-                      onToggle(flower.id);
-                    }}
-                    onEdit={() => {
-                      onEditFlower(flower.id);
-                    }}
-                    dragHandle={
-                      isSelected ? (
-                        <span
-                          className="absolute top-1/2 left-[calc(-20px-4.5px)] flex items-center justify-center w-5 py-1 text-earth-200 cursor-grab select-none touch-none bg-transparent rounded-[3px] opacity-0 -translate-y-1/2 transition-[opacity,background] duration-100 hover:bg-divider active:text-muted active:cursor-grabbing group-data-[hovered]:opacity-100 max-sm:opacity-100 focus-visible:opacity-100 focus-visible:bg-divider focus-visible:outline-none"
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`Reorder ${flower.displayName}`}
-                          aria-roledescription="sortable"
-                          data-reorder-id={flower.id}
-                          onKeyDown={(e) => {
-                            handleKeyboardReorder(e, flower.id, selectedIdx);
-                          }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                          }}
-                          onPointerDown={(e) => {
-                            e.stopPropagation();
-                            handlePointerDown(e, selectedIdx);
-                          }}
-                        >
-                          <GripVertical size={11} />
-                        </span>
-                      ) : null
-                    }
-                  />
-                </label>
-              </motion.li>,
+                onPointerDown={(e) => {
+                  handlePointerDown(e, selectedIdx);
+                }}
+                onToggle={() => {
+                  setHoveredId(null);
+                  suppressHover.current = true;
+                  setTimeout(() => {
+                    suppressHover.current = false;
+                  }, LAYOUT_TRANSITION.duration * 1000);
+                  onToggle(flower.id);
+                }}
+                onEdit={() => {
+                  onEditFlower(flower.id);
+                }}
+                onKeyboardReorder={(e) => {
+                  handleKeyboardReorder(e, flower.id, selectedIdx);
+                }}
+              />,
             ];
 
+            // Divider between selected and unselected flowers
             const isLastSelected =
               isSelected &&
               selectedIdx === selected.length - 1 &&
