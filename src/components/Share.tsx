@@ -143,6 +143,7 @@ export default function Share({
       </PopoverTrigger>
       <PopoverContent
         align={align}
+        aria-label="Share menu"
         className="w-max max-w-64 p-[0.35rem] [&>button]:justify-start"
       >
         {pendingFile ? (

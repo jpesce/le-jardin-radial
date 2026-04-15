@@ -37,6 +37,7 @@ export default function SharedBanner({
 
   return (
     <motion.div
+      role="banner"
       className="w-full text-xs leading-normal"
       style={{ background: backgroundColor, color: textColor }}
       initial={
@@ -93,7 +94,10 @@ export default function SharedBanner({
                 <span className="max-sm:hidden">{t('saveToMyGarden')}</span>
               </button>
             </PopoverTrigger>
-            <PopoverContent className="z-[200] gap-2 w-64 py-3 px-4 text-fg">
+            <PopoverContent
+              aria-label="Save confirmation"
+              className="z-[200] gap-2 w-64 py-3 px-4 text-fg"
+            >
               <p className="text-xs font-bold text-fg lowercase">
                 {t('replaceTitle')}
               </p>

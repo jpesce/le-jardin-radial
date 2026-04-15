@@ -11,7 +11,9 @@ test.describe('initial load', () => {
     await expect(
       page.getByRole('img', { name: /radial garden/i }),
     ).toBeVisible();
-    await expect(page.locator('text=LE JARDIN RADIAL')).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Le Jardin Radial' }),
+    ).toBeAttached();
     await expect(
       page.getByRole('button', { name: 'Reset garden' }),
     ).toBeVisible();

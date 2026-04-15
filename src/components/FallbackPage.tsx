@@ -21,7 +21,7 @@ export default function FallbackPage({
   }, [title]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-dvh gap-6 p-8 text-fg">
+    <main className="flex flex-col items-center justify-center min-h-dvh gap-6 p-8 text-fg">
       <SadFlower className="w-32 h-40" />
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-sm font-bold lowercase tracking-[0.03em]">
@@ -32,6 +32,6 @@ export default function FallbackPage({
         </p>
       </div>
       <div className="flex gap-3">{actions}</div>
-    </div>
+    </main>
   );
 }

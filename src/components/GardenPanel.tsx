@@ -114,6 +114,7 @@ export default function GardenPanel({
         ref={panelRef}
         align="end"
         collisionPadding={0}
+        aria-label="Garden panel"
         onOpenAutoFocus={(e) => {
           e.preventDefault(); // Don't auto-focus/select inputs
         }}

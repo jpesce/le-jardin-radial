@@ -64,6 +64,7 @@ export default function Header({
     <header className="absolute top-8 left-8 right-8 z-[100] flex items-start justify-between max-sm:static max-sm:w-full max-sm:mb-6 max-sm:flex-wrap max-sm:gap-3">
       {/* Logo + owner — hidden on mobile when panel open */}
       <div className="max-sm:w-full">
+        <h1 className="sr-only">Le Jardin Radial</h1>
         {/* Stacked logo — desktop */}
         <div className="w-[max(120px,20vw)] max-sm:hidden">
           <Logo

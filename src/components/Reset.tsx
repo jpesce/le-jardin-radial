@@ -58,7 +58,11 @@ export default function Reset({
           aria-label="Reset garden"
         />
       </PopoverTrigger>
-      <PopoverContent align={align} className="gap-2 w-64 py-3 px-4">
+      <PopoverContent
+        align={align}
+        aria-label="Reset confirmation"
+        className="gap-2 w-64 py-3 px-4"
+      >
         <p className="text-xs font-bold text-fg lowercase">{t('resetTitle')}</p>
         <p className="text-2xs leading-[1.5] text-subtle">
           {t('resetConfirm')}

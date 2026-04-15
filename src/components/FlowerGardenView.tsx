@@ -103,10 +103,14 @@ export default function FlowerGardenView({
   return (
     <>
       <div className="flex flex-col gap-[0.35rem]">
-        <label className="flex gap-[0.4rem] items-center text-xs text-muted lowercase tracking-[0.03em] cursor-pointer select-none">
+        <label
+          htmlFor="garden-owner"
+          className="flex gap-[0.4rem] items-center text-xs text-muted lowercase tracking-[0.03em] cursor-pointer select-none"
+        >
           {t('gardenerLabel')}
         </label>
         <input
+          id="garden-owner"
           type="text"
           className="px-[0.6rem] py-[0.4rem] text-xs text-fg outline-none bg-surface-input border border-border rounded-md transition-[border-color] duration-150 focus:bg-surface focus:border-border-hover"
           value={gardenOwner}
@@ -125,9 +129,9 @@ export default function FlowerGardenView({
         </label>
       </div>
       <div className="flex items-center pt-5">
-        <h3 className="text-xs font-bold text-muted uppercase tracking-[0.05em]">
+        <h2 className="text-xs font-bold text-muted uppercase tracking-[0.05em]">
           {t('pickFlowers')}
-        </h3>
+        </h2>
         <Button
           variant="ghost"
           size="xs"

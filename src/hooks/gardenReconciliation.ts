@@ -94,9 +94,13 @@ export type ShareResult =
   | { status: 'valid'; state: GardenState }
   | { status: 'invalid' };
 
-export function getSharedState(): ShareResult {
-  if (typeof window === 'undefined') return { status: 'none' };
-  const match = window.location.pathname.match(/^\/share\/(.+)/);
+export function getSharedState(
+  pathname = typeof window !== 'undefined'
+    ? window.location.pathname
+    : undefined,
+): ShareResult {
+  if (!pathname) return { status: 'none' };
+  const match = pathname.match(/^\/share\/(.+)/);
   if (!match) return { status: 'none' };
   try {
     const compressed = match[1];

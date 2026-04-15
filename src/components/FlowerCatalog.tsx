@@ -58,9 +58,9 @@ export default function FlowerCatalog({
     <>
       <BackButton onClick={onBack}>{t('backButton')}</BackButton>
       <div className="flex flex-col pb-[0.4rem]">
-        <h3 className="pt-2 text-xs font-bold text-muted uppercase tracking-[0.05em]">
+        <h2 className="pt-2 text-xs font-bold text-muted uppercase tracking-[0.05em]">
           {t('catalogTitle')}
-        </h3>
+        </h2>
         <p className="mt-[0.15rem] text-2xs text-faint lowercase tracking-[0.03em]">
           {t('catalogHint')}
         </p>

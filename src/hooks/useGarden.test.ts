@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { reducer, isValidState, reconcile } from './useGarden';
+import { compressToEncodedURIComponent } from 'lz-string';
+import { reducer, isValidState, reconcile, getSharedState } from './useGarden';
 import type { GardenState, RawFlower } from '../types';
 
 const flower = (id: string): RawFlower => ({
@@ -497,5 +498,98 @@ describe('reconcile', () => {
     };
     const result = reconcile(saved);
     expect(result.garden).toContain('custom-uuid');
+  });
+});
+
+describe('getSharedState', () => {
+  it('returns none when path is not a share URL', () => {
+    expect(getSharedState('/')).toEqual({ status: 'none' });
+  });
+
+  it('returns none for /en path', () => {
+    expect(getSharedState('/en')).toEqual({ status: 'none' });
+  });
+
+  it('returns none when no pathname provided in SSR', () => {
+    expect(getSharedState(undefined)).toEqual({ status: 'none' });
+  });
+
+  it('returns invalid for corrupted compressed data', () => {
+    expect(getSharedState('/share/not-valid-compressed-data!!!')).toEqual({
+      status: 'invalid',
+    });
+  });
+
+  it('returns invalid for valid JSON that is not a garden state', () => {
+    const compressed = compressToEncodedURIComponent(
+      JSON.stringify({ foo: 'bar' }),
+    );
+    expect(getSharedState(`/share/${compressed}`)).toEqual({
+      status: 'invalid',
+    });
+  });
+
+  it('returns valid for a properly compressed garden state', () => {
+    const state = baseState();
+    const { isShared: _, ...shareable } = state;
+    const compressed = compressToEncodedURIComponent(JSON.stringify(shareable));
+
+    const result = getSharedState(`/share/${compressed}`);
+    expect(result.status).toBe('valid');
+    if (result.status === 'valid') {
+      expect(result.state.owner).toBe('Test');
+      expect(result.state.garden).toEqual(['rose', 'tulip']);
+      expect(result.state.selected).toEqual(['rose']);
+    }
+  });
+});
+
+describe('share URL round-trip', () => {
+  it('compress → decompress preserves garden state', () => {
+    const state = baseState();
+    const { isShared: _, defaultCatalog, ...shareable } = state;
+    const shareSet = new Set(state.garden);
+    const minimalCatalog = defaultCatalog.filter((f) => shareSet.has(f.id));
+    const payload = { ...shareable, defaultCatalog: minimalCatalog };
+    const compressed = compressToEncodedURIComponent(JSON.stringify(payload));
+
+    const result = getSharedState(`/share/${compressed}`);
+    expect(result.status).toBe('valid');
+    if (result.status === 'valid') {
+      expect(result.state.owner).toBe(state.owner);
+      expect(result.state.labels).toBe(state.labels);
+      expect(result.state.garden).toEqual(state.garden);
+      expect(result.state.selected).toEqual(state.selected);
+      expect(result.state.customFlowers).toEqual(state.customFlowers);
+    }
+  });
+
+  it('round-trip preserves custom flowers', () => {
+    const state = baseState();
+    state.customFlowers = {
+      'custom-1': {
+        names: { en: 'My Flower', fr: 'Ma Fleur' },
+        colors: { blooming: '#FF0000' },
+        months: { '3-5': 'blooming', '1-2': 'dormant', '6-12': 'dormant' },
+      },
+    };
+    state.garden.push('custom-1');
+    state.selected.push('custom-1');
+
+    const { isShared: _, defaultCatalog, ...shareable } = state;
+    const shareSet = new Set(state.garden);
+    const minimalCatalog = defaultCatalog.filter((f) => shareSet.has(f.id));
+    const payload = { ...shareable, defaultCatalog: minimalCatalog };
+    const compressed = compressToEncodedURIComponent(JSON.stringify(payload));
+
+    const result = getSharedState(`/share/${compressed}`);
+    expect(result.status).toBe('valid');
+    if (result.status === 'valid') {
+      expect(result.state.garden).toContain('custom-1');
+      expect(result.state.selected).toContain('custom-1');
+      expect(result.state.customFlowers['custom-1']).toEqual(
+        state.customFlowers['custom-1'],
+      );
+    }
   });
 });
