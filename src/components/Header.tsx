@@ -61,9 +61,9 @@ export default function Header({
   }, [onTogglePanel]);
 
   return (
-    <header className="absolute top-8 left-8 right-8 z-[100] flex items-start justify-between max-sm:static max-sm:w-full max-sm:mb-6 max-sm:flex-wrap max-sm:gap-3">
+    <header className="absolute top-8 left-8 right-8 z-[100] flex items-start justify-between pointer-events-none max-sm:static max-sm:w-full max-sm:mb-6 max-sm:flex-wrap max-sm:gap-3 max-sm:pointer-events-auto">
       {/* Logo + owner — hidden on mobile when panel open */}
-      <div className="max-sm:w-full">
+      <div className="pointer-events-auto max-sm:w-full">
         <h1 className="sr-only">Le Jardin Radial</h1>
         {/* Stacked logo — desktop */}
         <div className="w-[max(120px,20vw)] max-sm:hidden">
@@ -92,7 +92,7 @@ export default function Header({
 
       {/* Actions — hidden when viewing a shared garden */}
       <div
-        className={`flex gap-[0.4rem] items-center ml-auto max-sm:ml-0 max-sm:w-full ${showActions ? '' : 'sm:hidden max-sm:invisible'}`}
+        className={`flex gap-[0.4rem] items-center pointer-events-auto ml-auto max-sm:ml-0 max-sm:w-full ${showActions ? '' : 'sm:hidden max-sm:invisible'}`}
       >
         <div className="max-sm:order-3 max-sm:ml-auto">
           <Share

@@ -152,6 +152,39 @@ const SEASON_ICONS: SeasonIcon[] = [
   },
 ];
 
+/** Position a tooltip relative to its container, flipping to avoid viewport overflow. */
+function positionTooltip(
+  tip: HTMLDivElement,
+  svgRect: DOMRect,
+  anchorLeft: number,
+  anchorTop: number,
+) {
+  tip.style.left = `${anchorLeft}px`;
+  tip.style.top = `${anchorTop}px`;
+
+  const tipRect = tip.getBoundingClientRect();
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const pad = 8;
+
+  // Flip right → left if overflowing viewport right
+  if (tipRect.right > vw - pad) {
+    tip.style.left = `${anchorLeft - tipRect.width - 24}px`;
+  }
+  // Shift up if overflowing viewport bottom
+  if (tipRect.bottom > vh - pad) {
+    tip.style.top = `${anchorTop - tipRect.height - 24}px`;
+  }
+  // Clamp to viewport left/top (relative to container)
+  const recheckRect = tip.getBoundingClientRect();
+  if (recheckRect.left < pad) {
+    tip.style.left = `${pad - svgRect.left}px`;
+  }
+  if (recheckRect.top < pad) {
+    tip.style.top = `${pad - svgRect.top}px`;
+  }
+}
+
 interface RadialChartProps {
   flowers: EnrichedFlower[];
   showLabels?: boolean;
@@ -300,20 +333,21 @@ export default function RadialChart({
       icon
         .style('cursor', 'default')
         .style('pointer-events', 'all')
-        .on('mouseenter', () => {
+        .on('mouseenter', function () {
           const tr = tRef.current;
           const name = tr('seasons.' + key + '.name') as string;
           const range = tr('seasons.' + key + '.range') as string;
           const svgRect = svgRef.current!.getBoundingClientRect();
-          const svgScale = svgRect.width / SIZE;
-          const tip = d3.select(tooltipRef.current);
-          tip
-            .style('opacity', 1)
-            .html(
-              `<strong>${(name[0] ?? '').toUpperCase() + name.slice(1)}</strong><br/>${range}`,
-            )
-            .style('left', `${(x + CENTER) * svgScale + 16}px`)
-            .style('top', `${(y + CENTER) * svgScale - 12}px`);
+          const iconRect = this.getBoundingClientRect();
+          const tip = tooltipRef.current!;
+          tip.style.opacity = '1';
+          tip.innerHTML = `<strong>${(name[0] ?? '').toUpperCase() + name.slice(1)}</strong><br/>${range}`;
+          positionTooltip(
+            tip,
+            svgRect,
+            iconRect.left - svgRect.left + iconRect.width / 2 + 12,
+            iconRect.top - svgRect.top + iconRect.height / 2 - 12,
+          );
         })
         .on('mouseleave', () => {
           d3.select(tooltipRef.current).style('opacity', 0);
@@ -509,9 +543,12 @@ export default function RadialChart({
       })
       .on('mousemove', function (event: MouseEvent) {
         const svgRect = svgRef.current!.getBoundingClientRect();
-        tooltip
-          .style('left', `${event.clientX - svgRect.left + 12}px`)
-          .style('top', `${event.clientY - svgRect.top - 28}px`);
+        positionTooltip(
+          tooltipRef.current!,
+          svgRect,
+          event.clientX - svgRect.left + 12,
+          event.clientY - svgRect.top - 28,
+        );
       })
       .on('mouseleave', function () {
         tooltip.style('opacity', 0);
@@ -640,7 +677,7 @@ export default function RadialChart({
       />
       <div
         ref={tooltipRef}
-        className="absolute py-1.5 px-2.5 text-2xs leading-[1.5] text-surface whitespace-nowrap pointer-events-none bg-fg rounded-lg opacity-0 transition-opacity duration-[0.12s] [&_strong]:font-extrabold"
+        className="absolute z-[200] py-1.5 px-2.5 text-2xs leading-[1.5] text-surface whitespace-nowrap pointer-events-none bg-fg rounded-lg opacity-0 transition-opacity duration-[0.12s] [&_strong]:font-extrabold"
       />
     </div>
   );
