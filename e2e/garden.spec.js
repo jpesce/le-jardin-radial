@@ -61,11 +61,37 @@ test.describe('panel', () => {
     await expect(page.getByText('de Alice').first()).toBeVisible();
   });
 
-  test('toggles flower visibility on chart', async ({ page }) => {
+  test('toggles label visibility on chart', async ({ page }) => {
     await page.getByText('Plan garden').click();
-    const firstCheckbox = page.getByRole('checkbox').first();
-    await firstCheckbox.click();
-    await expect(firstCheckbox).not.toBeChecked();
+    const labelsCheckbox = page.getByRole('checkbox').first();
+    await labelsCheckbox.click();
+    await expect(labelsCheckbox).not.toBeChecked();
+  });
+
+  test('deselects a flower in garden view', async ({ page }) => {
+    await page.getByText('Plan garden').click();
+    await expect(page.getByText('Gardener')).toBeVisible();
+
+    // Get the name of the first selected flower to track it across re-renders
+    const firstSelected = page
+      .getByRole('listitem')
+      .filter({ has: page.getByRole('checkbox', { checked: true }) })
+      .first();
+    const flowerName = (await firstSelected.textContent())
+      ?.trim()
+      .split('\n')[0]
+      ?.trim();
+
+    // Click its checkbox to deselect
+    await firstSelected.getByRole('checkbox').click();
+
+    // Verify it's now unchecked (find by name since list reorders)
+    const item = page.getByRole('listitem').filter({ hasText: flowerName });
+    await expect(item.getByRole('checkbox')).not.toBeChecked();
+
+    // Re-select by clicking the flower name (not checkbox)
+    await item.locator('text=' + flowerName).click();
+    await expect(item.getByRole('checkbox')).toBeChecked();
   });
 });
 

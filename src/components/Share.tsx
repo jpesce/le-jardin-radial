@@ -121,6 +121,7 @@ export default function Share({
       open={isOpen}
       onOpenChange={(open) => {
         if (open) {
+          // Reset on open (not close) to avoid content flash during close animation
           resetSubViews();
           onToggle();
         } else close();

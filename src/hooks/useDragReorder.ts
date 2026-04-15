@@ -8,6 +8,11 @@ interface UseDragReorderReturn {
   handlePointerDown: (e: React.PointerEvent, selectedIdx: number) => void;
 }
 
+/**
+ * Drag-to-reorder hook for sortable lists. Defers `setPointerCapture` until the
+ * drag threshold (3px) is exceeded so that normal clicks (checkbox, label) pass
+ * through unaffected. Bails early for clicks on `[data-slot="checkbox"]`.
+ */
 export function useDragReorder(
   listRef: RefObject<HTMLElement | null>,
   selected: string[],
@@ -18,11 +23,11 @@ export function useDragReorder(
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, selectedIdx: number) => {
-      if ((e.target as HTMLElement).closest('input[type="checkbox"]')) return;
+      if ((e.target as HTMLElement).closest('[data-slot="checkbox"]')) return;
       if (e.button !== 0) return;
 
       const handle = e.currentTarget as HTMLElement;
-      handle.setPointerCapture(e.pointerId);
+      const pointerId = e.pointerId;
       const startY = e.clientY;
       const currentIds = [...selected];
       let isDragging = false;
@@ -45,6 +50,7 @@ export function useDragReorder(
         if (!isDragging) {
           if (Math.abs(moveEvent.clientY - startY) < DRAG_THRESHOLD) return;
           isDragging = true;
+          handle.setPointerCapture(pointerId);
           handle.style.cursor = 'grabbing';
           document.body.style.setProperty('user-select', 'none');
           setDragFrom(selectedIdx);
@@ -55,12 +61,12 @@ export function useDragReorder(
       };
 
       const cleanup = () => {
-        handle.removeEventListener('pointermove', onMove);
-        handle.removeEventListener('pointerup', onUp);
-        handle.removeEventListener('pointercancel', onCancel);
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        document.removeEventListener('pointercancel', onCancel);
 
         if (isDragging) {
-          handle.releasePointerCapture(e.pointerId);
+          handle.releasePointerCapture(pointerId);
           handle.style.cursor = '';
           document.body.style.removeProperty('user-select');
         }
@@ -87,9 +93,9 @@ export function useDragReorder(
         cleanup();
       };
 
-      handle.addEventListener('pointermove', onMove);
-      handle.addEventListener('pointerup', onUp);
-      handle.addEventListener('pointercancel', onCancel);
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+      document.addEventListener('pointercancel', onCancel);
     },
     [selected, onReorder, listRef],
   );

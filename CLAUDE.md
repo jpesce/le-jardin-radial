@@ -65,7 +65,7 @@ State model: `{ owner, labels, defaultCatalog, garden[], selected[], customFlowe
 **Panel components:**
 
 - **GardenPanel** (`GardenPanel.tsx`): Self-contained Radix Popover — trigger button + editing panel. View routing (garden/manage/create/edit), custom Escape handler (capture phase, preempts Radix for view navigation), `onOpenAutoFocus` prevented to avoid selecting input. Reads garden state from Zustand directly.
-- **FlowerGardenView** (`FlowerGardenView.tsx`): Garden view — owner input, labels toggle, sortable flower list with drag reorder (`setPointerCapture` on handle, `touch-action: none` for mobile), keyboard reorder (ArrowUp/ArrowDown with `aria-live` announcements), hover state management (JS-controlled via `data-hovered` to support suppression during drag and animation).
+- **FlowerGardenView** (`FlowerGardenView.tsx`): Garden view — owner input, labels toggle, sortable flower list. Composed of `FlowerListItem` (animated row with drop indicators) and `DragHandle` (grip icon for reorder). Drag reorder defers `setPointerCapture` until drag threshold (3px) so clicks pass through to checkboxes and labels. Keyboard reorder via ArrowUp/ArrowDown with `aria-live` announcements. Hover state JS-controlled via `data-hovered` to support suppression during drag and animation.
 - **FlowerCatalog** (`FlowerCatalog.tsx`): Manage view — searchable list, garden membership toggles.
 - **FlowerEditor** (`FlowerEditor.tsx`): Create/edit view — name (en/fr), scientific name, bloom color, month grid.
 - **FlowerRow** (`FlowerRow.tsx`): Flower list item fragment — requires parent `group` class for hover styles. Edit button and drag handle always visible on mobile (`max-sm:opacity-100`).
