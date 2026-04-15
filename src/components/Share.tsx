@@ -64,8 +64,7 @@ export default function Share({
 
   const close = useCallback(() => {
     onClose();
-    resetSubViews();
-  }, [onClose, resetSubViews]);
+  }, [onClose]);
 
   const handleCopyLink = async () => {
     const url = onGetShareUrl();
