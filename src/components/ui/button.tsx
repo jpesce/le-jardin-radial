@@ -31,7 +31,8 @@ const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonInnerProps>(
     const [width, setWidth] = useState<number | null>(null);
     const hasChildren = children !== undefined && children !== null;
 
-    // Track label changes: counter serves as remount key + first-change gate
+    // Track label changes: counter serves as remount key + first-change gate.
+    // Uses referential equality — assumes children are primitives (string/number).
     const [prevChildren, setPrevChildren] = useState(children);
     const [changeCount, setChangeCount] = useState(0);
     if (children !== prevChildren) {
@@ -59,13 +60,29 @@ const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonInnerProps>(
     // Measure synchronously before paint on content, font, or style changes
     useLayoutEffect(measure, [children, ready, measure, innerClassName, icon]);
 
+    // Re-measure on external size changes (e.g. breakpoint-driven font size)
+    useEffect(() => {
+      const el = innerRef.current;
+      if (!el) return;
+      const ro = new ResizeObserver(() => {
+        measure();
+      });
+      ro.observe(el);
+      return () => {
+        ro.disconnect();
+      };
+    }, [measure]);
+
+    // Only spring-animate after the first label change; before that settle instantly
+    const widthTransition = ready && changeCount > 0 ? SPRING : INSTANT;
+
     return (
       <motion.button
         ref={ref}
         className={cn(className, 'justify-start')}
         initial={false}
         animate={width !== null ? { width } : {}}
-        transition={ready ? SPRING : INSTANT}
+        transition={widthTransition}
         {...(rest as Record<string, unknown>)}
       >
         <span ref={innerRef} className={innerClassName}>
