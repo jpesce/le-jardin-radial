@@ -46,7 +46,7 @@ export interface UseGardenReturn {
   setOwner: (v: string) => void;
   setLabels: (v: boolean) => void;
   toggleSelected: (id: string) => void;
-  reorderSelected: (ids: string[]) => void;
+  reorderSelected: (ids: string[], draggedId?: string) => void;
   toggleGarden: (id: string) => void;
   editFlower: (id: string, data: CustomFlowerData) => void;
   addCustomFlower: (data: CustomFlowerData) => void;

@@ -16,7 +16,7 @@ interface UseDragReorderReturn {
 export function useDragReorder(
   listRef: RefObject<HTMLElement | null>,
   selected: string[],
-  onReorder: (ids: string[]) => void,
+  onReorder: (ids: string[], draggedId?: string) => void,
 ): UseDragReorderReturn {
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [dropTarget, setDropTarget] = useState<number | null>(null);
@@ -83,7 +83,7 @@ export function useDragReorder(
             const reordered = [...currentIds];
             const removed = reordered.splice(selectedIdx, 1)[0];
             if (removed !== undefined) reordered.splice(toIdx, 0, removed);
-            onReorder(reordered);
+            onReorder(reordered, removed);
           }
         }
         cleanup();

@@ -153,8 +153,8 @@ interface FlowerGardenViewProps {
   selected: string[];
   /** Toggle a flower's selected state by ID */
   onToggle: (id: string) => void;
-  /** Reorder garden flowers by providing new ID order */
-  onReorder: (ids: string[]) => void;
+  /** Reorder garden flowers by providing new ID order and optional dragged flower ID */
+  onReorder: (ids: string[], draggedId?: string) => void;
   /** Edit a custom flower by ID */
   onEditFlower: (id: string) => void;
   /** Navigate to the manage/catalog view */
@@ -206,7 +206,7 @@ export default function FlowerGardenView({
       const reordered = [...selected];
       const removed = reordered.splice(selectedIdx, 1)[0];
       if (removed !== undefined) reordered.splice(toIdx, 0, removed);
-      onReorder(reordered);
+      onReorder(reordered, removed);
 
       requestAnimationFrame(() => {
         const handle = listRef.current?.querySelector<HTMLElement>(

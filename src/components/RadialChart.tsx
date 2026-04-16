@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { resolveColor } from '../data/colors';
 import { useI18n } from '../i18n/I18nContext';
+import { lastDraggedId, clearDraggedId } from '../hooks/gardenStore';
 import type { EnrichedFlower, FlowerState } from '../types';
 
 const SIZE = 600;
@@ -519,15 +520,22 @@ export default function RadialChart({
       return v;
     };
 
-    // Identify hero: the flower that moved the most positions (likely the dragged one)
+    // Hero: the dragged flower (from intent signal), falling back to max-mover heuristic.
+    // Consume the signal immediately so it doesn't persist across non-reorder updates.
+    const dragIntent = lastDraggedId;
+    clearDraggedId();
     let reorderHeroId: string | null = null;
     if (flowerSlots) {
-      let maxMove = 0;
-      for (const [id, s] of flowerSlots) {
-        const move = Math.abs(s.to - s.from);
-        if (move > maxMove || (move === maxMove && s.to > s.from)) {
-          maxMove = move;
-          reorderHeroId = id;
+      if (dragIntent && flowerSlots.has(dragIntent)) {
+        reorderHeroId = dragIntent;
+      } else {
+        let maxMove = 0;
+        for (const [id, s] of flowerSlots) {
+          const move = Math.abs(s.to - s.from);
+          if (move > maxMove || (move === maxMove && s.to > s.from)) {
+            maxMove = move;
+            reorderHeroId = id;
+          }
         }
       }
     }

@@ -13,7 +13,7 @@ interface GardenActions {
   setOwner: (v: string) => void;
   setLabels: (v: boolean) => void;
   toggleSelected: (id: string) => void;
-  reorderSelected: (ids: string[]) => void;
+  reorderSelected: (ids: string[], draggedId?: string) => void;
   toggleGarden: (id: string) => void;
   editFlower: (id: string, data: CustomFlowerData) => void;
   addCustomFlower: (data: CustomFlowerData) => void;
@@ -38,6 +38,17 @@ function stateSlice(state: GardenStoreState): GardenState {
   };
 }
 
+/**
+ * ID of the flower that was dragged in the most recent reorder.
+ * Transient intent signal for animations — intentionally outside the Zustand
+ * store to avoid re-renders and persistence serialization.
+ */
+export let lastDraggedId: string | null = null;
+
+export function clearDraggedId(): void {
+  lastDraggedId = null;
+}
+
 export function dispatch(action: GardenAction): void {
   useGardenStore.setState((state) => reducer(stateSlice(state), action));
 }
@@ -56,7 +67,8 @@ export const useGardenStore = create<GardenStoreState>()(
       toggleSelected: (id: string) => {
         dispatch({ type: 'TOGGLE_SELECTED', id });
       },
-      reorderSelected: (ids: string[]) => {
+      reorderSelected: (ids: string[], draggedId?: string) => {
+        lastDraggedId = draggedId ?? null;
         dispatch({ type: 'REORDER_SELECTED', ids });
       },
       toggleGarden: (id: string) => {
