@@ -1,5 +1,5 @@
 <p align="center">
-  <img height="167" src="docs/logo-le-jardin-radial.gif" alt="Le Jardin Radial"/>
+  <img height="167" src="docs/logo-le-jardin-radial.svg" alt="Le Jardin Radial"/>
 </p>
 
 <p align="center">
