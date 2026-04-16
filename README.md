@@ -3,7 +3,11 @@
 </p>
 
 <p align="center">
-  <b>LE JARDIN RADIAL</b> translates gardens into radial graphics that reveal, throughout the year, blooming cycles and their color patterns. Each visual composition anticipates the garden's unfolding over time, articulating botany and design into a sensitive and strategic reading, making the temporal and living dimension of the landscape visible.
+  <em>The chromatic cartography of the blooming year.</em>
+</p>
+
+<p align="center">
+  <b>LE JARDIN RADIAL</b> translates gardens into radial graphics that reveal, throughout the year, blooming cycles and their color patterns. Each visual composition anticipates the garden's unfolding over time, articulating botany and design into a sensitive and strategic reading, making the temporal and chromatic dimensions of the landscape visible.
 </p>
 
 <p align="center">
@@ -36,21 +40,27 @@ pnpm storybook      # components at localhost:6006
 
 ## Tech stack
 
-- **TypeScript** — strict mode with strictTypeChecked ESLint
-- **React** + **Vite** — UI and build
-- **D3.js** — radial chart
-- **Tailwind CSS v4** — styling with design tokens
-- **Radix UI** — popover and checkbox primitives (shadcn)
-- **Zustand** — state management with persistence
+- **TypeScript** + **React** + **Vite**
+- **D3.js** — data visualization
+- **Tailwind CSS v4** — styling
+- **Radix UI** — accessible primitives
 - **Framer Motion** — animations
 - **Lucide** — icons
-- **lz-string** — URL sharing via compressed state
+- **Zustand** — state management
+- **lz-string** — URL compression
+- **Storybook** — component library
+- **Vitest** + **Playwright** — testing
+- **ESLint** + **Prettier** — linting and formatting
+- **commitlint** — commit conventions
+- **Husky** — git hooks
 
-## Testing
+## Testing & quality
 
 ```bash
-pnpm test          # unit tests (vitest)
-pnpm test:e2e      # functional, visual regression, and accessibility tests (playwright + axe-core)
+pnpm test          # unit tests
+pnpm test:e2e      # functional, visual regression, and accessibility tests
+pnpm lint          # linting
+pnpm typecheck     # type checking
 ```
 
 To update visual regression baselines after intentional UI changes:
@@ -62,9 +72,15 @@ pnpm exec playwright test e2e/visual.spec.js --update-snapshots
 To regenerate the README screenshot:
 
 ```bash
-npx tsx scripts/screenshot.ts
+pnpm screenshot
 ```
 
 ## Credits
 
 Cultivated 🪴 with love by Tainah Drummond 👩‍🌾, in collaboration with João Pesce 👨‍💻 and Chandra Drummond 👩‍🎨, rooted in France 🇫🇷 and Brazil 🇧🇷.
+
+## License
+
+[![CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+This work is licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/).
