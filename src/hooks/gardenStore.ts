@@ -39,14 +39,18 @@ function stateSlice(state: GardenStoreState): GardenState {
 }
 
 /**
- * ID of the flower that was dragged in the most recent reorder.
- * Transient intent signal for animations — intentionally outside the Zustand
+ * Transient intent signals for animations — intentionally outside the Zustand
  * store to avoid re-renders and persistence serialization.
  */
 export let lastDraggedId: string | null = null;
+export let bulkChangeIntent = false;
 
 export function clearDraggedId(): void {
   lastDraggedId = null;
+}
+
+export function clearBulkIntent(): void {
+  bulkChangeIntent = false;
 }
 
 export function dispatch(action: GardenAction): void {
@@ -87,14 +91,17 @@ export const useGardenStore = create<GardenStoreState>()(
         dispatch({ type: 'DELETE_FLOWER', id });
       },
       reset: () => {
+        bulkChangeIntent = true;
         dispatch({ type: 'RESET' });
       },
 
       saveShared: () => {
+        bulkChangeIntent = true;
         dispatch({ type: 'SAVE_SHARED' });
         window.history.replaceState(null, '', '/');
       },
       dismissShared: () => {
+        bulkChangeIntent = true;
         dispatch({ type: 'DISMISS_SHARED' });
         window.history.pushState(null, '', '/');
       },
@@ -107,6 +114,7 @@ export const useGardenStore = create<GardenStoreState>()(
           try {
             const parsed: unknown = JSON.parse(reader.result as string);
             if (isValidState(parsed)) {
+              bulkChangeIntent = true;
               dispatch({ type: 'IMPORT', payload: reconcile(parsed) });
               onSuccess?.();
             } else {

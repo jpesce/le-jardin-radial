@@ -2,7 +2,12 @@ import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { resolveColor } from '../data/colors';
 import { useI18n } from '../i18n/I18nContext';
-import { lastDraggedId, clearDraggedId } from '../hooks/gardenStore';
+import {
+  lastDraggedId,
+  clearDraggedId,
+  bulkChangeIntent,
+  clearBulkIntent,
+} from '../hooks/gardenStore';
 import type { EnrichedFlower, FlowerState } from '../types';
 
 const SIZE = 600;
@@ -566,23 +571,50 @@ export default function RadialChart({
       }
     }
 
-    exitCells
-      .transition(tr as any)
-      .attrTween('d', function (this: any, d: CellDatum) {
-        const prev: ArcPrev = this.__prev || d;
-        const targetR =
-          collapseTargets.get(d.flower.id) ?? (prev.innerR + prev.outerR) / 2;
-        const iInner = d3.interpolate(prev.innerR, targetR);
-        const iOuter = d3.interpolate(prev.outerR, targetR);
-        return (v: number) =>
-          arcGen({
-            innerRadius: iInner(v),
-            outerRadius: iOuter(v),
-            startAngle: d.startAngle,
-            endAngle: d.endAngle,
-          }) ?? '';
-      } as any)
-      .remove();
+    // Detect bulk change: explicit intent (reset/import/save) or many flowers changing
+    const isBulkIntent = bulkChangeIntent;
+    clearBulkIntent();
+    const enterFlowerCount = new Set(
+      cells
+        .enter()
+        .data()
+        .map((d: CellDatum) => d.flower.id),
+    ).size;
+    const exitFlowerCount = new Set(exitCells.data().map((d) => d.flower.id))
+      .size;
+    const isBulk =
+      !isReorder &&
+      prevOrder.length > 0 &&
+      (isBulkIntent || enterFlowerCount + exitFlowerCount > 1);
+
+    if (isBulk) {
+      // Bulk dissolve: exit lingers then fades, enter materializes with overlap
+      exitCells
+        .transition()
+        .duration(450)
+        .ease(d3.easeCubicInOut as any)
+        .attr('opacity', 0)
+        .remove();
+    } else {
+      // Per-element exit: collapse to boundary-aligned target
+      exitCells
+        .transition(tr as any)
+        .attrTween('d', function (this: any, d: CellDatum) {
+          const prev: ArcPrev = this.__prev || d;
+          const targetR =
+            collapseTargets.get(d.flower.id) ?? (prev.innerR + prev.outerR) / 2;
+          const iInner = d3.interpolate(prev.innerR, targetR);
+          const iOuter = d3.interpolate(prev.outerR, targetR);
+          return (v: number) =>
+            arcGen({
+              innerRadius: iInner(v),
+              outerRadius: iOuter(v),
+              startAngle: d.startAngle,
+              endAngle: d.endAngle,
+            }) ?? '';
+        } as any)
+        .remove();
+    }
 
     const enter = cells
       .enter()
@@ -592,13 +624,19 @@ export default function RadialChart({
       .attr('vector-effect', 'non-scaling-stroke')
       .style('cursor', 'default')
       .each(function (d) {
-        const midR = (d.innerR + d.outerR) / 2;
-        (this as any).__prev = {
-          innerR: midR,
-          outerR: midR,
-          startAngle: d.startAngle,
-          endAngle: d.endAngle,
-        };
+        if (isBulk) {
+          // Bulk: start at final position (dissolve, not expand)
+          (this as any).__prev = { ...d };
+        } else {
+          // Per-element: start at midpoint (expand animation)
+          const midR = (d.innerR + d.outerR) / 2;
+          (this as any).__prev = {
+            innerR: midR,
+            outerR: midR,
+            startAngle: d.startAngle,
+            endAngle: d.endAngle,
+          };
+        }
       })
       .attr('d', function (d) {
         return (
@@ -609,7 +647,8 @@ export default function RadialChart({
             endAngle: d.endAngle,
           }) ?? ''
         );
-      });
+      })
+      .attr('opacity', isBulk ? 0 : 1);
 
     const merged = enter
       .merge(cells)
@@ -734,8 +773,33 @@ export default function RadialChart({
           );
           this.__prev = { ...d };
         });
+    } else if (isBulk) {
+      // Bulk dissolve: surviving rings slide first, new rings fade in after
+      const updateTr = d3
+        .transition()
+        .duration(400)
+        .delay(200)
+        .ease(d3.easeCubicInOut);
+      const enterTr = d3
+        .transition()
+        .duration(450)
+        .delay(600)
+        .ease(d3.easeCubicOut);
+
+      // Surviving flowers: slide to new positions
+      cells
+        .transition(updateTr as any)
+        .attr('fill', (d: CellDatum) => d.color)
+        .attrTween('d', arcTween as any);
+
+      // New flowers: appear at final position after survivors settle
+      enter
+        .transition(enterTr as any)
+        .attr('fill', (d: CellDatum) => d.color)
+        .attr('opacity', 1)
+        .attrTween('d', arcTween as any);
     } else {
-      // Non-reorder (add, remove, data change): normal ring interpolation.
+      // Per-element (single add/remove): normal ring interpolation.
       // Gap-free because entering flowers expand from the boundary midpoint,
       // and exiting flowers collapse to the boundary-aligned target.
       enter
@@ -783,10 +847,14 @@ export default function RadialChart({
     const defPaths = defs
       .selectAll<SVGPathElement, LabelDatum>('path')
       .data(labelData, (d) => d.id);
-    defPaths
-      .exit()
-      .transition(tr as any)
-      .remove();
+    if (isBulk) {
+      defPaths.exit().transition().duration(450).remove();
+    } else {
+      defPaths
+        .exit()
+        .transition(tr as any)
+        .remove();
+    }
     const defPathsEnter = defPaths
       .enter()
       .append('path')
@@ -816,6 +884,27 @@ export default function RadialChart({
         .on('end', function (d: LabelDatum) {
           (this as any).__prevR = d.textR;
         });
+    } else if (isBulk) {
+      const bulkLabelUpdateTr = d3
+        .transition()
+        .duration(400)
+        .delay(200)
+        .ease(d3.easeCubicInOut);
+      // Surviving label paths slide with their rings
+      defPaths
+        .transition(bulkLabelUpdateTr as any)
+        .attrTween('d', function (d: LabelDatum) {
+          const prev = (this as any).__prevR ?? d.textR;
+          const interp = d3.interpolate(prev, d.textR);
+          return (v: number) => arcPath(interp(v));
+        })
+        .on('end', function (d: LabelDatum) {
+          (this as any).__prevR = d.textR;
+        });
+      // New label paths are already at final position (set in enter above)
+      defPathsEnter.each(function (d) {
+        (this as any).__prevR = d.textR;
+      });
     } else {
       defPathsMerged
         .transition(tr as any)
@@ -833,7 +922,12 @@ export default function RadialChart({
       .selectAll<SVGTextElement, LabelDatum>('text')
       .data(labelData, (d) => d.id);
 
-    texts.exit().transition().duration(100).attr('opacity', 0).remove();
+    texts
+      .exit()
+      .transition()
+      .duration(isBulk ? 450 : 100)
+      .attr('opacity', 0)
+      .remove();
 
     const textsEnter = texts
       .enter()
@@ -856,12 +950,22 @@ export default function RadialChart({
       .text((d) => d.displayName);
 
     if (!initialLoad.current) {
-      textsEnter
-        .transition()
-        .delay(T_DURATION * 0.5)
-        .duration(T_DURATION * 0.6)
-        .ease(d3.easeCubicInOut)
-        .attr('opacity', 0.85);
+      if (isBulk) {
+        // Bulk: labels appear after new rings have faded in
+        textsEnter
+          .transition()
+          .delay(800)
+          .duration(400)
+          .ease(d3.easeCubicInOut)
+          .attr('opacity', 0.85);
+      } else {
+        textsEnter
+          .transition()
+          .delay(T_DURATION * 0.5)
+          .duration(T_DURATION * 0.6)
+          .ease(d3.easeCubicInOut)
+          .attr('opacity', 0.85);
+      }
     }
 
     texts.select('textPath').text((d) => d.displayName);
