@@ -69,14 +69,24 @@ function arcTween(this: SVGPathElement & { __prev?: ArcPrev }, d: CellDatum) {
   };
   const iInner = d3.interpolate(prev.innerR, d.innerR);
   const iOuter = d3.interpolate(prev.outerR, d.outerR);
-  this.__prev = { ...d };
-  return (t: number) =>
-    arcGen({
-      innerRadius: iInner(t),
-      outerRadius: iOuter(t),
+  return (t: number) => {
+    // Update __prev continuously so interruptions start from the current
+    // visual position, not the old target
+    this.__prev = {
+      innerR: iInner(t),
+      outerR: iOuter(t),
       startAngle: d.startAngle,
       endAngle: d.endAngle,
-    }) ?? '';
+    };
+    return (
+      arcGen({
+        innerRadius: iInner(t),
+        outerRadius: iOuter(t),
+        startAngle: d.startAngle,
+        endAngle: d.endAngle,
+      }) ?? ''
+    );
+  };
 }
 
 interface SeasonIcon {
@@ -600,21 +610,11 @@ export default function RadialChart({
       }
     }
 
-    // Detect bulk change: explicit intent (reset/import/save) or many flowers changing
+    // Bulk dissolve only on explicit intent (reset/import/save).
+    // Coalesced individual changes (rapid clicks) get per-element animation.
     const isBulkIntent = bulkChangeIntent;
     clearBulkIntent();
-    const enterFlowerCount = new Set(
-      cells
-        .enter()
-        .data()
-        .map((d: CellDatum) => d.flower.id),
-    ).size;
-    const exitFlowerCount = new Set(exitCells.data().map((d) => d.flower.id))
-      .size;
-    const isBulk =
-      !isReorder &&
-      prevOrder.length > 0 &&
-      (isBulkIntent || enterFlowerCount + exitFlowerCount > 1);
+    const isBulk = !isReorder && prevOrder.length > 0 && isBulkIntent;
 
     if (isBulk) {
       // Bulk dissolve: exit lingers then fades, enter materializes with overlap
