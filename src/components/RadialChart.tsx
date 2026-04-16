@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { resolveColor } from '../data/colors';
 import { useI18n } from '../i18n/I18nContext';
+import Button from './ui/button';
 import {
   lastDraggedId,
   clearDraggedId,
@@ -20,7 +21,6 @@ const ANGLE_OFFSET = -Math.PI / 2; // January at top
 const T_DURATION = 450;
 
 const MONTH_LABEL_PX = 12;
-const EMPTY_MSG_PX = 12;
 const CELL_STROKE_PX = 1;
 const LINE_STROKE_PX = 1.5;
 const ICON_SIZE = 16;
@@ -31,6 +31,13 @@ const COLOR_LABEL = '#c1bcb7';
 const COLOR_DIVIDER = '#fff';
 const COLOR_LABEL_FILL = '#fff';
 const COLOR_LABEL_STROKE = 'rgba(0,0,0,0.4)';
+const GHOST_FLOWER_COUNT = 4;
+const GHOST_BH = (OUTER_RADIUS - INNER_RADIUS) / GHOST_FLOWER_COUNT;
+const GHOST_RADII = [
+  INNER_RADIUS + 2 * GHOST_BH, // 150 — inner ring (breathing)
+  OUTER_RADIUS, // 260 — outer boundary (solid)
+];
+const COLOR_GHOST = COLOR_LABEL; // match month/season markers
 
 const arcGen = d3.arc();
 
@@ -178,12 +185,14 @@ interface RadialChartProps {
   flowers: EnrichedFlower[];
   showLabels?: boolean;
   svgRef?: React.RefObject<SVGSVGElement | null>;
+  onEmptyAction?: () => void;
 }
 
 export default function RadialChart({
   flowers,
   showLabels = true,
   svgRef: externalSvgRef,
+  onEmptyAction,
 }: RadialChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -235,6 +244,23 @@ export default function RadialChart({
       .attr('class', 'root')
       .attr('transform', `translate(${CENTER},${CENTER})`);
 
+    // Ghost rings first (behind everything) for the empty state skeleton
+    const ghostG = g
+      .append('g')
+      .attr('class', 'ghost-rings')
+      .attr('opacity', 0);
+    GHOST_RADII.forEach((r, i) => {
+      ghostG
+        .append('circle')
+        .attr('r', r)
+        .attr('fill', 'none')
+        .attr('stroke', COLOR_GHOST)
+        .attr('stroke-dasharray', '2,3')
+        .attr('stroke-width', 1)
+        .attr('vector-effect', 'non-scaling-stroke')
+        .attr('class', i === 0 ? 'max-sm:hidden' : null);
+    });
+
     g.append('g').attr('class', 'cells');
     g.append('g').attr('class', 'lines');
     g.append('defs');
@@ -242,11 +268,6 @@ export default function RadialChart({
     g.append('g').attr('class', 'cells-foreground');
     g.append('g').attr('class', 'labels-foreground');
     g.append('g').attr('class', 'month-labels');
-    g.append('text')
-      .attr('class', 'empty-msg')
-      .attr('text-anchor', 'middle')
-      .attr('dy', '0.35em')
-      .style('opacity', 0);
 
     for (let i = 0; i < 12; i++) {
       const angle = i * MONTH_SLICE + MONTH_SLICE / 2 + ANGLE_OFFSET;
@@ -374,10 +395,6 @@ export default function RadialChart({
         const idx = parseInt(el.attr('data-month-idx'));
         el.text(months[idx] ?? '');
       });
-    const emptyMsg = g.select('.empty-msg');
-    if (emptyMsg.text()) {
-      emptyMsg.text(t('emptyState') as string);
-    }
   }, [t]);
 
   // Update non-scaling sizes when scale changes
@@ -398,10 +415,6 @@ export default function RadialChart({
           labelR * Math.sin(angle),
         );
       });
-
-    g.select('.empty-msg')
-      .attr('font-size', `${EMPTY_MSG_PX * inv}px`)
-      .style('opacity', 1);
 
     const iconR = labelR + LABEL_OFFSET * inv;
     const lineEndR = iconR - LABEL_OFFSET * 0.5 * inv;
@@ -470,9 +483,25 @@ export default function RadialChart({
         curvedLabelsNode.appendChild(this as Element);
       });
 
-    g.select('.empty-msg')
-      .attr('fill', flowers.length === 0 ? COLOR_LABEL : 'none')
-      .text(flowers.length === 0 ? (tRef.current('emptyState') as string) : '');
+    const ghostRings = g.select('.ghost-rings');
+    if (flowers.length === 0) {
+      if (prevOrderRef.current.length === 0) {
+        // First load: show immediately (match month/season label timing)
+        ghostRings.attr('opacity', 1);
+      } else {
+        // Removing flowers: outer circle fades in, inner circle waits for text
+        ghostRings.transition().duration(T_DURATION).attr('opacity', 1);
+        ghostRings
+          .select('circle:first-child')
+          .attr('opacity', 0)
+          .transition()
+          .delay(500)
+          .duration(300)
+          .attr('opacity', 1);
+      }
+    } else {
+      ghostRings.transition().duration(T_DURATION).attr('opacity', 0);
+    }
 
     const bandHeight =
       flowers.length > 0 ? (OUTER_RADIUS - INNER_RADIUS) / flowers.length : 0;
@@ -1010,6 +1039,36 @@ export default function RadialChart({
         aria-label={`${t('chartTitle') as string} — ${chartDesc as string}`}
         focusable="false"
       />
+      {flowers.length === 0 && (
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-6 pointer-events-none"
+          style={
+            prevOrderRef.current.length > 0
+              ? { animation: 'fade-in 300ms ease-out 500ms both' }
+              : undefined
+          }
+        >
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h2 className="text-sm font-bold lowercase tracking-[0.03em] text-fg">
+              {t('emptyTitle') as string}
+            </h2>
+            <p className="max-w-48 text-xs text-muted lowercase tracking-[0.03em]">
+              {t('emptyDescription') as string}
+            </p>
+          </div>
+          {onEmptyAction && (
+            <Button
+              variant="solid"
+              round
+              size="md"
+              className="pointer-events-auto"
+              onClick={onEmptyAction}
+            >
+              {t('emptyCta') as string}
+            </Button>
+          )}
+        </div>
+      )}
       <div
         ref={tooltipRef}
         className="absolute z-[200] py-1.5 px-2.5 text-2xs leading-[1.5] text-surface whitespace-nowrap pointer-events-none bg-fg rounded-lg opacity-0 transition-opacity duration-[0.12s] [&_strong]:font-extrabold"

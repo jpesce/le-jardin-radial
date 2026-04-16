@@ -65,6 +65,22 @@
   }
 }
 
+@keyframes ghost-breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 body {
   font-family: var(--font-mono);
 }

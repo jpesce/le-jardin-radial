@@ -147,6 +147,9 @@ export default function App() {
             flowers={garden.selectedFlowers}
             showLabels={garden.labels}
             svgRef={chartSvgRef}
+            onEmptyAction={() => {
+              setPanelOpen(true);
+            }}
           />
         </div>
 
