@@ -66,23 +66,6 @@ function arcTween(this: SVGPathElement & { __prev?: ArcPrev }, d: CellDatum) {
     }) ?? '';
 }
 
-function arcTweenExit(
-  this: SVGPathElement & { __prev?: ArcPrev },
-  d: CellDatum,
-) {
-  const prev = this.__prev || d;
-  const midR = (prev.innerR + prev.outerR) / 2;
-  const iInner = d3.interpolate(prev.innerR, midR);
-  const iOuter = d3.interpolate(prev.outerR, midR);
-  return (t: number) =>
-    arcGen({
-      innerRadius: iInner(t),
-      outerRadius: iOuter(t),
-      startAngle: d.startAngle,
-      endAngle: d.endAngle,
-    }) ?? '';
-}
-
 interface SeasonIcon {
   monthIdx: number;
   key: string;
@@ -201,6 +184,7 @@ export default function RadialChart({
   const initialized = useRef(false);
   const measured = useRef(false);
   const initialLoad = useRef(true);
+  const prevOrderRef = useRef<string[]>([]);
   const [displayWidth, setDisplayWidth] = useState(SIZE);
   const { t, lang } = useI18n();
 
@@ -249,6 +233,8 @@ export default function RadialChart({
     g.append('g').attr('class', 'lines');
     g.append('defs');
     g.append('g').attr('class', 'curved-labels');
+    g.append('g').attr('class', 'cells-foreground');
+    g.append('g').attr('class', 'labels-foreground');
     g.append('g').attr('class', 'month-labels');
     g.append('text')
       .attr('class', 'empty-msg')
@@ -463,6 +449,21 @@ export default function RadialChart({
     const tooltip = d3.select(tooltipRef.current);
     const tr = d3.transition().duration(T_DURATION).ease(d3.easeCubicInOut);
 
+    // Recover any hero elements stranded in foreground layers by an interrupted
+    // transition (the on('end') handler never fired).
+    const cellsNode = g.select('.cells').node()! as Element;
+    const curvedLabelsNode = g.select('.curved-labels').node()! as Element;
+    g.select('.cells-foreground')
+      .selectAll('path')
+      .each(function () {
+        cellsNode.appendChild(this as Element);
+      });
+    g.select('.labels-foreground')
+      .selectAll('text')
+      .each(function () {
+        curvedLabelsNode.appendChild(this as Element);
+      });
+
     g.select('.empty-msg')
       .attr('fill', flowers.length === 0 ? COLOR_LABEL : 'none')
       .text(flowers.length === 0 ? (tRef.current('emptyState') as string) : '');
@@ -489,15 +490,90 @@ export default function RadialChart({
       });
     });
 
+    // Detect pure reorder (same flower set, different order)
+    const nextOrder = flowers.map((f) => f.id);
+    const prevOrder = prevOrderRef.current;
+    const isReorder =
+      prevOrder.length > 1 &&
+      prevOrder.length === nextOrder.length &&
+      prevOrder.some((id, i) => nextOrder[i] !== id) &&
+      prevOrder.every((id) => nextOrder.includes(id));
+
+    // Pre-compute per-flower slot interpolation for gap-free reorder
+    let flowerSlots: Map<string, { from: number; to: number }> | null = null;
+    if (isReorder) {
+      flowerSlots = new Map();
+      const prevIdxMap = new Map(prevOrder.map((id, i) => [id, i]));
+      for (const [i, id] of nextOrder.entries()) {
+        flowerSlots.set(id, {
+          from: prevIdxMap.get(id)!,
+          to: i,
+        });
+      }
+    }
+
+    // Direction-aware easing for reorder: outward leads (ease-out), inward follows (ease-in)
+    const reorderEase = (slot: { from: number; to: number }, v: number) => {
+      if (slot.to > slot.from) return 1 - (1 - v) ** 2; // outward
+      if (slot.to < slot.from) return v ** 2; // inward
+      return v;
+    };
+
+    // Identify hero: the flower that moved the most positions (likely the dragged one)
+    let reorderHeroId: string | null = null;
+    if (flowerSlots) {
+      let maxMove = 0;
+      for (const [id, s] of flowerSlots) {
+        const move = Math.abs(s.to - s.from);
+        if (move > maxMove || (move === maxMove && s.to > s.from)) {
+          maxMove = move;
+          reorderHeroId = id;
+        }
+      }
+    }
+
     const cells = g
       .select('.cells')
       .selectAll<SVGPathElement, CellDatum>('path')
       .data(cellData, (d) => d.key);
 
-    cells
-      .exit<CellDatum>()
+    const exitCells = cells.exit<CellDatum>();
+    const hasExit = !exitCells.empty();
+    // Compute boundary-aligned collapse targets for exit flowers.
+    // Middle/outer exits collapse to the new boundary where adjacent flowers
+    // will meet, keeping ring interpolation perfectly contiguous.
+    // Innermost exits use midR for the familiar "shrink to center" visual.
+    const collapseTargets = new Map<string, number>();
+    if (hasExit) {
+      const exitIds = new Set(exitCells.data().map((d) => d.flower.id));
+      for (const exitId of exitIds) {
+        const exitIdx = prevOrder.indexOf(exitId);
+        if (exitIdx <= 0) continue; // innermost: skip, falls back to midR
+        let belowCount = 0;
+        for (let i = 0; i < exitIdx; i++) {
+          const id = prevOrder[i];
+          if (id !== undefined && nextOrder.includes(id)) belowCount++;
+        }
+        collapseTargets.set(exitId, INNER_RADIUS + belowCount * bandHeight);
+      }
+    }
+
+    exitCells
       .transition(tr as any)
-      .attrTween('d', arcTweenExit as any)
+      .attrTween('d', function (this: any, d: CellDatum) {
+        const prev: ArcPrev = this.__prev || d;
+        const targetR =
+          collapseTargets.get(d.flower.id) ?? (prev.innerR + prev.outerR) / 2;
+        const iInner = d3.interpolate(prev.innerR, targetR);
+        const iOuter = d3.interpolate(prev.outerR, targetR);
+        return (v: number) =>
+          arcGen({
+            innerRadius: iInner(v),
+            outerRadius: iOuter(v),
+            startAngle: d.startAngle,
+            endAngle: d.endAngle,
+          }) ?? '';
+      } as any)
       .remove();
 
     const enter = cells
@@ -527,7 +603,7 @@ export default function RadialChart({
         );
       });
 
-    enter
+    const merged = enter
       .merge(cells)
       .attr('stroke-width', CELL_STROKE_PX)
       .on('mouseenter', function (_event: MouseEvent, d: CellDatum) {
@@ -552,10 +628,122 @@ export default function RadialChart({
       })
       .on('mouseleave', function () {
         tooltip.style('opacity', 0);
-      })
-      .transition(tr as any)
-      .attr('fill', (d: CellDatum) => d.color)
-      .attrTween('d', arcTween as any);
+      });
+
+    if (isReorder && flowerSlots) {
+      // Gap-free reorder animation:
+      // - Hero (the dragged flower, inferred as the max-mover) is a ring
+      //   in the foreground layer (above labels), with its label above it.
+      // - Everything else is filled circles (background, below labels).
+      // - Direction-aware easing: outward ease-out, inward ease-in.
+      const slots = flowerSlots;
+      const reorderTr = d3
+        .transition()
+        .duration(T_DURATION)
+        .ease(d3.easeLinear);
+
+      const easedSlot = (slot: { from: number; to: number }, v: number) =>
+        slot.from + (slot.to - slot.from) * reorderEase(slot, v);
+
+      const isHero = (id: string) => id === reorderHeroId;
+
+      // Move hero cells to foreground (above labels),
+      // hero label to labels-foreground (above the ring)
+      const fgNode = g.select('.cells-foreground').node()! as Element;
+      const lfgNode = g.select('.labels-foreground').node()! as Element;
+      const bgNode = g.select('.cells').node()! as Element;
+      const labelsNode = g.select('.curved-labels').node()! as Element;
+      merged.each(function (d: CellDatum) {
+        if (isHero(d.flower.id)) fgNode.appendChild(this);
+      });
+      // Hero label is moved to labels-foreground AFTER the label data join
+      // (see below) to avoid creating a duplicate via the enter selection.
+
+      // Sort background circles by outerR descending
+      g.select('.cells')
+        .selectAll<SVGPathElement, CellDatum>('path')
+        .sort((a, b) => {
+          const fromA = slots.get(a.flower.id)?.from ?? 0;
+          const fromB = slots.get(b.flower.id)?.from ?? 0;
+          if (fromA !== fromB) return fromB - fromA;
+          return a.monthIdx - b.monthIdx;
+        });
+
+      let lastV = -1;
+
+      merged
+        .transition(reorderTr as any)
+        .attr('fill', (d: CellDatum) => d.color)
+        .attrTween('d', function (this: any, d: CellDatum) {
+          this.__prev = { ...d };
+          const slot = slots.get(d.flower.id)!;
+          const hero = isHero(d.flower.id);
+          return (v: number) => {
+            // Re-sort background circles every frame
+            if (v !== lastV) {
+              lastV = v;
+              g.select('.cells')
+                .selectAll<SVGPathElement, CellDatum>('path')
+                .sort((a, b) => {
+                  const sA = slots.get(a.flower.id)!;
+                  const sB = slots.get(b.flower.id)!;
+                  const oA = easedSlot(sA, v);
+                  const oB = easedSlot(sB, v);
+                  if (Math.abs(oA - oB) > 1e-9) return oB - oA;
+                  if (sA.to !== sB.to) return sB.to - sA.to;
+                  return a.monthIdx - b.monthIdx;
+                });
+            }
+            const s = easedSlot(slot, v);
+            return (
+              arcGen({
+                innerRadius: hero
+                  ? INNER_RADIUS + s * bandHeight
+                  : INNER_RADIUS,
+                outerRadius: INNER_RADIUS + (s + 1) * bandHeight,
+                startAngle: d.startAngle,
+                endAngle: d.endAngle,
+              }) ?? ''
+            );
+          };
+        } as any)
+        .on('end', function (this: any, d: CellDatum) {
+          // Move hero cells and labels back to their home groups
+          if (isHero(d.flower.id)) {
+            bgNode.appendChild(this);
+            lfgNode.querySelectorAll('text').forEach((txt) => {
+              labelsNode.appendChild(txt);
+            });
+          }
+          d3.select(this).attr(
+            'd',
+            arcGen({
+              innerRadius: d.innerR,
+              outerRadius: d.outerR,
+              startAngle: d.startAngle,
+              endAngle: d.endAngle,
+            }) ?? '',
+          );
+          this.__prev = { ...d };
+        });
+    } else {
+      // Non-reorder (add, remove, data change): normal ring interpolation.
+      // Gap-free because entering flowers expand from the boundary midpoint,
+      // and exiting flowers collapse to the boundary-aligned target.
+      enter
+        .merge(cells)
+        .transition(tr as any)
+        .attr('fill', (d: CellDatum) => d.color)
+        .attrTween('d', arcTween as any);
+    }
+
+    // Ensure correct Z-order after any DOM reordering:
+    // cells < curved-labels < cells-foreground < labels-foreground < month-labels < season-markers
+    g.select('.curved-labels').raise();
+    g.select('.cells-foreground').raise();
+    g.select('.labels-foreground').raise();
+    g.select('.month-labels').raise();
+    g.select('.season-markers').raise();
 
     // Curved text labels
     const defs = g.select('defs');
@@ -599,17 +787,39 @@ export default function RadialChart({
       .each(function (d) {
         (this as any).__prevR = d.textR;
       });
-    defPathsEnter
-      .merge(defPaths)
-      .transition(tr as any)
-      .attrTween('d', function (d: LabelDatum) {
-        const prev = (this as any).__prevR ?? d.textR;
-        const interp = d3.interpolate(prev, d.textR);
-        return (v: number) => arcPath(interp(v));
-      })
-      .on('end', function (d: LabelDatum) {
-        (this as any).__prevR = d.textR;
-      });
+    const defPathsMerged = defPathsEnter.merge(defPaths);
+
+    if (isReorder && flowerSlots) {
+      const slots = flowerSlots;
+      const labelReorderTr = d3
+        .transition()
+        .duration(T_DURATION)
+        .ease(d3.easeLinear);
+      defPathsMerged
+        .transition(labelReorderTr as any)
+        .attrTween('d', function (this: any, d: LabelDatum) {
+          this.__prevR = d.textR;
+          const slot = slots.get(d.id)!;
+          return (v: number) => {
+            const s = slot.from + (slot.to - slot.from) * reorderEase(slot, v);
+            return arcPath(INNER_RADIUS + (s + 1) * bandHeight - 5);
+          };
+        } as any)
+        .on('end', function (d: LabelDatum) {
+          (this as any).__prevR = d.textR;
+        });
+    } else {
+      defPathsMerged
+        .transition(tr as any)
+        .attrTween('d', function (d: LabelDatum) {
+          const prev = (this as any).__prevR ?? d.textR;
+          const interp = d3.interpolate(prev, d.textR);
+          return (v: number) => arcPath(interp(v));
+        })
+        .on('end', function (d: LabelDatum) {
+          (this as any).__prevR = d.textR;
+        });
+    }
 
     const texts = textGroup
       .selectAll<SVGTextElement, LabelDatum>('text')
@@ -648,6 +858,19 @@ export default function RadialChart({
 
     texts.select('textPath').text((d) => d.displayName);
     texts.attr('font-size', labelSize).attr('stroke-width', labelSize * 0.12);
+
+    // Move hero label above the foreground ring (after data join to avoid duplicates)
+    if (isReorder && reorderHeroId) {
+      const lfgNode = g.select('.labels-foreground').node()! as Element;
+      const hId = reorderHeroId;
+      g.select('.curved-labels')
+        .selectAll<SVGTextElement, LabelDatum>('text')
+        .each(function (d) {
+          if (d.id === hId) lfgNode.appendChild(this);
+        });
+    }
+
+    prevOrderRef.current = nextOrder;
   }, [flowers, showLabels]);
 
   const chartDesc =
