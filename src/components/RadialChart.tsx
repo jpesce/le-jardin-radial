@@ -978,23 +978,24 @@ export default function RadialChart({
       .attr('startOffset', 5)
       .text((d) => d.displayName);
 
-    if (!initialLoad.current) {
-      if (isBulk) {
-        // Bulk: labels appear after new rings have faded in
-        textsEnter
-          .transition()
-          .delay(800)
-          .duration(400)
-          .ease(d3.easeCubicInOut)
-          .attr('opacity', 0.85);
-      } else {
-        textsEnter
-          .transition()
-          .delay(T_DURATION * 0.5)
-          .duration(T_DURATION * 0.6)
-          .ease(d3.easeCubicInOut)
-          .attr('opacity', 0.85);
-      }
+    if (isBulk) {
+      // Bulk: labels appear after new rings have faded in
+      textsEnter
+        .transition()
+        .delay(800)
+        .duration(400)
+        .ease(d3.easeCubicInOut)
+        .attr('opacity', 0.85);
+    } else if (!textsEnter.empty()) {
+      // Clear initialLoad flag if labels are being created for the first time
+      // (handles the case where the chart started empty)
+      if (initialLoad.current) initialLoad.current = false;
+      textsEnter
+        .transition()
+        .delay(T_DURATION * 0.5)
+        .duration(T_DURATION * 0.6)
+        .ease(d3.easeCubicInOut)
+        .attr('opacity', 0.85);
     }
 
     texts.select('textPath').text((d) => d.displayName);
