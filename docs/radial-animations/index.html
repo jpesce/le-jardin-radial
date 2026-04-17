@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radial Chart Animations — Le Jardin Radial</title>
+<style>
+  :root {
+    --fg: #443528;
+    --subtle: #9b938c;
+    --muted: #b4aea9;
+    --faint: #c1bcb7;
+    --border: #eeedec;
+    --surface: #fff;
+    --ring1: #e84393;
+    --ring2: #8f967a;
+    --ring3: #5093ff;
+    --ring4: #ff6700;
+    --ring5: #9fbc8f;
+    --gap: #ff4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+    color: var(--fg);
+    background: var(--surface);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: lowercase;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: lowercase;
+    margin-top: 4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h3 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: lowercase;
+    letter-spacing: 0.03em;
+    color: var(--subtle);
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p, li {
+    font-size: 0.8rem;
+    color: var(--subtle);
+    max-width: 560px;
+  }
+
+  ul { padding-left: 1.2rem; margin: 0.5rem 0; }
+  li { margin: 0.3rem 0; }
+
+  .lead {
+    font-size: 0.85rem;
+    color: var(--fg);
+    margin-bottom: 2rem;
+  }
+
+  .demo {
+    background: #fafaf9;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .demo-row {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .demo-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+
+  .demo-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    text-transform: lowercase;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--fg);
+    border-radius: 999px;
+    background: var(--fg);
+    color: var(--surface);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn:active { transform: scale(0.97); }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .badge-problem { background: #fff0f0; color: #cc3333; }
+  .badge-solution { background: #f0fff0; color: #338833; }
+
+  .arrow {
+    font-size: 1.2rem;
+    color: var(--muted);
+  }
+
+  .callout {
+    background: #fef9ef;
+    border-left: 3px solid var(--ring4);
+    padding: 0.8rem 1rem;
+    margin: 1rem 0;
+    font-size: 0.75rem;
+    color: var(--fg);
+    border-radius: 0 6px 6px 0;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3rem 0;
+  }
+
+  /* ── SVG chart styles ─────────────────────────────── */
+  .chart-svg {
+    width: 180px;
+    height: 180px;
+  }
+
+  .ring {
+    transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ring-exit {
+    transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ring-enter {
+    transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Gap flash */
+  @keyframes flash-gap {
+    0%, 100% { opacity: 0; }
+    20%, 80% { opacity: 1; }
+  }
+
+  /* Hero ring glow */
+  .hero-glow {
+    filter: drop-shadow(0 0 6px rgba(80, 147, 255, 0.4));
+  }
+
+  /* Fade animation */
+  @keyframes fade-out {
+    to { opacity: 0; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+  }
+
+  /* Z-order demo */
+  .z-label {
+    font-size: 0.55rem;
+    fill: white;
+    text-anchor: middle;
+    dominant-baseline: central;
+    font-family: inherit;
+    font-weight: 700;
+    pointer-events: none;
+  }
+
+  .timeline {
+    width: 100%;
+    max-width: 480px;
+    margin: 1rem 0;
+  }
+
+  .timeline-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.3rem 0;
+  }
+
+  .timeline-label {
+    font-size: 0.6rem;
+    color: var(--subtle);
+    width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .timeline-bar {
+    height: 20px;
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .timeline-time {
+    font-size: 0.5rem;
+    color: var(--muted);
+    position: absolute;
+    bottom: -14px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fg: #dad7d4;
+      --subtle: #b4aea9;
+      --muted: #9b938c;
+      --faint: #6b5340;
+      --border: #3a3530;
+      --surface: #1a1715;
+    }
+    .demo { background: #211e1b; }
+    .callout { background: #2a2520; }
+    .badge-problem { background: #2a1515; color: #ff6666; }
+    .badge-solution { background: #152a15; color: #66cc66; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>radial chart animations</h1>
+<p class="lead">
+  How Le Jardin Radial animates ring transitions — and why each animation exists.
+  Every decision solves a specific visual problem.
+</p>
+
+<!-- ════════════════════════════════════════════════════ -->
+<h2>1. the gap problem</h2>
+<p>
+  A radial chart has concentric rings. When flowers are added, removed, or reordered,
+  the rings change position. The naive approach — independently animating each ring
+  from old position to new — creates visible <strong>gaps</strong> between rings.
+</p>
+
+<h3>why gaps appear</h3>
+<p>
+  When a ring is removed, it collapses to its midpoint. But the remaining rings
+  shift to fill the space at a different rate. For a brief moment, no ring covers
+  the area between them.
+</p>
+
+<div class="demo">
+  <div class="demo-row">
+    <div class="demo-col">
+      <svg class="chart-svg" viewBox="0 0 200 200" id="gap-before">
+        <circle cx="100" cy="100" r="30" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+        <path d="M100,100 m0,-90 a90,90 0 1,1 0,180 a90,90 0 1,1 0,-180 Z M100,100 m0,-70 a70,70 0 1,0 0,140 a70,70 0 1,0 0,-140 Z" fill="var(--ring1)" opacity="0.8"/>
+        <path d="M100,100 m0,-70 a70,70 0 1,1 0,140 a70,70 0 1,1 0,-140 Z M100,100 m0,-50 a50,50 0 1,0 0,100 a50,50 0 1,0 0,-100 Z" fill="var(--ring2)" opacity="0.8"/>
+        <path d="M100,100 m0,-50 a50,50 0 1,1 0,100 a50,50 0 1,1 0,-100 Z M100,100 m0,-30 a30,30 0 1,0 0,60 a30,30 0 1,0 0,-60 Z" fill="var(--ring3)" opacity="0.8"/>
+      </svg>
+      <div class="demo-label">3 rings, no gaps</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="demo-col">
+      <svg class="chart-svg" viewBox="0 0 200 200" id="gap-after">
+        <circle cx="100" cy="100" r="30" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+        <path d="M100,100 m0,-90 a90,90 0 1,1 0,180 a90,90 0 1,1 0,-180 Z M100,100 m0,-70 a70,70 0 1,0 0,140 a70,70 0 1,0 0,-140 Z" fill="var(--ring1)" opacity="0.8"/>
+        <!-- gap area -->
+        <path d="M100,100 m0,-60 a60,60 0 1,1 0,120 a60,60 0 1,1 0,-120 Z M100,100 m0,-50 a50,50 0 1,0 0,100 a50,50 0 1,0 0,-100 Z" fill="var(--gap)" opacity="0.3" id="gap-flash"/>
+        <path d="M100,100 m0,-50 a50,50 0 1,1 0,100 a50,50 0 1,1 0,-100 Z M100,100 m0,-30 a30,30 0 1,0 0,60 a30,30 0 1,0 0,-60 Z" fill="var(--ring3)" opacity="0.8"/>
+      </svg>
+      <div class="demo-label"><span class="badge badge-problem">gap</span> mid-transition</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<h2>2. removing a flower</h2>
+
+<h3>the fix: boundary-aligned collapse</h3>
+<p>
+  Instead of collapsing to the ring's midpoint, the exiting ring collapses to the exact
+  position where its neighbors will meet in the new layout. This keeps ring edges
+  perfectly contiguous at every frame of the animation.
+</p>
+
+<div class="callout">
+  <strong>Exception:</strong> the innermost ring still collapses to its center — the familiar
+  "shrink to center" visual feels more natural there, and the adjacent ring's
+  edge naturally overlaps it.
+</div>
+
+<div class="demo">
+  <div class="demo-row">
+    <div class="demo-col">
+      <svg class="chart-svg" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="30" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+        <path d="M100,100 m0,-90 a90,90 0 1,1 0,180 a90,90 0 1,1 0,-180 Z M100,100 m0,-70 a70,70 0 1,0 0,140 a70,70 0 1,0 0,-140 Z" fill="var(--ring1)" opacity="0.8"/>
+        <path d="M100,100 m0,-70 a70,70 0 1,1 0,140 a70,70 0 1,1 0,-140 Z M100,100 m0,-50 a50,50 0 1,0 0,100 a50,50 0 1,0 0,-100 Z" fill="var(--ring2)" opacity="0.8" id="remove-target"/>
+        <path d="M100,100 m0,-50 a50,50 0 1,1 0,100 a50,50 0 1,1 0,-100 Z M100,100 m0,-30 a30,30 0 1,0 0,60 a30,30 0 1,0 0,-60 Z" fill="var(--ring3)" opacity="0.8"/>
+        <line x1="170" y1="100" x2="195" y2="100" stroke="var(--gap)" stroke-width="2" stroke-dasharray="3,2" opacity="0"/>
+      </svg>
+      <div class="demo-label">collapse to <strong>boundary</strong>, not midpoint</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="demo-col">
+      <svg class="chart-svg" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="30" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+        <path d="M100,100 m0,-90 a90,90 0 1,1 0,180 a90,90 0 1,1 0,-180 Z M100,100 m0,-60 a60,60 0 1,0 0,120 a60,60 0 1,0 0,-120 Z" fill="var(--ring1)" opacity="0.8"/>
+        <path d="M100,100 m0,-60 a60,60 0 1,1 0,120 a60,60 0 1,1 0,-120 Z M100,100 m0,-30 a30,30 0 1,0 0,60 a30,30 0 1,0 0,-60 Z" fill="var(--ring3)" opacity="0.8"/>
+      </svg>
+      <div class="demo-label"><span class="badge badge-solution">no gap</span> contiguous</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<h2>3. adding a flower</h2>
+<p>
+  A new flower expands from a zero-width line at the boundary between its future
+  neighbors. This is gap-free by construction — the expansion point is exactly where
+  the adjacent rings meet.
+</p>
+
+<div class="demo">
+  <svg class="chart-svg" viewBox="0 0 200 200" id="add-demo" style="width: 200px; height: 200px;">
+    <circle cx="100" cy="100" r="30" fill="none" stroke="var(--border)" stroke-width="0.5"/>
+    <path class="ring" d="M100,100 m0,-90 a90,90 0 1,1 0,180 a90,90 0 1,1 0,-180 Z M100,100 m0,-60 a60,60 0 1,0 0,120 a60,60 0 1,0 0,-120 Z" fill="var(--ring1)" opacity="0.8" id="add-ring1"/>
+    <path class="ring" d="M100,100 m0,-60 a60,60 0 1,1 0,120 a60,60 0 1,1 0,-120 Z M100,100 m0,-30 a30,30 0 1,0 0,60 a30,30 0 1,0 0,-60 Z" fill="var(--ring3)" opacity="0.8" id="add-ring2"/>
+  </svg>
+  <button class="btn" onclick="animateAdd()">add a flower</button>
+  <div class="demo-label">expands from the boundary between neighbors</div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<h2>4. reordering — the hero ring</h2>
+<p>
+  When a flower is dragged to a new position, the animation faces two challenges:
+</p>
+<ul>
+  <li>Rings passing through each other would leave gaps (same problem as removal)</li>
+  <li>The user needs to visually track which flower they're moving</li>
+</ul>
+
+<h3>the solution: hero + background circles</h3>
+<p>
+  The dragged flower (the "hero") stays as a visible <strong>ring</strong> and moves to a
+  foreground SVG layer — above the curved text labels. Everything else becomes
+  <strong>filled circles</strong> (extending from the center), providing a seamless
+  gap-free background.
+</p>
+
+<div class="demo">
+  <div class="demo-row">
+    <div class="demo-col">
+      <svg class="chart-svg" viewBox="0 0 200 200" style="width: 220px; height: 220px;">
+        <!-- Background circles (filled from center) -->
+        <circle cx="100" cy="100" r="90" fill="var(--ring1)" opacity="0.3"/>
+        <circle cx="100" cy="100" r="60" fill="var(--ring3)" opacity="0.4"/>
+        <circle cx="100" cy="100" r="30" fill="var(--surface)"/>
+        <!-- Hero ring (on top, with glow) -->
+        <path d="M100,100 m0,-75 a75,75 0 1,1 0,150 a75,75 0 1,1 0,-150 Z M100,100 m0,-55 a55,55 0 1,0 0,110 a55,55 0 1,0 0,-110 Z"
+              fill="var(--ring2)" opacity="0.9" class="hero-glow"/>
+        <!-- Labels (between bg and hero) -->
+        <text x="100" y="38" text-anchor="middle" font-size="7" fill="var(--faint)" font-family="inherit">label</text>
+        <text x="100" y="165" text-anchor="middle" font-size="7" fill="var(--faint)" font-family="inherit">label</text>
+      </svg>
+      <div class="demo-label">Z-order: circles → labels → <strong>hero ring</strong></div>
+    </div>
+  </div>
+
+  <div style="font-size: 0.7rem; color: var(--subtle); text-align: center; max-width: 400px;">
+    The hero ring physically covers labels as it slides past them —
+    no opacity tricks, just real SVG layering.
+  </div>
+</div>
+
+<h3>direction-aware easing</h3>
+<p>
+  The hero and the background rings don't move at the same speed.
+  Each direction gets its own easing curve:
+</p>
+
+<div class="demo">
+  <div style="width: 100%; max-width: 400px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+      <div>
+        <div style="font-size: 0.7rem; font-weight: 700; color: var(--fg);">outward (hero)</div>
+        <div style="font-size: 0.65rem; color: var(--subtle);">ease-out — fast launch, gentle settle</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 0.7rem; font-weight: 700; color: var(--fg);">inward (others)</div>
+        <div style="font-size: 0.65rem; color: var(--subtle);">ease-in — gentle start, quick finish</div>
+      </div>
+    </div>
+
+    <svg viewBox="0 0 400 120" style="width: 100%;">
+      <!-- Ease-out curve (outward) -->
+      <path d="M 20,100 C 20,20 120,15 380,10" stroke="var(--ring3)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <text x="385" y="14" font-size="9" fill="var(--ring3)" font-family="inherit">outward</text>
+      <!-- Ease-in curve (inward) -->
+      <path d="M 20,100 C 280,95 380,80 380,10" stroke="var(--ring4)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <text x="385" y="30" font-size="9" fill="var(--ring4)" font-family="inherit">inward</text>
+      <!-- Axes -->
+      <line x1="20" y1="100" x2="380" y2="100" stroke="var(--border)" stroke-width="1"/>
+      <line x1="20" y1="100" x2="20" y2="5" stroke="var(--border)" stroke-width="1"/>
+      <text x="200" y="115" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="inherit">time</text>
+      <text x="10" y="55" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="inherit" transform="rotate(-90, 10, 55)">position</text>
+    </svg>
+  </div>
+  <div style="font-size: 0.65rem; color: var(--subtle); text-align: center; max-width: 380px;">
+    The outward flower races ahead. The inward flowers wait, then catch up.
+    The visual effect: the hero "pushes" through while others fill in behind.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<h2>5. bulk changes</h2>
+<p>
+  Reset, import, or saving a shared garden changes many flowers at once.
+  Per-element animations would be chaotic — multiple rings collapsing and expanding
+  simultaneously. Instead, we use a <strong>phased cross-dissolve</strong>.
+</p>
+
+<div class="demo">
+  <div class="timeline">
+    <div class="timeline-row">
+      <div class="timeline-label">old rings</div>
+      <div class="timeline-bar" style="width: 35%; background: var(--ring1); opacity: 0.6; margin-left: 0;">
+        <span class="timeline-time" style="left: 0;">0ms</span>
+        <span class="timeline-time" style="right: 0;">450ms</span>
+      </div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-label">survivors slide</div>
+      <div class="timeline-bar" style="width: 30%; background: var(--ring2); opacity: 0.6; margin-left: 15%;">
+        <span class="timeline-time" style="left: 0;">200ms</span>
+        <span class="timeline-time" style="right: 0;">600ms</span>
+      </div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-label">new rings</div>
+      <div class="timeline-bar" style="width: 35%; background: var(--ring3); opacity: 0.6; margin-left: 47%;">
+        <span class="timeline-time" style="left: 0;">600ms</span>
+        <span class="timeline-time" style="right: 0;">1050ms</span>
+      </div>
+    </div>
+    <div class="timeline-row">
+      <div class="timeline-label">labels</div>
+      <div class="timeline-bar" style="width: 30%; background: var(--ring4); opacity: 0.6; margin-left: 55%;">
+        <span class="timeline-time" style="left: 0;">800ms</span>
+        <span class="timeline-time" style="right: 0;">1200ms</span>
+      </div>
+    </div>
+  </div>
+  <div style="font-size: 0.65rem; color: var(--subtle); text-align: center; max-width: 400px;">
+    Each phase waits for the previous one. The eye follows:
+    old dissolves → survivors settle → new materializes → labels appear.
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Intent detection:</strong> bulk dissolve only fires when the app explicitly signals it
+  (reset, import, save). Rapid individual clicks get per-element animation —
+  never the dissolve.
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<h2>6. smooth interruption</h2>
+<p>
+  If the user clicks rapidly, a new animation starts while the previous one is still
+  running. The naive approach: each ring caches its <em>target</em> position at the start
+  of the animation. If interrupted, the next animation starts from the target — not
+  from where the ring <em>actually is</em>. This causes a visible snap.
+</p>
+
+<div class="demo">
+  <div class="demo-row">
+    <div class="demo-col">
+      <svg class="chart-svg" viewBox="0 0 200 80" style="width: 280px; height: 80px;">
+        <!-- Position track -->
+        <line x1="20" y1="40" x2="180" y2="40" stroke="var(--border)" stroke-width="1"/>
+        <!-- Target (old) -->
+        <circle cx="160" cy="40" r="5" fill="none" stroke="var(--gap)" stroke-width="1.5" stroke-dasharray="2,2"/>
+        <text x="160" y="58" text-anchor="middle" font-size="7" fill="var(--gap)" font-family="inherit">target</text>
+        <!-- Current position -->
+        <circle cx="90" cy="40" r="8" fill="var(--ring3)"/>
+        <text x="90" y="58" text-anchor="middle" font-size="7" fill="var(--ring3)" font-family="inherit">actual</text>
+        <!-- Jump arrow -->
+        <path d="M 95,30 C 110,10 140,10 155,30" fill="none" stroke="var(--gap)" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <polygon points="155,30 150,22 158,25" fill="var(--gap)"/>
+        <text x="125" y="12" text-anchor="middle" font-size="6.5" fill="var(--gap)" font-family="inherit">snap!</text>
+      </svg>
+      <div class="demo-label"><span class="badge badge-problem">__prev = target</span> jumps on interrupt</div>
+    </div>
+  </div>
+  <div style="height: 1rem;"></div>
+  <div class="demo-row">
+    <div class="demo-col">
+      <svg class="chart-svg" viewBox="0 0 200 80" style="width: 280px; height: 80px;">
+        <!-- Position track -->
+        <line x1="20" y1="40" x2="180" y2="40" stroke="var(--border)" stroke-width="1"/>
+        <!-- Current = __prev -->
+        <circle cx="90" cy="40" r="8" fill="var(--ring3)"/>
+        <text x="90" y="58" text-anchor="middle" font-size="7" fill="var(--ring3)" font-family="inherit">actual = __prev</text>
+        <!-- Smooth continuation -->
+        <path d="M 98,40 L 180,40" stroke="var(--ring3)" stroke-width="2" opacity="0.3"/>
+        <polygon points="180,40 174,36 174,44" fill="var(--ring3)" opacity="0.3"/>
+        <text x="145" y="30" text-anchor="middle" font-size="6.5" fill="var(--ring3)" font-family="inherit">smooth</text>
+      </svg>
+      <div class="demo-label"><span class="badge badge-solution">__prev = current</span> updates every frame</div>
+    </div>
+  </div>
+  <p style="text-align: center; margin-top: 0.5rem;">
+    The fix: update <code>__prev</code> on every animation frame, not just at the start.
+    Interrupted transitions pick up from the current visual position.
+  </p>
+</div>
+
+<!-- ════════════════════════════════════════════════════ -->
+<h2>7. the empty state</h2>
+<p>
+  When all flowers are removed, ghost ring outlines appear as a skeleton preview
+  of what the chart becomes. The "start planting" button opens the garden panel.
+</p>
+<p>
+  Ghost rings appear with the chart structure (immediately on first load, or after
+  the exit animation when removing all flowers). The text and inner ghost ring
+  fade in with a 500ms delay — waiting for exit animations to complete before
+  claiming the space.
+</p>
+
+<hr>
+
+<h2>summary</h2>
+<table style="font-size: 0.7rem; border-collapse: collapse; width: 100%;">
+  <thead>
+    <tr style="border-bottom: 2px solid var(--border);">
+      <th style="text-align: left; padding: 0.5rem 0; color: var(--fg);">scenario</th>
+      <th style="text-align: left; padding: 0.5rem 0; color: var(--fg);">animation</th>
+      <th style="text-align: left; padding: 0.5rem 0; color: var(--fg);">why</th>
+    </tr>
+  </thead>
+  <tbody style="color: var(--subtle);">
+    <tr style="border-bottom: 1px solid var(--border);">
+      <td style="padding: 0.5rem 0;">add flower</td>
+      <td>expand from boundary</td>
+      <td>gap-free by construction</td>
+    </tr>
+    <tr style="border-bottom: 1px solid var(--border);">
+      <td style="padding: 0.5rem 0;">remove (middle)</td>
+      <td>collapse to boundary</td>
+      <td>stays contiguous with neighbors</td>
+    </tr>
+    <tr style="border-bottom: 1px solid var(--border);">
+      <td style="padding: 0.5rem 0;">remove (innermost)</td>
+      <td>shrink to center</td>
+      <td>natural "disappear" visual</td>
+    </tr>
+    <tr style="border-bottom: 1px solid var(--border);">
+      <td style="padding: 0.5rem 0;">reorder</td>
+      <td>hero ring + bg circles</td>
+      <td>gap-free, trackable, label occlusion</td>
+    </tr>
+    <tr style="border-bottom: 1px solid var(--border);">
+      <td style="padding: 0.5rem 0;">reset / import</td>
+      <td>phased cross-dissolve</td>
+      <td>avoids chaotic per-element noise</td>
+    </tr>
+    <tr>
+      <td style="padding: 0.5rem 0;">rapid clicks</td>
+      <td>smooth interruption</td>
+      <td>no snapping to stale targets</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<p style="text-align: center; margin-top: 2rem; font-size: 0.7rem; color: var(--muted);">
+  <a href="https://github.com/jpesce/le-jardin-radial" style="color: var(--subtle);">Le Jardin Radial</a>
+  · a chromatic cartography of the blooming year
+</p>
+
+</div>
+
+<script>
+// ── Add flower demo ──────────────────────────────────
+let addState = 'two';
+
+function animateAdd() {
+  const svg = document.getElementById('add-demo');
+  const ring1 = document.getElementById('add-ring1');
+  const ring2 = document.getElementById('add-ring2');
+
+  if (addState === 'two') {
+    // Add a ring between the two existing ones
+    const newRing = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    newRing.setAttribute('fill', 'var(--ring2)');
+    newRing.setAttribute('opacity', '0.8');
+    newRing.id = 'add-new-ring';
+    // Start at zero-width at the boundary (r=60)
+    newRing.setAttribute('d', makeDonut(60, 60));
+    newRing.style.transition = 'all 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
+    svg.insertBefore(newRing, ring2);
+
+    // Expand existing rings
+    requestAnimationFrame(() => {
+      ring1.setAttribute('d', makeDonut(90, 70));
+      newRing.setAttribute('d', makeDonut(70, 50));
+      ring2.setAttribute('d', makeDonut(50, 30));
+    });
+
+    addState = 'three';
+  } else {
+    // Remove the middle ring
+    const newRing = document.getElementById('add-new-ring');
+    if (newRing) {
+      newRing.setAttribute('d', makeDonut(60, 60));
+      setTimeout(() => newRing.remove(), 450);
+    }
+
+    ring1.setAttribute('d', makeDonut(90, 60));
+    ring2.setAttribute('d', makeDonut(60, 30));
+
+    addState = 'two';
+  }
+}
+
+function makeDonut(outer, inner) {
+  return `M100,100 m0,-${outer} a${outer},${outer} 0 1,1 0,${outer * 2} a${outer},${outer} 0 1,1 0,-${outer * 2} Z ` +
+         `M100,100 m0,-${inner} a${inner},${inner} 0 1,0 0,${inner * 2} a${inner},${inner} 0 1,0 0,-${inner * 2} Z`;
+}
+
+// ── Gap flash animation ──────────────────────────────
+const gapFlash = document.getElementById('gap-flash');
+if (gapFlash) {
+  setInterval(() => {
+    gapFlash.style.animation = 'flash-gap 1.5s ease-in-out';
+    gapFlash.addEventListener('animationend', () => {
+      gapFlash.style.animation = '';
+    }, { once: true });
+  }, 3000);
+}
+</script>
+</body>
+</html>
