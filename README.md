@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>The chromatic cartography of the blooming year.</em>
+  <em>A chromatic cartography of the blooming year.</em>
 </p>
 
 <p align="center">
