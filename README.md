@@ -28,11 +28,11 @@
 - 🌍 Available in French and English
 - 👤 Personalized colors derived from your name
 
-## Credits
+<br/>
 
-Cultivated 🪴 with love by Tainah Drummond 👩‍🌾, in collaboration with João Pesce 👨‍💻 and Chandra Drummond 👩‍🎨, rooted in France 🇫🇷 and Brazil 🇧🇷.
+_Cultivated 🪴 with love by Tainah Drummond 👩‍🌾, in collaboration with João Pesce 👨‍💻 and Chandra Drummond 👩‍🎨, rooted in France 🇫🇷 and Brazil 🇧🇷._
 
-<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img height="20" src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-sa.svg" alt="CC BY-NC-SA 4.0"/></a>
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img height="28" src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-sa.svg" alt="CC BY-NC-SA 4.0"/></a>
 
 ---
 
@@ -62,12 +62,12 @@ To update visual regression baselines after intentional UI changes:
 pnpm test:update-snapshots
 ```
 
-<br/>
+---
 
 <p align="center">
   <em>built on great open source</em>
   <br/><br/>
-  TypeScript · React · Vite · D3.js · Tailwind CSS · Radix UI · Framer Motion · Zustand · Storybook
+  TypeScript · React · Vite · D3.js · Tailwind CSS · Radix UI · shadcn · Framer Motion · Zustand · Storybook
   <br/>
   Vitest · Playwright · ESLint · Prettier · Husky · commitlint
 </p>
