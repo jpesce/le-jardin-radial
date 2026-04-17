@@ -28,7 +28,19 @@
 - 🌍 Available in French and English
 - 👤 Personalized colors derived from your name
 
-## Getting started
+## Credits
+
+Cultivated 🪴 with love by Tainah Drummond 👩‍🌾, in collaboration with João Pesce 👨‍💻 and Chandra Drummond 👩‍🎨, rooted in France 🇫🇷 and Brazil 🇧🇷.
+
+## License
+
+[![CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+This work is licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+---
+
+## Development
 
 Prerequisites: [Node.js](https://nodejs.org/) (v22+) and [pnpm](https://pnpm.io/)
 
@@ -36,9 +48,10 @@ Prerequisites: [Node.js](https://nodejs.org/) (v22+) and [pnpm](https://pnpm.io/
 pnpm install
 pnpm dev            # app at localhost:5173
 pnpm storybook      # components at localhost:6006
+pnpm screenshot     # regenerate README screenshot
 ```
 
-## Tech stack
+### Tech stack
 
 - **TypeScript** + **React** + **Vite**
 - **D3.js** — data visualization
@@ -54,7 +67,7 @@ pnpm storybook      # components at localhost:6006
 - **commitlint** — commit conventions
 - **Husky** — git hooks
 
-## Testing & quality
+### Testing & quality
 
 ```bash
 pnpm test          # unit tests
@@ -66,21 +79,5 @@ pnpm typecheck     # type checking
 To update visual regression baselines after intentional UI changes:
 
 ```bash
-pnpm exec playwright test e2e/visual.spec.js --update-snapshots
+pnpm test:update-snapshots
 ```
-
-To regenerate the README screenshot:
-
-```bash
-pnpm screenshot
-```
-
-## Credits
-
-Cultivated 🪴 with love by Tainah Drummond 👩‍🌾, in collaboration with João Pesce 👨‍💻 and Chandra Drummond 👩‍🎨, rooted in France 🇫🇷 and Brazil 🇧🇷.
-
-## License
-
-[![CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-This work is licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/).

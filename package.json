@@ -16,6 +16,7 @@
     "prepare": "husky",
     "storybook": "storybook dev -p 6006 --no-open",
     "build-storybook": "storybook build -o dist/components",
+    "test:update-snapshots": "playwright test e2e/visual.spec.js --update-snapshots",
     "screenshot": "tsx scripts/screenshot.ts"
   },
   "lint-staged": {
