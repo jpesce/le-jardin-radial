@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: './e2e',
   outputDir: './e2e/results',
   timeout: 30000,
-  snapshotPathTemplate: '{testDir}/snapshots/{arg}{ext}',
+  snapshotPathTemplate: '{testDir}/snapshots-{platform}/{arg}{ext}',
   expect: {
     toHaveScreenshot: { maxDiffPixels: 100, threshold: 0.2 },
   },

@@ -16,6 +16,8 @@
 
 <p align="center">
   <a href="https://jardin.pesce.cc"><strong>Live app</strong></a> · <a href="https://jardin.pesce.cc/components"><strong>Component library</strong></a>
+  <br/><br/>
+  <a href="https://github.com/jpesce/le-jardin-radial/actions/workflows/ci.yml"><img src="https://github.com/jpesce/le-jardin-radial/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
 </p>
 
 ## Features

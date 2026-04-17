@@ -149,7 +149,7 @@ Component library documentation at `pnpm storybook`. Atomic Design hierarchy: At
 - **Unit tests** (vitest): reducer actions, state validation, reconciliation, share URL round-trip, colors, i18n utils, month parsing. Files colocated in `src/`.
 - **E2E tests** (playwright, `e2e/`): functional tests for all user flows (panel, share, reset, language, shared garden, manage, editor, drag reorder, keyboard reorder, error boundary, not-found, invalid-share, URL normalization) + visual regression screenshots (desktop + mobile) with seeded deterministic state. Semantic ARIA selectors preferred over CSS classes.
 - **Accessibility tests** (axe-core, `e2e/a11y.spec.js`): automated a11y audit on all key pages, ignoring color-contrast.
-- **Visual baselines**: `e2e/snapshots/`. Update with `pnpm exec playwright test e2e/visual.spec.js --update-snapshots`.
+- **Visual baselines**: `e2e/snapshots-{platform}/` (e.g., `snapshots-darwin/` for macOS). Update with `pnpm test:update-snapshots`. Skipped on CI due to cross-platform font rendering differences.
 
 ## Deployment
 
