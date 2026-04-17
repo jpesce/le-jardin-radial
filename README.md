@@ -53,19 +53,11 @@ pnpm screenshot     # regenerate README screenshot
 
 ### Tech stack
 
-- **TypeScript** + **React** + **Vite**
-- **D3.js** — data visualization
-- **Tailwind CSS v4** — styling
-- **Radix UI** — accessible primitives
-- **Framer Motion** — animations
-- **Lucide** — icons
-- **Zustand** — state management
-- **lz-string** — URL compression
-- **Storybook** — component library
-- **Vitest** + **Playwright** — testing
-- **ESLint** + **Prettier** — linting and formatting
-- **commitlint** — commit conventions
-- **Husky** — git hooks
+<p align="center">
+  TypeScript · React · Vite · D3.js · Tailwind CSS · Radix UI · Framer Motion · Zustand · Storybook
+  <br/>
+  <sub>Vitest · Playwright · ESLint · Prettier · Husky · commitlint</sub>
+</p>
 
 ### Testing & quality
 
