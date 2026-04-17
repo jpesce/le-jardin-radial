@@ -8,14 +8,27 @@ import playwright from 'eslint-plugin-playwright';
 import globals from 'globals';
 import prettier from 'eslint-config-prettier';
 
+// Shared rules for all JS/TS files
+const sharedRules = {
+  eqeqeq: 'error',
+  'no-var': 'error',
+  'no-duplicate-imports': 'error',
+  curly: ['error', 'multi-line'],
+  'prefer-const': 'warn',
+  'no-console': 'warn',
+};
+
 export default [
   js.configs.recommended,
+  { ignores: ['dist/', '!.storybook'] },
+
+  // ── App (browser) ──────────────────────────────────────────────────
   ...tseslint.configs.strictTypeChecked.map((config) => ({
     ...config,
     files: ['src/**/*.{ts,tsx}', '.storybook/**/*.{ts,tsx}', 'scripts/**/*.ts'],
   })),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', '.storybook/**/*.{ts,tsx}'],
     languageOptions: {
       globals: { ...globals.browser },
       ecmaVersion: 'latest',
@@ -35,6 +48,8 @@ export default [
       react: { version: 'detect' },
     },
     rules: {
+      ...sharedRules,
+
       // React
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
@@ -47,15 +62,7 @@ export default [
         { allowConstantExport: true },
       ],
 
-      // Bug prevention
-      eqeqeq: 'error',
-      'no-var': 'error',
-      'no-duplicate-imports': 'error',
-      curly: ['error', 'multi-line'],
-
-      // Code quality
-      'prefer-const': 'warn',
-      'no-console': 'warn',
+      // TypeScript
       '@typescript-eslint/consistent-type-imports': 'warn',
       '@typescript-eslint/restrict-template-expressions': [
         'error',
@@ -70,12 +77,12 @@ export default [
           ignoreRestSiblings: true,
         },
       ],
-
-      // Disable base rules replaced by TypeScript versions
       'no-shadow': 'off',
       'no-unused-vars': 'off',
     },
   },
+
+  // ── D3 (RadialChart) ──────────────────────────────────────────────
   // D3's transition types don't compose across selections — `as any` casts are
   // the standard approach in D3 + TypeScript projects (no typed alternative exists)
   {
@@ -88,17 +95,47 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
+      'react-hooks/unsupported-syntax': 'off',
     },
   },
+
+  // ── Scripts (Node.js) ─────────────────────────────────────────────
+  {
+    files: ['scripts/**/*.ts'],
+    languageOptions: {
+      globals: { ...globals.node },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      ...sharedRules,
+      'no-console': 'off',
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        { allowNumber: true },
+      ],
+    },
+  },
+
+  // ── E2E tests (Node.js + Playwright) ──────────────────────────────
+  // Both node (process, __dirname) and browser (document in page.evaluate) globals
   {
     ...playwright.configs['flat/recommended'],
     files: ['e2e/**/*.{js,ts}'],
     languageOptions: {
-      globals: { ...globals.browser },
+      globals: { ...globals.node, ...globals.browser },
+    },
+    rules: {
+      ...sharedRules,
+      ...playwright.configs['flat/recommended'].rules,
     },
   },
+
+  // ── Storybook ─────────────────────────────────────────────────────
   ...storybook.configs['flat/recommended'],
-  { ignores: ['dist/', '!.storybook'] },
-  // must be last to override formatting rules
+
+  // Must be last to override formatting rules
   prettier,
 ];

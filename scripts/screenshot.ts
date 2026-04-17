@@ -1,4 +1,3 @@
-/* eslint-disable no-console -- script output */
 /**
  * Captures a framed screenshot of the app for README.
  *

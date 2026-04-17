@@ -2,8 +2,7 @@ import { test, expect } from '@playwright/test';
 import { SEED_JSON } from './fixtures/seed-state.js';
 
 // Skip visual regression on CI — font rendering differs between macOS and Linux
-// eslint-disable-next-line no-undef
-test.skip(!!process.env.CI, 'Visual regression tests are local-only');
+test.skip(!!process.env.CI, 'Visual regression tests are local-only'); // eslint-disable-line playwright/no-skipped-test
 
 // Seed localStorage with deterministic state before each test
 test.beforeEach(async ({ page }) => {
