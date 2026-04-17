@@ -50,6 +50,8 @@ This work is licensed under [Creative Commons Attribution-NonCommercial-ShareAli
   <sub>Vitest · Playwright · ESLint · Prettier · Husky · commitlint</sub>
 </p>
 
+### Getting started
+
 Prerequisites: [Node.js](https://nodejs.org/) (v22+) and [pnpm](https://pnpm.io/)
 
 ```bash
