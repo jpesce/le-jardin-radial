@@ -69,5 +69,5 @@ pnpm test:update-snapshots
   <br/><br/>
   TypeScript · React · Vite · D3.js · Tailwind CSS · Radix UI · Framer Motion · Zustand · Storybook
   <br/>
-  <sub>Vitest · Playwright · ESLint · Prettier · Husky · commitlint</sub>
+  Vitest · Playwright · ESLint · Prettier · Husky · commitlint
 </p>
