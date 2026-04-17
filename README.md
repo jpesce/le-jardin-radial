@@ -32,30 +32,16 @@
 
 Cultivated 🪴 with love by Tainah Drummond 👩‍🌾, in collaboration with João Pesce 👨‍💻 and Chandra Drummond 👩‍🎨, rooted in France 🇫🇷 and Brazil 🇧🇷.
 
-## License
-
-[![CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-This work is licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+[![CC BY-NC-SA 4.0](https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-sa.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 ---
 
 ## Development
 
-<h3 align="center">Tech stack</h3>
-
-<p align="center">
-  TypeScript · React · Vite · D3.js · Tailwind CSS · Radix UI · Framer Motion · Zustand · Storybook
-  <br/>
-  <sub>Vitest · Playwright · ESLint · Prettier · Husky · commitlint</sub>
-</p>
-
 ### Getting started
 
-Prerequisites: [Node.js](https://nodejs.org/) (v22+) and [pnpm](https://pnpm.io/)
-
 ```bash
-pnpm install
+pnpm install        # requires node 22+ and pnpm
 pnpm dev            # app at localhost:5173
 pnpm storybook      # components at localhost:6006
 pnpm screenshot     # regenerate README screenshot
@@ -75,3 +61,13 @@ To update visual regression baselines after intentional UI changes:
 ```bash
 pnpm test:update-snapshots
 ```
+
+<br/>
+
+<p align="center">
+  <em>built on great open source</em>
+  <br/><br/>
+  TypeScript · React · Vite · D3.js · Tailwind CSS · Radix UI · Framer Motion · Zustand · Storybook
+  <br/>
+  <sub>Vitest · Playwright · ESLint · Prettier · Husky · commitlint</sub>
+</p>
